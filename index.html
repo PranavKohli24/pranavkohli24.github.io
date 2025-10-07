@@ -274,6 +274,20 @@
             .subtitle, .bio {
                 font-size: 1.4rem;
             }
+            .bio-link {
+                color: #111; /* dark gray, subtle */
+                text-decoration: none;
+                font-style: italic;
+                transition: color 0.2s, transform 0.2s;
+            }
+            
+            .bio-link:hover {
+                color: var(--highlight-color);
+                transform: translateX(0) scale(1.1);
+                cursor: pointer;
+            }
+
+            
         }
     </style>
 </head>
@@ -299,7 +313,7 @@
             <p class="bio">
                  I’m a recent B.Tech graduate from the University School of Automation and Robotics, GGSIPU, in Computer Science and AI/ML. I’ve been coding since 11th grade, and I love digging deep to really understand how things work.
 
-            Some of my achievements: I won the Morgan Stanley CodeToGive hackathon, was a finalist in HackFinance at IIITD, scored 72 points in Google Code Jam Qualification Round, got Expert rating (1600+) on Codeforces, and solved 600+ problems on GeeksforGeeks.
+            Some of my achievements: I won the Morgan Stanley CodeToGive hackathon, was a finalist in HackFinance at IIITD, scored 72 points in Google Code Jam Qualification Round, got Expert rating (1600+) on <a href="https://codeforces.com/profile/pranavkohli_" class="bio-link"> Codeforces </a>, and solved 600+ problems on <a href="https://www.geeksforgeeks.org/user/pranavkohli/" class="bio-link">GeeksforGeeks.</a>
 
 I enjoy solving tough problems - there’s a real euphoria when I finally crack them. I’m always learning and looking to build cool, useful things. 
                 Let’s build something together 👋
