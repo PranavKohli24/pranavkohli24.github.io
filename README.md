@@ -1,1 +1,1 @@
-# pranavkohli24.github.io
+This repo is a snapshot of who I am.
