@@ -192,22 +192,24 @@
             gap: 1.5rem;
         }
 
-        .blog-post {
+        .blog-post-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .blog-post-item {
             border-left: 3px solid transparent;
-            padding-left: 1.5rem;
+            padding: 1.5rem;
             cursor: pointer;
             transition: all var(--transition-speed) ease;
+            background-color: rgba(93, 0, 247, 0.02);
+            border-radius: 8px;
         }
 
-        .blog-post:hover {
+        .blog-post-item:hover {
             border-left-color: var(--highlight-color);
-        }
-
-        .blog-post-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
+            background-color: rgba(93, 0, 247, 0.05);
+            transform: translateX(8px);
         }
 
         .blog-post-title {
@@ -215,41 +217,63 @@
             font-weight: 600;
             color: var(--text-color);
             transition: color var(--transition-speed) ease;
+            margin-bottom: 0.5rem;
         }
 
-        .blog-post:hover .blog-post-title {
+        .blog-post-item:hover .blog-post-title {
             color: var(--highlight-color);
-        }
-
-        .blog-post-icon {
-            font-size: 1.2rem;
-            color: var(--secondary-text-color);
-            transition: transform var(--transition-speed) ease;
-        }
-
-        .blog-post.active .blog-post-icon {
-            transform: rotate(180deg);
-        }
-
-        .blog-post-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease, margin-top 0.4s ease;
-            font-size: 1.15rem;
-            line-height: 1.7;
-            color: var(--secondary-text-color);
-        }
-
-        .blog-post.active .blog-post-content {
-            max-height: 2000px;
-            margin-top: 1rem;
         }
 
         .blog-post-date {
             font-size: 0.95rem;
             color: var(--secondary-text-color);
-            margin-top: 0.5rem;
             font-style: italic;
+        }
+
+        /* --- Individual Blog Post Page --- */
+        .blog-post-page {
+            max-width: 68ch;
+        }
+
+        .blog-post-page .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary-text-color);
+            text-decoration: none;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .blog-post-page .back-link:hover {
+            color: var(--highlight-color);
+            transform: translateX(-5px);
+        }
+
+        .blog-post-page h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            letter-spacing: -0.03em;
+        }
+
+        .blog-post-page .post-meta {
+            font-size: 1rem;
+            color: var(--secondary-text-color);
+            margin-bottom: 3rem;
+            font-style: italic;
+        }
+
+        .blog-post-page .post-content {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: var(--text-color);
+        }
+
+        .blog-post-page .post-content p {
+            margin-bottom: 1.5rem;
         }
 
         /* --- Section Navigation --- */
@@ -422,6 +446,14 @@
             .blog-post-title {
                 font-size: 1.2rem;
             }
+
+            .blog-post-page h1 {
+                font-size: 2.2rem;
+            }
+
+            .blog-post-page .post-content {
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
@@ -490,49 +522,86 @@
                 
                 <div class="blog-section">
                     <div class="blog-posts">
-                        <div class="blog-post">
-                            <div class="blog-post-header">
+                        <a href="#codeforces-expert" class="blog-post-link">
+                            <div class="blog-post-item">
                                 <h3 class="blog-post-title">My Journey to Codeforces Expert</h3>
-                                <span class="blog-post-icon">▼</span>
-                            </div>
-                            <div class="blog-post-content">
-                                <p>Reaching Expert level on Codeforces was one of my most challenging goals. It took months of consistent practice, learning from failures, and understanding complex algorithms. The key was not just solving problems, but deeply understanding why certain approaches work and others don't. I spent countless hours on dynamic programming, graph theory, and data structures. The euphoria of finally crossing that 1600 rating mark was incredible.</p>
                                 <p class="blog-post-date">November 2024</p>
                             </div>
-                        </div>
+                        </a>
 
-                        <div class="blog-post">
-                            <div class="blog-post-header">
+                        <a href="#morgan-stanley-codetogive" class="blog-post-link">
+                            <div class="blog-post-item">
                                 <h3 class="blog-post-title">Winning Morgan Stanley CodeToGive</h3>
-                                <span class="blog-post-icon">▼</span>
-                            </div>
-                            <div class="blog-post-content">
-                                <p>CodeToGive was an amazing experience that combined technical skills with social impact. Our team built a solution for an NGO that needed to streamline their donation management system. We used React for the frontend, Node.js for the backend, and MongoDB for the database. The most rewarding part wasn't just winning, but knowing that our code would actually help people in need. It reinforced my belief that technology can be a powerful force for good.</p>
                                 <p class="blog-post-date">September 2024</p>
                             </div>
-                        </div>
+                        </a>
 
-                        <div class="blog-post">
-                            <div class="blog-post-header">
+                        <a href="#problem-solving" class="blog-post-link">
+                            <div class="blog-post-item">
                                 <h3 class="blog-post-title">Why I Love Problem Solving</h3>
-                                <span class="blog-post-icon">▼</span>
-                            </div>
-                            <div class="blog-post-content">
-                                <p>There's something magical about staring at a difficult problem for hours, trying different approaches, hitting dead ends, and then suddenly having that breakthrough moment where everything clicks. That euphoria is addictive. Whether it's a tricky algorithm on Codeforces or debugging a complex system, the process of breaking down problems and finding elegant solutions is what drives me. It's not just about the destination, but the journey of thinking deeply and creatively.</p>
                                 <p class="blog-post-date">October 2024</p>
                             </div>
-                        </div>
+                        </a>
 
-                        <div class="blog-post">
-                            <div class="blog-post-header">
+                        <a href="#first-aiml-project" class="blog-post-link">
+                            <div class="blog-post-item">
                                 <h3 class="blog-post-title">Building My First AI/ML Project</h3>
-                                <span class="blog-post-icon">▼</span>
-                            </div>
-                            <div class="blog-post-content">
-                                <p>My first serious dive into AI/ML was both exciting and humbling. I built a sentiment analysis model using Python, TensorFlow, and natural language processing techniques. The hardest part wasn't the coding, but understanding the math behind neural networks and backpropagation. I learned that AI isn't magic—it's mathematics, statistics, and lots of data. This project opened my eyes to the possibilities of machine learning and sparked my passion for building intelligent systems.</p>
                                 <p class="blog-post-date">August 2024</p>
                             </div>
-                        </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Individual Blog Posts -->
+            <section id="codeforces-expert" class="section">
+                <div class="blog-post-page">
+                    <a href="#blog" class="back-link">← Back to Blog</a>
+                    <h1>My Journey to Codeforces Expert</h1>
+                    <p class="post-meta">November 2024</p>
+                    <div class="post-content">
+                        <p>Reaching Expert level on Codeforces was one of my most challenging goals. It took months of consistent practice, learning from failures, and understanding complex algorithms. The key was not just solving problems, but deeply understanding why certain approaches work and others don't.</p>
+                        <p>I spent countless hours on dynamic programming, graph theory, and data structures. Every contest was a learning experience, whether I performed well or struggled. The journey taught me patience, persistence, and the importance of learning from mistakes.</p>
+                        <p>The euphoria of finally crossing that 1600 rating mark was incredible. It wasn't just about the number—it was about proving to myself that with dedication and smart work, I could achieve what seemed impossible at the beginning.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="morgan-stanley-codetogive" class="section">
+                <div class="blog-post-page">
+                    <a href="#blog" class="back-link">← Back to Blog</a>
+                    <h1>Winning Morgan Stanley CodeToGive</h1>
+                    <p class="post-meta">September 2024</p>
+                    <div class="post-content">
+                        <p>CodeToGive was an amazing experience that combined technical skills with social impact. Our team built a solution for an NGO that needed to streamline their donation management system. We used React for the frontend, Node.js for the backend, and MongoDB for the database.</p>
+                        <p>The challenge wasn't just technical—we had to deeply understand the NGO's workflow, their pain points, and design a solution that was both powerful and easy to use for non-technical staff. This required extensive user interviews and iterative design.</p>
+                        <p>The most rewarding part wasn't just winning, but knowing that our code would actually help people in need. It reinforced my belief that technology can be a powerful force for good when applied thoughtfully to real-world problems.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="problem-solving" class="section">
+                <div class="blog-post-page">
+                    <a href="#blog" class="back-link">← Back to Blog</a>
+                    <h1>Why I Love Problem Solving</h1>
+                    <p class="post-meta">October 2024</p>
+                    <div class="post-content">
+                        <p>There's something magical about staring at a difficult problem for hours, trying different approaches, hitting dead ends, and then suddenly having that breakthrough moment where everything clicks. That euphoria is addictive.</p>
+                        <p>Whether it's a tricky algorithm on Codeforces or debugging a complex system, the process of breaking down problems and finding elegant solutions is what drives me. I love the moment when a seemingly impossible problem becomes clear through careful analysis and creative thinking.</p>
+                        <p>It's not just about the destination, but the journey of thinking deeply and creatively. Every problem teaches something new—a new algorithm, a new way of thinking, or a new perspective on approaching challenges. This continuous learning is what keeps me passionate about coding.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="first-aiml-project" class="section">
+                <div class="blog-post-page">
+                    <a href="#blog" class="back-link">← Back to Blog</a>
+                    <h1>Building My First AI/ML Project</h1>
+                    <p class="post-meta">August 2024</p>
+                    <div class="post-content">
+                        <p>My first serious dive into AI/ML was both exciting and humbling. I built a sentiment analysis model using Python, TensorFlow, and natural language processing techniques. The hardest part wasn't the coding, but understanding the math behind neural networks and backpropagation.</p>
+                        <p>I spent weeks reading papers, watching lectures, and implementing algorithms from scratch to truly understand what was happening under the hood. It was frustrating at times, but incredibly rewarding when concepts finally clicked.</p>
+                        <p>I learned that AI isn't magic—it's mathematics, statistics, and lots of data. This project opened my eyes to the possibilities of machine learning and sparked my passion for building intelligent systems that can learn and adapt.</p>
                     </div>
                 </div>
             </section>
@@ -553,6 +622,7 @@
             const targetSection = document.getElementById(sectionId);
             if (targetSection) {
                 targetSection.classList.add('active');
+                window.scrollTo(0, 0); // Scroll to top when changing sections
             }
             
             // Close mobile menu if open
@@ -567,15 +637,6 @@
         
         // Show correct section on page load
         window.addEventListener('load', showSection);
-
-        // Blog Post Toggle
-        const blogPosts = document.querySelectorAll('.blog-post');
-        
-        blogPosts.forEach(post => {
-            post.addEventListener('click', () => {
-                post.classList.toggle('active');
-            });
-        });
 
         // Hamburger Menu
         const hamburgerButton = document.querySelector('.hamburger-button');
