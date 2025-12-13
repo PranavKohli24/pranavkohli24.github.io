@@ -127,20 +127,6 @@
             transform: scale(1.05);
         }
         
-        @media (max-width: 768px) {
-            .header-container {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1.5rem;
-                margin-top: -1rem;
-            }
-        
-            .profile-pic {
-                width: 100px;
-                height: 100px;
-            }
-        }
-        
         .bio {
             font-size: 1.3rem;
             line-height: 1.75;
@@ -384,15 +370,17 @@
         @media (max-width: 768px) {
             body {
                 align-items: flex-start;
+                padding-top: 1rem;
             }
 
             .container {
                 flex-direction: column;
-                padding: 3rem 1.5rem;
+                padding: 2rem 1.2rem;
             }
             
             .hamburger-button {
                 display: block;
+                top: 2rem;
             }
             
             nav {
@@ -432,27 +420,112 @@
             main {
                 padding-left: 0;
             }
+            
             .header {
-                font-size: 3.3rem;
+                font-size: 2.2rem;
             }
-            .subtitle, .bio {
-                font-size: 1.4rem;
+            
+            .subtitle {
+                font-size: 1rem;
+                margin: 0.5rem 0 1.5rem 0;
+            }
+            
+            .bio {
+                font-size: 1rem;
+                line-height: 1.6;
+                margin: 0 0 2.5rem 0;
+            }
+            
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.2rem;
+            }
+        
+            .profile-pic {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .socials {
+                gap: 1.8rem;
+            }
+            
+            .socials svg {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .codeforces-icon svg {
+                width: 90px;
+                height: 90px;
+            }
+
+            .blog-section {
+                margin-top: 3rem;
             }
 
             .blog-section h2 {
-                font-size: 2rem;
+                font-size: 1.8rem;
+            }
+            
+            .blog-post-item {
+                padding: 1rem;
             }
 
             .blog-post-title {
-                font-size: 1.2rem;
+                font-size: 1.05rem;
+            }
+            
+            .blog-post-date {
+                font-size: 0.85rem;
             }
 
             .blog-post-page h1 {
-                font-size: 2.2rem;
+                font-size: 1.8rem;
+                line-height: 1.3;
+            }
+            
+            .blog-post-page .back-link {
+                font-size: 0.9rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .blog-post-page .post-meta {
+                font-size: 0.9rem;
+                margin-bottom: 2rem;
             }
 
             .blog-post-page .post-content {
-                font-size: 1.1rem;
+                font-size: 1rem;
+                line-height: 1.7;
+            }
+            
+            .blog-post-page .post-content p {
+                margin-bottom: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem 1rem;
+            }
+            
+            .header {
+                font-size: 1.9rem;
+            }
+            
+            .subtitle {
+                font-size: 0.95rem;
+            }
+            
+            .bio {
+                font-size: 0.95rem;
+            }
+            
+            .profile-pic {
+                width: 70px;
+                height: 70px;
             }
         }
     </style>
@@ -528,27 +601,6 @@
                                 <p class="blog-post-date">November 2025</p>
                             </div>
                         </a>
-
-                        <!--<a href="#morgan-stanley-codetogive" class="blog-post-link">-->
-                        <!--    <div class="blog-post-item">-->
-                        <!--        <h3 class="blog-post-title">Winning Morgan Stanley CodeToGive</h3>-->
-                        <!--        <p class="blog-post-date">September 2024</p>-->
-                        <!--    </div>-->
-                        <!--</a>-->
-
-                        <!--<a href="#problem-solving" class="blog-post-link">-->
-                        <!--    <div class="blog-post-item">-->
-                        <!--        <h3 class="blog-post-title">Why I Love Problem Solving</h3>-->
-                        <!--        <p class="blog-post-date">October 2024</p>-->
-                        <!--    </div>-->
-                        <!--</a>-->
-
-                        <!--<a href="#first-aiml-project" class="blog-post-link">-->
-                        <!--    <div class="blog-post-item">-->
-                        <!--        <h3 class="blog-post-title">Building My First AI/ML Project</h3>-->
-                        <!--        <p class="blog-post-date">August 2024</p>-->
-                        <!--    </div>-->
-                        <!--</a>-->
                     </div>
                 </div>
             </section>
@@ -560,109 +612,69 @@
                     <h1>How ChatGPT helped me answer much of my curiousity</h1>
                     <p class="post-meta">November 2025</p>
                     <div class="post-content">
-                    <p>I’ve always had this habit.</p>
+                    <p>I've always had this habit.</p>
 
 <p>Random things catch my mind at random times.</p>
 
-<p>I’ll be brushing my teeth and suddenly wonder:<br>
-<i>“Wait, how did life even begin on Earth?”</i></p>
+<p>I'll be brushing my teeth and suddenly wonder:<br>
+<i>"Wait, how did life even begin on Earth?"</i></p>
 
-<p>Or I’ll be chilling on my bed and think:<br>
-<i>“How do GitHub handle so many repositories and codes at a scale?”</i></p>
+<p>Or I'll be chilling on my bed and think:<br>
+<i>"How do GitHub handle so many repositories and codes at a scale?"</i></p>
 
-<p>It’s just this tiny spark inside me that goes, <i>huh, that’s interesting.</i> And once that spark shows up, I kind of want to follow it.</p>
+<p>It's just this tiny spark inside me that goes, <i>huh, that's interesting.</i> And once that spark shows up, I kind of want to follow it.</p>
 
-<p>Before ChatGPT, these sparks usually went nowhere. I’d Google something, open a few tabs, get half an answer, get bored by not getting answer, forget the rest. Classic.</p>
+<p>Before ChatGPT, these sparks usually went nowhere. I'd Google something, open a few tabs, get half an answer, get bored by not getting answer, forget the rest. Classic.</p>
 
 <p>Then one night, I dropped one of those thoughts into ChatGPT. Just straight-up typed:<br>
-<i>“So how did life even start? Tell me like I’m curious, not giving an exam.”</i></p>
+<i>"So how did life even start? Tell me like I'm curious, not giving an exam."</i></p>
 
 <p>The reply felt like someone opening a window. Clear. Breezy. Interesting. Not a lecture — more like a story.</p>
 
-<p>And that’s when things shifted.</p>
+<p>And that's when things shifted.</p>
 
-<p>Slowly, ChatGPT became my go-to place for every “wait a sec…” moment.</p>
+<p>Slowly, ChatGPT became my go-to place for every "wait a sec…" moment.</p>
 
 <p><b>Why did humans evolve the way they did?</b><br>
-<!--<b>How did language show up out of nowhere?</b><br>-->
 <b>How did Albert Einstein even get to concept of time dilation?</b>
 <b>How did the idea of computers even come?</b><br>
 <b>What was early Earth even like before?</b></p>
 
-<p>Every time I asked, the answer wasn’t just “here’s the fact.” It was “here’s the journey.”</p>
+<p>Every time I asked, the answer wasn't just "here's the fact." It was "here's the journey."</p>
 
 <p>It took my curiosity seriously without making it heavy.</p>
 
-<p>Sometimes we’d end up in cool side roads — comparing species, diving into ancient environments, explaining about science, space and technology. Other times, it stayed simple. Straightforward. Clean.</p>
+<p>Sometimes we'd end up in cool side roads — comparing species, diving into ancient environments, explaining about science, space and technology. Other times, it stayed simple. Straightforward. Clean.</p>
 
 <p>Whatever I needed in the moment.</p>
 
-<p>And honestly? That’s what made it so addictive.</p>
+<p>And honestly? That's what made it so addictive.</p>
 
 <p>Not drama. Not chaos. Just the pure joy of following a question to see where it leads.</p>
 
-<p>It felt like having a super intelligent friend who was always down to ask about anything — science, evolution, random “what ifs,” big questions, small ones — without ever making it feel like homework.</p>
+<p>It felt like having a super intelligent friend who was always down to ask about anything — science, evolution, random "what ifs," big questions, small ones — without ever making it feel like homework.</p>
 
-<p>My curiosity wasn’t something to “manage.” It was something to play with. And ChatGPT made that play easy.</p>
+<p>My curiosity wasn't something to "manage." It was something to play with. And ChatGPT made that play easy.</p>
 
 <p>The best part? It made learning feel natural again.</p>
 
 <p>Just an easy flow from one thought to the next.</p>
 
-<p>One question led to another, and the next thing I knew, I’d learned something new without even trying. That feeling — finding answers just because you <i>want to</i> — hits different.</p>
+<p>One question led to another, and the next thing I knew, I'd learned something new without even trying. That feeling — finding answers just because you <i>want to</i> — hits different.</p>
 
-<p>It’s like having a personal little rabbit-hole guide who’s always ready when a thought pops up, whether it’s about evolution or consciousness or why the sky looked weird today.</p>
+<p>It's like having a personal little rabbit-hole guide who's always ready when a thought pops up, whether it's about evolution or consciousness or why the sky looked weird today.</p>
 
-<p>So yeah. Curiosity isn’t loud or dramatic for me. It’s quiet. It’s gentle. It shows up when life slows down.</p>
+<p>So yeah. Curiosity isn't loud or dramatic for me. It's quiet. It's gentle. It shows up when life slows down.</p>
 
 <p>And ChatGPT became the tool that let me follow those sparks without friction — turning tiny questions into small adventures, and small adventures into things I still think about days later.</p>
 
 <p>If anything, it made learning feel alive again.</p>
 
-<p>And honestly? That’s all I ever wanted.</p>
+<p>And honestly? That's all I ever wanted.</p>
 
                     </div>
                 </div>
             </section>
-
-            <!--<section id="morgan-stanley-codetogive" class="section">-->
-            <!--    <div class="blog-post-page">-->
-            <!--        <a href="#blog" class="back-link">← Back to all Blogs</a>-->
-            <!--        <h1>Winning Morgan Stanley CodeToGive</h1>-->
-            <!--        <p class="post-meta">September 2024</p>-->
-            <!--        <div class="post-content">-->
-            <!--            <p>CodeToGive was an amazing experience that combined technical skills with social impact. Our team built a solution for an NGO that needed to streamline their donation management system. We used React for the frontend, Node.js for the backend, and MongoDB for the database.</p>-->
-            <!--            <p>The challenge wasn't just technical—we had to deeply understand the NGO's workflow, their pain points, and design a solution that was both powerful and easy to use for non-technical staff. This required extensive user interviews and iterative design.</p>-->
-            <!--            <p>The most rewarding part wasn't just winning, but knowing that our code would actually help people in need. It reinforced my belief that technology can be a powerful force for good when applied thoughtfully to real-world problems.</p>-->
-            <!--        </div>-->
-            <!--    </div>-->
-            <!--</section>-->
-
-            <!--<section id="problem-solving" class="section">-->
-            <!--    <div class="blog-post-page">-->
-            <!--        <a href="#blog" class="back-link">← Back to all Blogs</a>-->
-            <!--        <h1>Why I Love Problem Solving</h1>-->
-            <!--        <p class="post-meta">October 2024</p>-->
-            <!--        <div class="post-content">-->
-            <!--            <p>There's something magical about staring at a difficult problem for hours, trying different approaches, hitting dead ends, and then suddenly having that breakthrough moment where everything clicks. That euphoria is addictive.</p>-->
-            <!--            <p>Whether it's a tricky algorithm on Codeforces or debugging a complex system, the process of breaking down problems and finding elegant solutions is what drives me. I love the moment when a seemingly impossible problem becomes clear through careful analysis and creative thinking.</p>-->
-            <!--            <p>It's not just about the destination, but the journey of thinking deeply and creatively. Every problem teaches something new—a new algorithm, a new way of thinking, or a new perspective on approaching challenges. This continuous learning is what keeps me passionate about coding.</p>-->
-            <!--        </div>-->
-            <!--    </div>-->
-            <!--</section>-->
-
-            <!--<section id="first-aiml-project" class="section">-->
-            <!--    <div class="blog-post-page">-->
-            <!--        <a href="#blog" class="back-link">← Back to all Blogs</a>-->
-            <!--        <h1>Building My First AI/ML Project</h1>-->
-            <!--        <p class="post-meta">August 2024</p>-->
-            <!--        <div class="post-content">-->
-            <!--            <p>My first serious dive into AI/ML was both exciting and humbling. I built a sentiment analysis model using Python, TensorFlow, and natural language processing techniques. The hardest part wasn't the coding, but understanding the math behind neural networks and backpropagation.</p>-->
-            <!--            <p>I spent weeks reading papers, watching lectures, and implementing algorithms from scratch to truly understand what was happening under the hood. It was frustrating at times, but incredibly rewarding when concepts finally clicked.</p>-->
-            <!--            <p>I learned that AI isn't magic—it's mathematics, statistics, and lots of data. This project opened my eyes to the possibilities of machine learning and sparked my passion for building intelligent systems that can learn and adapt.</p>-->
-            <!--        </div>-->
-            <!--    </div>-->
-            <!--</section>-->
         </main>
     </div>
 
@@ -680,23 +692,18 @@
             const targetSection = document.getElementById(sectionId);
             if (targetSection) {
                 targetSection.classList.add('active');
-                window.scrollTo(0, 0); // Scroll to top when changing sections
+                window.scrollTo(0, 0);
             }
             
-            // Close mobile menu if open
             const navMenu = document.querySelector('nav');
             if (navMenu.classList.contains('is-active')) {
                 toggleMenu();
             }
         }
 
-        // Listen for hash changes
         window.addEventListener('hashchange', showSection);
-        
-        // Show correct section on page load
         window.addEventListener('load', showSection);
 
-        // Hamburger Menu
         const hamburgerButton = document.querySelector('.hamburger-button');
         const navMenu = document.querySelector('nav');
         const body = document.body;
@@ -713,7 +720,6 @@
         hamburgerButton.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        // Close menu when any nav link is clicked
         const allNavLinks = document.querySelectorAll('nav a');
         allNavLinks.forEach(link => {
             link.addEventListener('click', () => {
