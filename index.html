@@ -315,7 +315,7 @@
 
         .audio-label {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             white-space: nowrap;
         }
@@ -764,7 +764,7 @@
             <section id="blog1" class="section">
                 <div class="blog-post-page">
                     <a href="#blog" class="back-link">← Back to all Blogs</a>
-                    <h1>How ChatGPT helped me answer much of my curiousity h1>
+                    <h1>How ChatGPT helped me answer much of my curiousity</h1>
                     <p class="post-meta">November 2025</p>
 
                     <!-- Custom Audio Player with Conditional Slider -->
@@ -773,7 +773,7 @@
                             <svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
                             <svg id="pauseIcon" style="display:none;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                         </button>
-                        <span class="initial-listen-text" id="initialTimeLabel">... minute listen</span>
+                        <span class="initial-listen-text" id="initialTimeLabel">listen to this blog (... minute listen)</span>
                         <div class="audio-info">
                             <div class="audio-label">
                                 <span class="audio-duration" id="audioTime">0:00 / 0:00</span>
@@ -942,6 +942,7 @@
 
             // Update slider background color (played vs unplayed)
             const percentage = (blogAudio.currentTime / (blogAudio.duration || 1)) * 100;
+            // Left part (played) is a darker grey (#808080), Right part (unplayed) is light grey (#e5e5e5)
             seekSlider.style.background = `linear-gradient(to right, #808080 0%, #808080 ${percentage}%, #e5e5e5 ${percentage}%, #e5e5e5 100%)`;
         }
 
@@ -949,7 +950,7 @@
         blogAudio.addEventListener('loadedmetadata', () => {
             seekSlider.max = Math.floor(blogAudio.duration);
             const totalMins = Math.floor(blogAudio.duration / 60);
-            initialTimeLabel.textContent = `${totalMins} minute listen`;
+            initialTimeLabel.textContent = `listen to this blog (${totalMins} minute listen)`;
             updateDisplay();
         });
 
