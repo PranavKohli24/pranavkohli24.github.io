@@ -319,10 +319,6 @@
             align-items: center;
             white-space: nowrap;
         }
-        
-        .audio-player.is-active .audio-label {
-            display: none;
-        }
 
         .audio-text {
             font-size: 0.85rem;
@@ -356,7 +352,7 @@
             height: 4px;
             -webkit-appearance: none;
             /* Using dynamic linear-gradient to show played vs unplayed parts */
-            background: linear-gradient(to right, #b3b3b3 0%, #b3b3b3 0%, #e5e5e5 0%, #e5e5e5 100%);
+            background: linear-gradient(to right, #808080 0%, #808080 0%, #e5e5e5 0%, #e5e5e5 100%);
             border-radius: 2px;
             outline: none;
             cursor: pointer;
@@ -784,7 +780,7 @@
                             <svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
                             <svg id="pauseIcon" style="display:none;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                         </button>
-                        <span class="initial-listen-text" id="initialTimeLabel">Listen to this blog</span>
+                        <span class="initial-listen-text" id="initialTimeLabel">Listen to this blog (... min listen)</span>
                         <div class="audio-info">
                             <div class="audio-label">
                                 <span class="audio-text">Listen to this blog</span>
@@ -961,6 +957,9 @@
         // Initialize duration on load
         blogAudio.addEventListener('loadedmetadata', () => {
             seekSlider.max = Math.floor(blogAudio.duration);
+            const totalMins = Math.floor(blogAudio.duration / 60);
+            const totalSecs = Math.floor(blogAudio.duration % 60);
+            initialTimeLabel.textContent = `Listen to this blog (${totalMins}:${totalSecs.toString().padStart(2, '0')} min listen)`;
             updateDisplay();
         });
 
