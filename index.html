@@ -319,6 +319,10 @@
             align-items: center;
             white-space: nowrap;
         }
+        
+        .audio-player.is-active .audio-label {
+            display: none;
+        }
 
         .audio-text {
             font-size: 0.85rem;
@@ -339,6 +343,7 @@
             white-space: nowrap;
             opacity: 1;
             transition: opacity 0.3s ease;
+            padding-right: 0.5rem;
         }
 
         .audio-player.is-active .initial-listen-text {
@@ -350,7 +355,8 @@
             width: 100%;
             height: 4px;
             -webkit-appearance: none;
-            background: #e5e5e5;
+            /* Using dynamic linear-gradient to show played vs unplayed parts */
+            background: linear-gradient(to right, #b3b3b3 0%, #b3b3b3 0%, #e5e5e5 0%, #e5e5e5 100%);
             border-radius: 2px;
             outline: none;
             cursor: pointer;
@@ -778,7 +784,7 @@
                             <svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
                             <svg id="pauseIcon" style="display:none;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                         </button>
-                        <span class="initial-listen-text" id="initialTimeLabel">... min listen</span>
+                        <span class="initial-listen-text" id="initialTimeLabel">Listen to this blog</span>
                         <div class="audio-info">
                             <div class="audio-label">
                                 <span class="audio-text">Listen to this blog</span>
@@ -791,66 +797,57 @@
 
                     <div class="post-content">
                     <img src="src/images/blog1.jpeg" alt="blog1 image">
-                    <p>I've always had this habit.</p>
+                    <p>I’ve always been like this.</p>
 
-<p>Random things catch my mind at random times.</p>
+                    <p>Random thoughts pop up at random times.</p>
 
-<p>I'll be brushing my teeth and suddenly wonder:<br>
-<i>"Wait, how did life even begin on Earth?"</i></p>
+                    <p>I’ll be brushing my teeth and suddenly think, wait… how did life even begin on Earth?<br>
+                    Or I’ll be lying on my bed and wonder how GitHub manages millions of repositories at that scale.</p>
 
-<p>Or I'll be chilling on my bed and think:<br>
-<i>"How do GitHub handle so many repositories and codes at a scale?"</i></p>
+                    <p>It’s just a small spark. Quiet. Curious. And once it shows up, I want to follow it.</p>
 
-<p>It's just this tiny spark inside me that goes, <i>huh, that's interesting.</i> And once that spark shows up, I kind of want to follow it.</p>
+                    <p>Before ChatGPT, most of those sparks died quickly. I’d Google something, open a few tabs, skim half-answers, lose interest, and move on. You know the drill.</p>
 
-<p>Before ChatGPT, these sparks usually went nowhere. I'd Google something, open a few tabs, get half an answer, get bored by not getting answer, forget the rest. Classic.</p>
+                    <p>Then one night, I typed one of those thoughts into ChatGPT. No effort, no framing. Just:<br>
+                    <i>“So how did life even start? Explain it like I’m curious, not preparing for an exam.”</i></p>
 
-<p>Then one night, I dropped one of those thoughts into ChatGPT. Just straight-up typed:<br>
-<i>"So how did life even start? Tell me like I'm curious, not giving an exam."</i></p>
+                    <p>The response felt different.<br>
+                    Not like a lecture. More like someone talking it through with me. Clear. Calm. Almost story-like.</p>
 
-<p>The reply felt like someone opening a window. Clear. Breezy. Interesting. Not a lecture — more like a story.</p>
+                    <p>That’s when things shifted.</p>
 
-<p>And that's when things shifted.</p>
+                    <p>Slowly, ChatGPT became the place I went for every “wait a second…” thought.</p>
 
-<p>Slowly, ChatGPT became my go-to place for every "wait a sec…" moment.</p>
+                    <p><b>Why did humans evolve the way they did?</b><br>
+                    <b>How did Einstein even arrive at time dilation?</b><br>
+                    <b>What was Earth like before anything familiar existed?</b></p>
 
-<p><b>Why did humans evolve the way they did?</b><br>
-<b>How did Albert Einstein even get to concept of time dilation?</b>
-<b>How did the idea of computers even come?</b><br>
-<b>What was early Earth even like before?</b></p>
+                    <p>The answers weren’t just facts. They were journeys. How ideas formed. What came before. Why something mattered.</p>
 
-<p>Every time I asked, the answer wasn't just "here's the fact." It was "here's the journey."</p>
+                    <p>It took my curiosity seriously without making it heavy.</p>
 
-<p>It took my curiosity seriously without making it heavy.</p>
+                    <p>Sometimes we’d go deep into side paths. Evolution, space, ancient environments, technology. Other times, it stayed simple. Exactly what I needed in that moment.</p>
 
-<p>Sometimes we'd end up in cool side roads — comparing species, diving into ancient environments, explaining about science, space and technology. Other times, it stayed simple. Straightforward. Clean.</p>
+                    <p>And that’s what made it addictive in a good way.</p>
 
-<p>Whatever I needed in the moment.</p>
+                    <p>No pressure. No noise. Just the quiet satisfaction of following a question and seeing where it leads.</p>
 
-<p>And honestly? That's what made it so addictive.</p>
+                    <p>It felt like having a really smart friend who’s always up for talking about anything, big or small, without making it feel like homework.</p>
 
-<p>Not drama. Not chaos. Just the pure joy of following a question to see where it leads.</p>
+                    <p>My curiosity wasn’t something to control or optimize. It was something to enjoy.</p>
 
-<p>It felt like having a super intelligent friend who was always down to ask about anything — science, evolution, random "what ifs," big questions, small ones — without ever making it feel like homework.</p>
+                    <p>And the best part? Learning started to feel natural again.</p>
 
-<p>My curiosity wasn't something to "manage." It was something to play with. And ChatGPT made that play easy.</p>
+                    <p>One thought led to another. Suddenly I’d learned something new without planning to. That feeling hits different when you’re learning just because you want to.</p>
 
-<p>The best part? It made learning feel natural again.</p>
+                    <p>It’s like having a personal rabbit-hole guide on standby. Whether the question is about consciousness, evolution, or why the sky looked weird that evening.</p>
 
-<p>Just an easy flow from one thought to the next.</p>
+                    <p>My curiosity isn’t loud. It’s not dramatic.<br>
+                    It shows up quietly when things slow down.</p>
 
-<p>One question led to another, and the next thing I knew, I'd learned something new without even trying. That feeling — finding answers just because you <i>want to</i> — hits different.</p>
+                    <p>ChatGPT just gave me a way to follow those moments without friction. Turning small questions into small adventures. And some of those adventures stay with me long after.</p>
 
-<p>It's like having a personal little rabbit-hole guide who's always ready when a thought pops up, whether it's about evolution or consciousness or why the sky looked weird today.</p>
-
-<p>So yeah. Curiosity isn't loud or dramatic for me. It's quiet. It's gentle. It shows up when life slows down.</p>
-
-<p>And ChatGPT became the tool that let me follow those sparks without friction — turning tiny questions into small adventures, and small adventures into things I still think about days later.</p>
-
-<p>If anything, it made learning feel alive again.</p>
-
-<p>And honestly? That's all I ever wanted.</p>
-
+                    <p>Honestly, that’s all I ever wanted.</p>
                     </div>
                 </div>
             </section>
@@ -954,14 +951,16 @@
             if (!isDragging) {
                 seekSlider.value = blogAudio.currentTime;
             }
+
+            // Update slider background color (played vs unplayed)
+            const percentage = (blogAudio.currentTime / (blogAudio.duration || 1)) * 100;
+            // Left part (played) is a darker grey (#808080), Right part (unplayed) is light grey (#e5e5e5)
+            seekSlider.style.background = `linear-gradient(to right, #808080 0%, #808080 ${percentage}%, #e5e5e5 ${percentage}%, #e5e5e5 100%)`;
         }
 
         // Initialize duration on load
         blogAudio.addEventListener('loadedmetadata', () => {
             seekSlider.max = Math.floor(blogAudio.duration);
-            const totalMins = Math.floor(blogAudio.duration / 60);
-            const totalSecs = Math.floor(blogAudio.duration % 60);
-            initialTimeLabel.textContent = `${totalMins}:${totalSecs.toString().padStart(2, '0')} min listen`;
             updateDisplay();
         });
 
@@ -983,6 +982,10 @@
             const current = formatTime(seekSlider.value);
             const total = formatTime(blogAudio.duration || 0);
             audioTime.textContent = `${current} / ${total}`;
+            
+            // Allow background to update while dragging
+            const percentage = (seekSlider.value / (blogAudio.duration || 1)) * 100;
+            seekSlider.style.background = `linear-gradient(to right, #808080 0%, #808080 ${percentage}%, #e5e5e5 ${percentage}%, #e5e5e5 100%)`;
         });
 
         seekSlider.addEventListener('change', () => {
@@ -995,6 +998,7 @@
             updatePlayIcons(false);
             blogAudio.currentTime = 0;
             seekSlider.value = 0;
+            updateDisplay();
         });
     </script>
 </body>
