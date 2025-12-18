@@ -248,8 +248,64 @@
         .blog-post-page .post-meta {
             font-size: 1rem;
             color: var(--secondary-text-color);
-            margin-bottom: 3rem;
+            margin-bottom: 1rem;
             font-style: italic;
+        }
+
+        /* --- Audio Player Styles --- */
+        .audio-player {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: #fff;
+            padding: 0.75rem 1.25rem;
+            border-radius: 100px;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            max-width: fit-content;
+        }
+
+        .play-pause-btn {
+            background: var(--highlight-color);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .play-pause-btn:hover {
+            transform: scale(1.1);
+            background: #4b00c7;
+        }
+
+        .play-pause-btn svg {
+            fill: white;
+            width: 14px;
+            height: 14px;
+        }
+
+        .audio-label {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .audio-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .audio-duration {
+            font-size: 0.75rem;
+            color: var(--secondary-text-color);
+            font-variant-numeric: tabular-nums;
         }
 
         .blog-post-page .post-content {
@@ -262,12 +318,12 @@
             margin-bottom: 1.5rem;
         }
 
-        /* --- Blog Image Styles - Updated for Responsiveness and Layout --- */
+        /* --- Blog Image Styles --- */
         .blog-post-page .post-content img {
             width: 100%;
             height: auto;
             border-radius: 12px;
-            margin: 0 0 2rem 0;
+            margin: 0 auto 2rem auto;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
             display: block;
@@ -276,10 +332,9 @@
         @media (min-width: 769px) {
             .blog-post-page .post-content img {
                 float: left;
-                width: 300px; /* Specific width for desktop to allow wrapping */
+                width: 300px;
                 margin: 0.5rem 2.5rem 1.5rem 0;
             }
-            /* Clearfix for the container */
             .blog-post-page .post-content::after {
                 content: "";
                 display: table;
@@ -533,6 +588,19 @@
             .blog-post-page .post-content p {
                 margin-bottom: 1.2rem;
             }
+
+            .blog-post-page .post-content img {
+                width: 100%;
+                max-width: 100%;
+                margin: 0 auto 1.5rem auto;
+                border-radius: 8px;
+                float: none;
+                display: block;
+            }
+
+            .audio-player {
+                margin-bottom: 2rem;
+            }
         }
         
         @media (max-width: 480px) {
@@ -638,8 +706,22 @@
             <section id="blog1" class="section">
                 <div class="blog-post-page">
                     <a href="#blog" class="back-link">← Back to all Blogs</a>
-                    <h1>How ChatGPT helped me answer much of my curiousity</h1>
+                    <h1>How ChatGPT helped me answer much of my curiousity <span class="highlight">.</span></h1>
                     <p class="post-meta">November 2025</p>
+
+                    <!-- Custom Audio Player -->
+                    <div class="audio-player">
+                        <button class="play-pause-btn" id="playBtn" aria-label="Play Audio">
+                            <svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+                            <svg id="pauseIcon" style="display:none;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                        </button>
+                        <div class="audio-label">
+                            <span class="audio-text">Listen to this blog</span>
+                            <span class="audio-duration" id="audioTime">0:00 / 0:00</span>
+                        </div>
+                        <audio id="blogAudio" src="src/audio/blog1_audio.mp3" preload="metadata"></audio>
+                    </div>
+
                     <div class="post-content">
                     <img src="src/images/blog1.jpeg" alt="Curiosity Spark Image">
                     <p>I've always had this habit.</p>
@@ -729,6 +811,15 @@
             if (navMenu.classList.contains('is-active')) {
                 toggleMenu();
             }
+
+            // Stop audio if navigating away from blog
+            if (sectionId !== 'blog1') {
+                const audio = document.getElementById('blogAudio');
+                if (audio) {
+                    audio.pause();
+                    updatePlayIcons(false);
+                }
+            }
         }
 
         window.addEventListener('hashchange', showSection);
@@ -757,6 +848,52 @@
                     toggleMenu();
                 }
             });
+        });
+
+        // Audio Player Logic
+        const blogAudio = document.getElementById('blogAudio');
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const audioTime = document.getElementById('audioTime');
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updatePlayIcons(isPlaying) {
+            if (isPlaying) {
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+            } else {
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+            }
+        }
+
+        function updateTimeDisplay() {
+            const current = formatTime(blogAudio.currentTime);
+            const total = formatTime(blogAudio.duration || 0);
+            audioTime.textContent = `${current} / ${total}`;
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (blogAudio.paused) {
+                blogAudio.play();
+                updatePlayIcons(true);
+            } else {
+                blogAudio.pause();
+                updatePlayIcons(false);
+            }
+        });
+
+        blogAudio.addEventListener('timeupdate', updateTimeDisplay);
+        blogAudio.addEventListener('loadedmetadata', updateTimeDisplay);
+        blogAudio.addEventListener('ended', () => {
+            updatePlayIcons(false);
+            blogAudio.currentTime = 0;
         });
     </script>
 </body>
