@@ -256,21 +256,23 @@
         .audio-player {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.25rem;
             background: #fff;
-            padding: 0.75rem 1.25rem;
+            padding: 0.75rem 1.5rem;
             border-radius: 100px;
             margin-bottom: 2.5rem;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             border: 1px solid rgba(0,0,0,0.05);
-            max-width: fit-content;
+            max-width: 450px;
+            width: 100%;
         }
 
         .play-pause-btn {
             background: var(--highlight-color);
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -280,24 +282,32 @@
         }
 
         .play-pause-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.08);
             background: #4b00c7;
         }
 
         .play-pause-btn svg {
             fill: white;
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .audio-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-grow: 1;
         }
 
         .audio-label {
             display: flex;
-            flex-direction: column;
-            gap: 2px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
         }
 
         .audio-text {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--text-color);
         }
@@ -306,6 +316,31 @@
             font-size: 0.75rem;
             color: var(--secondary-text-color);
             font-variant-numeric: tabular-nums;
+        }
+
+        /* --- Custom Range Slider --- */
+        .seek-slider {
+            width: 100%;
+            height: 4px;
+            -webkit-appearance: none;
+            background: #e5e5e5;
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .seek-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--highlight-color);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .seek-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
         }
 
         .blog-post-page .post-content {
@@ -600,6 +635,7 @@
 
             .audio-player {
                 margin-bottom: 2rem;
+                max-width: 100%;
             }
         }
         
@@ -709,21 +745,24 @@
                     <h1>How ChatGPT helped me answer much of my curiousity <span class="highlight">.</span></h1>
                     <p class="post-meta">November 2025</p>
 
-                    <!-- Custom Audio Player -->
+                    <!-- Custom Audio Player with Slider -->
                     <div class="audio-player">
                         <button class="play-pause-btn" id="playBtn" aria-label="Play Audio">
                             <svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
                             <svg id="pauseIcon" style="display:none;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                         </button>
-                        <div class="audio-label">
-                            <span class="audio-text">Listen to this blog</span>
-                            <span class="audio-duration" id="audioTime">0:00 / 0:00</span>
+                        <div class="audio-info">
+                            <div class="audio-label">
+                                <span class="audio-text">Listen to this blog</span>
+                                <span class="audio-duration" id="audioTime">0:00 / 0:00</span>
+                            </div>
+                            <input type="range" id="seekSlider" class="seek-slider" value="0" step="1">
                         </div>
                         <audio id="blogAudio" src="src/audio/blog1_audio.mp3" preload="metadata"></audio>
                     </div>
 
                     <div class="post-content">
-                    <img src="src/images/blog1.jpeg" alt="Curiosity Spark Image">
+                    <img src="src/images/blog1.jepg" alt="Curiosity Spark Image">
                     <p>I've always had this habit.</p>
 
 <p>Random things catch my mind at random times.</p>
@@ -856,8 +895,12 @@
         const playIcon = document.getElementById('playIcon');
         const pauseIcon = document.getElementById('pauseIcon');
         const audioTime = document.getElementById('audioTime');
+        const seekSlider = document.getElementById('seekSlider');
+
+        let isDragging = false;
 
         function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -873,11 +916,21 @@
             }
         }
 
-        function updateTimeDisplay() {
+        function updateDisplay() {
             const current = formatTime(blogAudio.currentTime);
             const total = formatTime(blogAudio.duration || 0);
             audioTime.textContent = `${current} / ${total}`;
+            
+            if (!isDragging) {
+                seekSlider.value = blogAudio.currentTime;
+            }
         }
+
+        // Initialize duration on load
+        blogAudio.addEventListener('loadedmetadata', () => {
+            seekSlider.max = Math.floor(blogAudio.duration);
+            updateDisplay();
+        });
 
         playBtn.addEventListener('click', () => {
             if (blogAudio.paused) {
@@ -889,11 +942,25 @@
             }
         });
 
-        blogAudio.addEventListener('timeupdate', updateTimeDisplay);
-        blogAudio.addEventListener('loadedmetadata', updateTimeDisplay);
+        // Slider Interaction
+        seekSlider.addEventListener('input', () => {
+            isDragging = true;
+            // Update the time label immediately while dragging for feedback
+            const current = formatTime(seekSlider.value);
+            const total = formatTime(blogAudio.duration || 0);
+            audioTime.textContent = `${current} / ${total}`;
+        });
+
+        seekSlider.addEventListener('change', () => {
+            blogAudio.currentTime = seekSlider.value;
+            isDragging = false;
+        });
+
+        blogAudio.addEventListener('timeupdate', updateDisplay);
         blogAudio.addEventListener('ended', () => {
             updatePlayIcons(false);
             blogAudio.currentTime = 0;
+            seekSlider.value = 0;
         });
     </script>
 </body>
