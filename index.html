@@ -262,21 +262,33 @@
             margin-bottom: 1.5rem;
         }
 
-        /* --- Blog Image Styles --- */
+        /* --- Blog Image Styles - Updated for Responsiveness and Layout --- */
         .blog-post-page .post-content img {
             width: 100%;
-            max-width: 500px;
             height: auto;
-            aspect-ratio: 1 / 1;
-            object-fit: cover;
             border-radius: 12px;
-            margin: 2rem 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            margin: 0 0 2rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: block;
+        }
+
+        @media (min-width: 769px) {
+            .blog-post-page .post-content img {
+                float: left;
+                width: 300px; /* Specific width for desktop to allow wrapping */
+                margin: 0.5rem 2.5rem 1.5rem 0;
+            }
+            /* Clearfix for the container */
+            .blog-post-page .post-content::after {
+                content: "";
+                display: table;
+                clear: both;
+            }
         }
 
         .blog-post-page .post-content img:hover {
-            transform: scale(1.02);
+            transform: scale(1.03);
         }
 
         /* --- Section Navigation --- */
@@ -521,12 +533,6 @@
             .blog-post-page .post-content p {
                 margin-bottom: 1.2rem;
             }
-
-            .blog-post-page .post-content img {
-                max-width: 100%;
-                margin: 1.5rem 0;
-                border-radius: 8px;
-            }
         }
         
         @media (max-width: 480px) {
@@ -549,10 +555,6 @@
             .profile-pic {
                 width: 70px;
                 height: 70px;
-            }
-
-            .blog-post-page .post-content img {
-                margin: 1rem 0;
             }
         }
     </style>
@@ -639,7 +641,7 @@
                     <h1>How ChatGPT helped me answer much of my curiousity</h1>
                     <p class="post-meta">November 2025</p>
                     <div class="post-content">
-                    <img src="src/images/blog1.jpeg" alt="blog1 image">
+                    <img src="src/images/blog1.jpeg" alt="Curiosity Spark Image">
                     <p>I've always had this habit.</p>
 
 <p>Random things catch my mind at random times.</p>
