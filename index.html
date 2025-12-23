@@ -254,10 +254,50 @@
         }
 
         .noise-background {
+            position: relative;
+            background: #f6f1e8 url('/src/images/noise_blog.png');
+            background-size: cover;
+            background-repeat: repeat;
+            padding: 3rem;
+            isolation: isolate;
+
+            /* Destroy the rectangle */
+            -webkit-mask-image:
+                radial-gradient(38px 42px at 0% 3%, transparent 98%, black),
+                radial-gradient(52px 47px at 100% 6%, transparent 97%, black),
+                radial-gradient(44px 36px at 2% 100%, transparent 96%, black),
+                radial-gradient(60px 55px at 98% 97%, transparent 95%, black),
+                radial-gradient(120% 120% at center, black 99%, transparent);
+            
+            -webkit-mask-composite: destination-in;
+            mask-composite: intersect;
+            }
+
+            /* Edge erosion – organic bite marks */
+            .noise-background::before {
+            content: "";
+            position: absolute;
+            inset: -24px;
+            background:
+                radial-gradient(circle at 8% 14%, rgba(255,255,255,0.55) 0%, transparent 42%),
+                radial-gradient(circle at 91% 21%, rgba(255,255,255,0.45) 0%, transparent 48%),
+                radial-gradient(circle at 16% 87%, rgba(255,255,255,0.5) 0%, transparent 52%),
+                radial-gradient(circle at 83% 78%, rgba(255,255,255,0.6) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+            }
+
+            /* Micro grain – hides all perfection */
+            .noise-background::after {
+            content: "";
+            position: absolute;
+            inset: 0;
             background-image: url('/src/images/noise_blog.png');
-            padding: 2rem;       /* Adds space so text doesn't hit the edges */
-            border-radius: 12px; /* Optional: rounds the corners */
-        }
+            opacity: 0.045;
+            pointer-events: none;
+            z-index: 1;
+            }
+
 
         /* --- Audio Player Styles --- */
         .audio-player {
