@@ -226,7 +226,7 @@ body.no-scroll main {
     transition: all var(--transition-speed) ease;
 }
 
- .contact-item:hover -icon svg {
+ .contact-item:hover svg {
     fill: var(--highlight-color);
     stroke: var(--highlight-color);
 } 
@@ -253,6 +253,41 @@ body.no-scroll main {
     color: var(--text-color);
 }
 
+/* =============================
+   Mobile Responsiveness
+   ============================= */
+@media screen and (max-width: 768px) {
+    .contact-section {
+        margin-top: 2rem;
+        padding: 0 1rem; /* Add side padding so cards don't touch edges */
+    }
+
+    .contact-item {
+        padding: 1.25rem; /* Reduce padding from 2rem to 1.25rem */
+        gap: 1rem;        /* Reduce gap from 2rem to 1rem */
+    }
+
+    .contact-icon {
+        /* CRITICAL: Reduce the 200px desktop width to fit mobile screens */
+        width: 60px; 
+        justify-content: flex-start; /* Align icon to the left */
+    }
+
+    .contact-info h3 {
+        font-size: 1.1rem; /* Slightly smaller heading */
+    }
+
+    .contact-info p {
+        font-size: 0.95rem; /* Slightly smaller text */
+        word-break: break-word; /* Ensure long emails wrap if needed */
+    }
+    
+    /* Adjust nested dropdown items if necessary */
+    #profiles-dropdown {
+        margin-left: 10px !important;
+        padding-left: 10px !important;
+    }
+}
 /* Blog Section */
 .blog-section {
     margin-top: 5rem;
