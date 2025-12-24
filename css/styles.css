@@ -253,41 +253,57 @@ body.no-scroll main {
     color: var(--text-color);
 }
 
+
 /* =============================
-   Mobile Responsiveness
+   MOBILE FIXES
    ============================= */
 @media screen and (max-width: 768px) {
+    /* 1. Ensure the container fits the screen */
     .contact-section {
-        margin-top: 2rem;
-        padding: 0 1rem; /* Add side padding so cards don't touch edges */
+        width: 100%;
+        padding: 0 1rem;
+        box-sizing: border-box;
     }
 
+    /* 2. Shrink the card padding and gap */
     .contact-item {
-        padding: 1.25rem; /* Reduce padding from 2rem to 1.25rem */
-        gap: 1rem;        /* Reduce gap from 2rem to 1rem */
+        padding: 1rem; /* Reduced from 2rem */
+        gap: 0.75rem;  /* Reduced from 2rem */
+        width: 100%;
+        box-sizing: border-box; /* Prevents padding from adding to width */
     }
 
+    /* 3. CRITICAL: Kill the 200px fixed width */
     .contact-icon {
-        /* CRITICAL: Reduce the 200px desktop width to fit mobile screens */
-        width: 60px; 
-        justify-content: flex-start; /* Align icon to the left */
+        width: 40px !important; /* Force small width */
+        min-width: 40px;        /* Prevent squishing */
+        height: auto;
+        justify-content: center;
+    }
+
+    /* 4. Fix Text Overflow */
+    .contact-info {
+        flex: 1;       /* Take up remaining space */
+        min-width: 0;  /* Standard flexbox fix for wrapping text */
     }
 
     .contact-info h3 {
-        font-size: 1.1rem; /* Slightly smaller heading */
+        font-size: 1.1rem;
     }
 
     .contact-info p {
-        font-size: 0.95rem; /* Slightly smaller text */
-        word-break: break-word; /* Ensure long emails wrap if needed */
+        font-size: 0.9rem;
+        word-break: break-word; /* Forces long emails to wrap to next line */
+        overflow-wrap: break-word;
     }
+
     
-    /* Adjust nested dropdown items if necessary */
     #profiles-dropdown {
-        margin-left: 10px !important;
+        margin-left: 5px !important; 
         padding-left: 10px !important;
     }
 }
+
 /* Blog Section */
 .blog-section {
     margin-top: 5rem;
