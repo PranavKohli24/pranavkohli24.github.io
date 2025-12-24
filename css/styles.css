@@ -178,6 +178,81 @@ body.no-scroll main {
     opacity: 0.65;
 }
 
+/* Contact Section */
+.contact-section {
+    margin-top: 3rem;
+    max-width: 68ch;
+}
+
+.contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
+    background-color: rgba(93, 0, 247, 0.02);
+    border-radius: 12px;
+    border-left: 3px solid transparent;
+    text-decoration: none;
+    color: inherit;
+    transition: all var(--transition-speed) ease;
+}
+
+.contact-item:hover {
+    background-color: rgba(93, 0, 247, 0.05);
+    border-left-color: var(--highlight-color);
+    transform: translateX(10px);
+}
+
+.contact-icon {
+    width: 200px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.contact-icon svg {
+    width: 32px;
+    height: 32px;
+    fill: var(--secondary-text-color);
+    stroke: var(--secondary-text-color);
+    transition: all var(--transition-speed) ease;
+}
+
+ .contact-item:hover -icon svg {
+    fill: var(--highlight-color);
+    stroke: var(--highlight-color);
+} 
+
+.contact-info h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.3rem;
+    transition: color var(--transition-speed) ease;
+}
+
+.contact-info p {
+    font-size: 1rem;
+    color: var(--secondary-text-color);
+    transition: color var(--transition-speed) ease;
+}
+
+.contact-item:hover .contact-info h3 {
+    color: var(--highlight-color);
+}
+
+.contact-item:hover .contact-info p {
+    color: var(--text-color);
+}
+
 /* Blog Section */
 .blog-section {
     margin-top: 5rem;
