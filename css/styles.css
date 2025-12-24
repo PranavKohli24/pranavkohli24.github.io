@@ -222,14 +222,14 @@ body.no-scroll main {
     width: 32px;
     height: 32px;
     fill: var(--secondary-text-color);
-    stroke: var(--secondary-text-color);
+    /* stroke: var(--secondary-text-color); */
     transition: all var(--transition-speed) ease;
 }
 
- .contact-item:hover svg {
+ /* .contact-item:hover svg {
     fill: var(--highlight-color);
     stroke: var(--highlight-color);
-} 
+}  */
 
 .contact-info h3 {
     font-size: 1.3rem;
