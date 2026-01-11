@@ -333,7 +333,7 @@ body.no-scroll main {
     padding: 1.5rem;
     cursor: pointer;
     transition: all var(--transition-speed) ease;
-    background-color: rgba(93, 0, 247, 0.02);
+    background-color:rgba(93, 0, 247, 0.1);
     border-radius: 8px;
 }
 
