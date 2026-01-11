@@ -574,7 +574,7 @@ body.no-scroll main {
     height: 22px;
     position: fixed;
     top: 3.5rem;
-    right: 1.5rem;
+    right: 2rem;
 }
 
 .hamburger-button .bar {
@@ -720,10 +720,10 @@ body.no-scroll main {
     
     .socials {
         gap: 3rem;
-        margin-left: 2.5rem;
+        margin-left: 2rem;
         margin-top: 1.5rem;
         justify-content: flex-start;
-        width: 100%;
+        width: auto;
     }
     
     .socials svg {
