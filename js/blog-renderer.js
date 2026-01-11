@@ -14,6 +14,12 @@
     }
 
     function init() {
+        if (typeof blogPosts !== 'undefined') {
+        blogPosts.forEach(post => {
+            const img = new Image();
+            img.src = post.image;
+        });
+        }
         renderBlogList();
         renderBlogPosts();
     }
@@ -67,7 +73,7 @@
 
                         <div class="post-content">
                             <div class="noise-background">
-                                <img src="${post.image}" alt="${post.imageAlt}">
+                                <img src="${post.image}" alt="${post.imageAlt}" fetchpriority="high" loading="eager">
                                 ${post.content}
                             </div>
                             <p style="margin-top: 3rem; color: var(--secondary-text-color);">~ Pranav Kohli</p>
