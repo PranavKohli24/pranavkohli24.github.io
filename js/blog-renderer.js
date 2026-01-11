@@ -14,12 +14,18 @@
     }
 
     function init() {
+        // Preload the noise background first
+        const noiseBg = new Image();
+        noiseBg.src = '/src/images/noise_blog.png';
+
+        // Preload blog post images
         if (typeof blogPosts !== 'undefined') {
-        blogPosts.forEach(post => {
-            const img = new Image();
-            img.src = post.image;
-        });
+            blogPosts.forEach(post => {
+                const img = new Image();
+                img.src = post.image;
+            });
         }
+    
         renderBlogList();
         renderBlogPosts();
     }
