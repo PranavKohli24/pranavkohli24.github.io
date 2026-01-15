@@ -221,7 +221,7 @@ body.no-scroll main {
     align-items: center;
     gap: 2rem;
     padding: 2rem;
-    background-color: rgba(93, 0, 247, 0.02);
+    background-color: rgba(93, 0, 247, 0.05);
     border-radius: 12px;
     border-left: 3px solid transparent;
     text-decoration: none;
@@ -241,7 +241,7 @@ body.no-scroll main {
 
 
 .contact-item:hover {
-    background-color: rgba(93, 0, 247, 0.05);
+    background-color: rgba(93, 0, 247, 0.1);
     border-left-color: var(--highlight-color);
     transform: translateX(10px);
 }
@@ -713,7 +713,7 @@ body.no-scroll main {
         /* 1. The "Liquid" Material: High blur + Saturation boost */
         background-color: rgba(255, 255, 255, 0.3); /* Ultra-thin white tint */
         backdrop-filter: blur(25px) saturate(180%);
-        -webkit-backdrop-filter: blur(25px) saturate(180%);
+        -webkit-backdrop-filter: blur(25px) saturate(300%);
         
         /* 2. Specular Edge: A very thin, light border to catch light */
         /* border-left: 1px solid rgba(255, 255, 255, 0.4); */
@@ -759,7 +759,7 @@ body.no-scroll main {
     
     .header {
         font-size: 2.2rem;
-        margin: 0
+        margin: -0.5rem 0 0 0
     }
     
     .subtitle {
