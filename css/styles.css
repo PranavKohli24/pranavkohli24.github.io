@@ -83,10 +83,11 @@ body.no-scroll main {
 .header {
     font-size: 5.5rem;
     font-weight: 700;
-    margin: 0;
+    margin: -2.2rem 0 0 0;
     line-height: 1.05;
     letter-spacing: -0.04em;
 }
+
 
 .header .highlight {
     color: var(--highlight-color);
@@ -95,7 +96,7 @@ body.no-scroll main {
 .subtitle {
     font-size: 1.3rem;
     color: var(--secondary-text-color);
-    margin: 1rem 0 3rem 0;
+    margin: 0.5rem 0 3rem 0;
     letter-spacing: -0.02em;
 }
 
@@ -109,14 +110,39 @@ body.no-scroll main {
 .profile-pic {
     width: 120px;
     height: 120px;
-    border-radius: 50%;
+    border-radius: 45%;
     object-fit: cover;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
+    /* transition: transform 0.3s ease; */
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    box-shadow: 
+        /* Sharp overhead light reflection (top-left) */
+        inset 2px 3px 5px rgba(255, 255, 255, 0.7),
+        /* Soft inner ambient glow */
+        inset 0 0 25px rgba(255, 255, 255, 0.25),
+        /* Subtle dark occlusion on bottom right for grounding */
+        inset -3px -3px 10px rgba(0, 0, 0, 0.05),
+        /* Outer shadow for elevation */
+        0 10px 25px -10px rgba(0, 0, 0, 0.2);
+        
+    /* Ensure the image stays inside the glass effects */
+    overflow: hidden;
+    /* Hardware acceleration */
+    transform: translateZ(0);
 }
 
 .profile-pic:hover {
-    transform: scale(1.05);
+    transform: translateY(-2px) scale(1.03);
+
+    /* Intensify lighting and deepen the shadow while lifted */
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        inset 3px 4px 7px rgba(255, 255, 255, 0.9), /* Brighter highlight */
+        inset 0 0 30px rgba(255, 255, 255, 0.4),
+        inset -3px -3px 10px rgba(0, 0, 0, 0.05),
+        /* Softer, deeper shadow indicating it is higher off the surface */
+        0 20px 35px -12px rgba(0, 0, 0, 0.25);
 }
 
 /* Bio Section */
@@ -124,7 +150,7 @@ body.no-scroll main {
     font-size: 1.3rem;
     line-height: 1.75;
     max-width: 68ch;
-    margin: 0 0 3rem 0;
+    margin: -1rem 0 3rem 0;
     font-weight: 500;
 }
 
@@ -137,8 +163,8 @@ body.no-scroll main {
 
 .bio-link:hover {
     color: var(--highlight-color);
-    transform: translateX(0) scale(1.1);
-    text-decoration: underline;
+    transform: translateX(0) scale(1.9);
+    text-decoration: underline wavy;
     cursor: pointer;
 }
 
@@ -201,7 +227,18 @@ body.no-scroll main {
     text-decoration: none;
     color: inherit;
     transition: all var(--transition-speed) ease;
+
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.08),
+        0 2px 6px rgba(0, 0, 0, 0.04);
+    transform: translateZ(0);
+
+    transition:
+        transform 0.35s ease,
+        box-shadow 0.35s ease,
+        background 0.35s ease;
 }
+
 
 .contact-item:hover {
     background-color: rgba(93, 0, 247, 0.05);
@@ -217,7 +254,9 @@ body.no-scroll main {
     justify-content: center;
     flex-shrink: 0;
 }
-
+.contact-item:hover #mail_svg{
+    transform: rotate(-8deg);
+}
 .contact-icon svg {
     width: 32px;
     height: 32px;
@@ -335,6 +374,16 @@ body.no-scroll main {
     transition: all var(--transition-speed) ease;
     background-color:rgba(93, 0, 247, 0.1);
     border-radius: 8px;
+
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.08),
+        0 2px 6px rgba(0, 0, 0, 0.04);
+    transform: translateZ(0);
+
+    transition:
+        transform 0.35s ease,
+        box-shadow 0.35s ease,
+        background 0.35s ease;
 }
 
 .blog-post-item:hover {
@@ -661,18 +710,32 @@ body.no-scroll main {
         right: 0;
         width: min(75vw, 400px);
         height: 100vh;
-        background-color: rgba(248, 248, 248, 0.85);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
+        /* 1. The "Liquid" Material: High blur + Saturation boost */
+        background-color: rgba(255, 255, 255, 0.3); /* Ultra-thin white tint */
+        backdrop-filter: blur(25px) saturate(300%);
+        -webkit-backdrop-filter: blur(25px) saturate(180%);
+        
+        /* 2. Specular Edge: A very thin, light border to catch light */
+        border-left: 1px solid rgba(255, 255, 255, 0.4);
+        
+        /* 3. Inner Reflection: Adds depth to the glass pane */
+        box-shadow: 
+            inset 0 1px 1px rgba(255, 255, 255, 0.3),
+            -10px 0 30px rgba(0, 0, 0, 0.05); /* Soft outer shadow for lift */
+
+        /* 4. Performance & Layout */
+        display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 3rem;
+        gap: 3.5rem;
         transform: translateX(100%);
-        transition: transform var(--menu-transition-speed) cubic-bezier(0.23, 1, 0.32, 1);
+        transition: transform var(--menu-transition-speed) cubic-bezier(0.9, 0.72, 0, 1);
         z-index: 1000;
-        padding: 0;
-        margin: 0;
+        
+        /* Hardware acceleration for smooth blur rendering */
+        transform-style: preserve-3d;
+        will-change: transform;
     }
     
     nav.is-active {
