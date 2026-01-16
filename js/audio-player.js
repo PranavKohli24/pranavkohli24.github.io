@@ -7,13 +7,7 @@
 (function() {
     'use strict';
 
-    // Wait for DOM and blog posts to be rendered
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        // Small delay to ensure blog posts are rendered
-        setTimeout(init, 100);
-    }
+    document.addEventListener('blogsRendered', init);
 
     function init() {
         initializeAllAudioPlayers();

@@ -21,12 +21,12 @@ function showSection() {
     }
     
     // Close mobile menu if open
-    const navMenu = document.querySelector('nav');
-    if (navMenu && navMenu.classList.contains('is-active')) {
-        if (typeof toggleMenu === 'function') {
-            toggleMenu();
-        }
-    }
+    // const navMenu = document.querySelector('nav');
+    // if (navMenu && navMenu.classList.contains('is-active')) {
+    //     if (typeof toggleMenu === 'function') {
+    //         toggleMenu();
+    //     }
+    // }
 
     // Pause all audio players when navigating
     if (typeof window.pauseAllAudioPlayers === 'function') {

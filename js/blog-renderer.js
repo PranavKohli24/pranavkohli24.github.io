@@ -14,18 +14,12 @@
     }
 
     function init() {
-        // Preload the noise background first
+        // Preload the noise background first (Keep this, it's small)
         const noiseBg = new Image();
         noiseBg.src = '/src/images/noise_blog.png';
 
-        // Preload blog post images
-        if (typeof blogPosts !== 'undefined') {
-            blogPosts.forEach(post => {
-                const img = new Image();
-                img.src = post.image;
-            });
-        }
-    
+        // --- DELETED IMAGE PRELOADING LOOP HERE FOR PERFORMANCE ---
+
         renderBlogList();
         renderBlogPosts();
     }
@@ -37,10 +31,8 @@
         const blogListContainer = document.getElementById('blogPostsList');
         if (!blogListContainer) return;
 
-        // Clear existing content
         blogListContainer.innerHTML = '';
 
-        // Generate blog list items (newest first)
         blogPosts.slice().reverse().forEach(post => {
             const blogItem = `
                 <a href="#${post.id}" class="blog-post-link">
@@ -61,10 +53,8 @@
         const blogContainer = document.getElementById('blogPostsContainer');
         if (!blogContainer) return;
 
-        // Clear existing content
         blogContainer.innerHTML = '';
 
-        // Generate each blog post section
         blogPosts.forEach(post => {
             const audioPlayer = post.audioFile ? createAudioPlayer(post.id, post.audioFile) : '';
             
@@ -79,7 +69,7 @@
 
                         <div class="post-content">
                             <div class="noise-background">
-                                <img src="${post.image}" alt="${post.imageAlt}" fetchpriority="high" loading="eager">
+                                <img src="${post.image}" alt="${post.imageAlt}" fetchpriority="high" loading="lazy">
                                 ${post.content}
                             </div>
                             <p style="margin-top: 3rem; color: var(--secondary-text-color);">~ Pranav Kohli</p>
@@ -90,13 +80,13 @@
             
             blogContainer.insertAdjacentHTML('beforeend', blogSection);
         });
+
+        // --- NEW LINE ADDED: Tell the rest of the app that blogs are ready ---
+        document.dispatchEvent(new Event('blogsRendered')); 
     }
 
     /**
      * Creates HTML for audio player
-     * @param {string} blogId - Unique blog post ID
-     * @param {string} audioFile - Path to audio file
-     * @returns {string} HTML string for audio player
      */
     function createAudioPlayer(blogId, audioFile) {
         return `

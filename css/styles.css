@@ -1,5 +1,4 @@
-/* Import Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+/* Note: I removed the @import. Put the Google Fonts <link> in your HTML head! */
 
 /* CSS Variables */
 :root {
@@ -88,7 +87,6 @@ body.no-scroll main {
     letter-spacing: -0.04em;
 }
 
-
 .header .highlight {
     color: var(--highlight-color);
 }
@@ -107,41 +105,31 @@ body.no-scroll main {
     flex-wrap: wrap;
 }
 
+/* Profile Picture - Advanced CSS */
 .profile-pic {
     width: 120px;
     height: 120px;
     border-radius: 45%;
     object-fit: cover;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    /* transition: transform 0.3s ease; */
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     border: 1px solid rgba(255, 255, 255, 0.65);
     box-shadow: 
-        /* Sharp overhead light reflection (top-left) */
         inset 2px 3px 5px rgba(255, 255, 255, 0.7),
-        /* Soft inner ambient glow */
         inset 0 0 25px rgba(255, 255, 255, 0.25),
-        /* Subtle dark occlusion on bottom right for grounding */
         inset -3px -3px 10px rgba(0, 0, 0, 0.05),
-        /* Outer shadow for elevation */
         0 10px 25px -10px rgba(0, 0, 0, 0.2);
-        
-    /* Ensure the image stays inside the glass effects */
     overflow: hidden;
-    /* Hardware acceleration */
-    transform: translateZ(0);
+    transform: translateZ(0); /* Hardware Acceleration */
 }
 
 .profile-pic:hover {
     transform: translateY(-2px) scale(1.03);
-
-    /* Intensify lighting and deepen the shadow while lifted */
     border-color: rgba(255, 255, 255, 0.9);
     box-shadow: 
-        inset 3px 4px 7px rgba(255, 255, 255, 0.9), /* Brighter highlight */
+        inset 3px 4px 7px rgba(255, 255, 255, 0.9),
         inset 0 0 30px rgba(255, 255, 255, 0.4),
         inset -3px -3px 10px rgba(0, 0, 0, 0.05),
-        /* Softer, deeper shadow indicating it is higher off the surface */
         0 20px 35px -12px rgba(0, 0, 0, 0.25);
 }
 
@@ -163,7 +151,7 @@ body.no-scroll main {
 
 .bio-link:hover {
     color: var(--highlight-color);
-    transform: translateX(0) scale(1.9);
+    transform: translateX(0) scale(1.1); /* Reduced scale slightly for smoother UX */
     text-decoration: underline wavy;
     cursor: pointer;
 }
@@ -226,19 +214,10 @@ body.no-scroll main {
     border-left: 3px solid transparent;
     text-decoration: none;
     color: inherit;
-    transition: all var(--transition-speed) ease;
-
-    box-shadow:
-        0 6px 18px rgba(0, 0, 0, 0.08),
-        0 2px 6px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
     transform: translateZ(0);
-
-    transition:
-        transform 0.35s ease,
-        box-shadow 0.35s ease,
-        background 0.35s ease;
+    transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
 }
-
 
 .contact-item:hover {
     background-color: rgba(93, 0, 247, 0.1);
@@ -254,21 +233,17 @@ body.no-scroll main {
     justify-content: center;
     flex-shrink: 0;
 }
-.contact-item:hover #mail_svg{
+
+.contact-item:hover #mail_svg {
     transform: rotate(-8deg);
 }
+
 .contact-icon svg {
     width: 32px;
     height: 32px;
     fill: var(--secondary-text-color);
-    /* stroke: var(--secondary-text-color); */
     transition: all var(--transition-speed) ease;
 }
-
- /* .contact-item:hover svg {
-    fill: var(--highlight-color);
-    stroke: var(--highlight-color);
-}  */
 
 .contact-info h3 {
     font-size: 1.3rem;
@@ -290,57 +265,6 @@ body.no-scroll main {
 
 .contact-item:hover .contact-info p {
     color: var(--text-color);
-}
-
-
-/* =============================
-   MOBILE FIXES
-   ============================= */
-@media screen and (max-width: 768px) {
-    /* 1. Ensure the container fits the screen */
-    .contact-section {
-        width: 100%;
-        padding: 0 1rem;
-        box-sizing: border-box;
-    }
-
-    /* 2. Shrink the card padding and gap */
-    .contact-item {
-        padding: 1rem; /* Reduced from 2rem */
-        gap: 0.75rem;  /* Reduced from 2rem */
-        width: 100%;
-        box-sizing: border-box; /* Prevents padding from adding to width */
-    }
-
-    /* 3. CRITICAL: Kill the 200px fixed width */
-    .contact-icon {
-        width: 40px !important; /* Force small width */
-        min-width: 40px;        /* Prevent squishing */
-        height: auto;
-        justify-content: center;
-    }
-
-    /* 4. Fix Text Overflow */
-    .contact-info {
-        flex: 1;       /* Take up remaining space */
-        min-width: 0;  /* Standard flexbox fix for wrapping text */
-    }
-
-    .contact-info h3 {
-        font-size: 1.1rem;
-    }
-
-    .contact-info p {
-        font-size: 0.9rem;
-        word-break: break-word; /* Forces long emails to wrap to next line */
-        overflow-wrap: break-word;
-    }
-
-    
-    #profiles-dropdown {
-        margin-left: 5px !important; 
-        padding-left: 10px !important;
-    }
 }
 
 /* Blog Section */
@@ -371,19 +295,11 @@ body.no-scroll main {
     border-left: 3px solid transparent;
     padding: 1.5rem;
     cursor: pointer;
-    transition: all var(--transition-speed) ease;
-    background-color:rgba(93, 0, 247, 0.1);
+    background-color: rgba(93, 0, 247, 0.1);
     border-radius: 8px;
-
-    box-shadow:
-        0 6px 18px rgba(0, 0, 0, 0.08),
-        0 2px 6px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
     transform: translateZ(0);
-
-    transition:
-        transform 0.35s ease,
-        box-shadow 0.35s ease,
-        background 0.35s ease;
+    transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
 }
 
 .blog-post-item:hover {
@@ -396,8 +312,8 @@ body.no-scroll main {
     font-size: 1.4rem;
     font-weight: 600;
     color: var(--text-color);
-    transition: color var(--transition-speed) ease;
     margin-bottom: 0.5rem;
+    transition: color var(--transition-speed) ease;
 }
 
 .blog-post-item:hover .blog-post-title {
@@ -473,6 +389,7 @@ body.no-scroll main {
     display: block;
 }
 
+/* Desktop-specific image floating */
 @media (min-width: 769px) {
     .blog-post-page .post-content img {
         float: left;
@@ -687,7 +604,9 @@ body.no-scroll main {
     }
 }
 
-/* Mobile Styles */
+/* =============================
+   UNIFIED MOBILE STYLES
+   ============================= */
 @media (max-width: 768px) {
     body {
         align-items: flex-start;
@@ -704,26 +623,17 @@ body.no-scroll main {
         top: 2rem;
     }
     
+    /* Navigation Menu */
     nav {
         position: fixed;
         top: 0;
         right: 0;
         width: min(75vw, 400px);
         height: 100vh;
-        /* 1. The "Liquid" Material: High blur + Saturation boost */
-        background-color: rgba(255, 255, 255, 0.3); /* Ultra-thin white tint */
+        background-color: rgba(255, 255, 255, 0.3);
         backdrop-filter: blur(25px) saturate(180%);
         -webkit-backdrop-filter: blur(25px) saturate(300%);
-        
-        /* 2. Specular Edge: A very thin, light border to catch light */
-        /* border-left: 1px solid rgba(255, 255, 255, 0.4); */
-        
-        /* 3. Inner Reflection: Adds depth to the glass pane */
-        box-shadow: 
-            inset 0 1px 1px rgba(255, 255, 255, 0.3),
-            -10px 0 30px rgba(0, 0, 0, 0.05); /* Soft outer shadow for lift */
-
-        /* 4. Performance & Layout */
+        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), -10px 0 30px rgba(0, 0, 0, 0.05);
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -732,8 +642,6 @@ body.no-scroll main {
         transform: translateX(100%);
         transition: transform var(--menu-transition-speed) cubic-bezier(0.9, 0.72, 0, 1);
         z-index: 1000;
-        
-        /* Hardware acceleration for smooth blur rendering */
         transform-style: preserve-3d;
         will-change: transform;
     }
@@ -759,7 +667,7 @@ body.no-scroll main {
     
     .header {
         font-size: 2.2rem;
-        margin: -0.5rem 0 0 0
+        margin: -0.5rem 0 0 0;
     }
     
     .subtitle {
@@ -800,6 +708,46 @@ body.no-scroll main {
         height: 90px;
     }
 
+    /* Contact Section Mobile Fixes */
+    .contact-section {
+        width: 100%;
+        padding: 0 1rem;
+    }
+
+    .contact-item {
+        padding: 1rem;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .contact-icon {
+        width: 40px; 
+        min-width: 40px;
+        height: auto;
+        justify-content: center;
+    }
+
+    .contact-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .contact-info h3 {
+        font-size: 1.1rem;
+    }
+
+    .contact-info p {
+        font-size: 0.9rem;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    #profiles-dropdown {
+        margin-left: 5px !important; 
+        padding-left: 10px !important;
+    }
+
+    /* Blog Section Mobile */
     .blog-section {
         margin-top: 3rem;
     }
