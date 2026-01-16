@@ -223,7 +223,23 @@
             </div>
         </main>
     </div>
-
+    <script>
+    function toggleProfiles() {
+        var dropdown = document.getElementById("profiles-dropdown");
+        var arrow = document.getElementById("arrow-icon");
+        
+        // Check current display state (handle inline style or computed style)
+        var currentDisplay = dropdown.style.display;
+        
+        if (currentDisplay === "none" || currentDisplay === "") {
+            dropdown.style.display = "flex";
+            arrow.style.transform = "rotate(180deg)";
+        } else {
+            dropdown.style.display = "none";
+            arrow.style.transform = "rotate(0deg)";
+        }
+    }
+</script>
     <!-- JavaScript -->
     <script src="js/blog-data.js"></script>
     <script src="js/blog-renderer.js"></script>

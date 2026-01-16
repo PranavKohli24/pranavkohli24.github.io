@@ -848,3 +848,16 @@ body.no-scroll main {
         height: 70px;
     }
 }
+
+
+/* Smooth Image Loading */
+.blog-post-page img {
+    opacity: 0;
+    transform: scale(0.98);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.blog-post-page img.loaded {
+    opacity: 1;
+    transform: scale(1);
+}

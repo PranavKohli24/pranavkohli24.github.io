@@ -35,7 +35,7 @@
 
         blogPosts.slice().reverse().forEach(post => {
             const blogItem = `
-                <a href="#${post.id}" class="blog-post-link">
+                <a href="#${post.id}" class="blog-post-link" onmouseenter="new Image().src='${post.image}'" ontouchstart="new Image().src='${post.image}'">
                     <div class="blog-post-item">
                         <h3 class="blog-post-title">${post.title}</h3>
                         <p class="blog-post-date">${post.date}</p>
@@ -69,7 +69,7 @@
 
                         <div class="post-content">
                             <div class="noise-background">
-                                <img src="${post.image}" alt="${post.imageAlt}" fetchpriority="high" loading="lazy">
+                                <img src="${post.image}" alt="${post.imageAlt}" onload="this.classList.add('loaded')">
                                 ${post.content}
                             </div>
                             <p style="margin-top: 3rem; color: var(--secondary-text-color);">~ Pranav Kohli</p>
