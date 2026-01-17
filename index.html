@@ -226,54 +226,86 @@
     </div>
     
     <script>
-    // 3D TILT EFFECT
-    document.addEventListener('mousemove', (e) => {
-        const cards = document.querySelectorAll('.contact-item');
+    // UNIVERSAL 3D TILT (Desktop + Mobile)
+    const cards = document.querySelectorAll('.contact-item');
+
+    function applyTilt(card, x, y) {
+        const rect = card.getBoundingClientRect();
         
+        // Calculate center
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        
+        // Calculate tilt (Reduced intensity for mobile to keep it clean)
+        const intensity = 5; 
+        const rotateX = ((y - centerY) / (rect.height / 2)) * -intensity;
+        const rotateY = ((x - centerX) / (rect.width / 2)) * intensity;
+        
+        // Apply the transformation
+        card.style.transform = `
+            perspective(1000px) 
+            rotateX(${rotateX}deg) 
+            rotateY(${rotateY}deg) 
+            scale(1.02)
+        `;
+        
+        // Move the glare
+        const glareX = ((x - rect.left) / rect.width) * 100;
+        const glareY = ((y - rect.top) / rect.height) * 100;
+        
+        card.style.background = `
+            radial-gradient(
+                circle at ${glareX}% ${glareY}%, 
+                rgba(255, 255, 255, 0.3) 0%, 
+                rgba(255, 255, 255, 0.05) 80%
+            )
+        `;
+    }
+
+    function removeTilt(card) {
+        card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+        card.style.background = 'rgba(255, 255, 255, 0.03)';
+    }
+
+    // MOUSE EVENTS (Desktop)
+    document.addEventListener('mousemove', (e) => {
         cards.forEach(card => {
             const rect = card.getBoundingClientRect();
             const x = e.clientX;
             const y = e.clientY;
             
-            // Check if mouse is near the card (optimization)
-            if (x > rect.left - 50 && x < rect.right + 50 && 
-                y > rect.top - 50 && y < rect.bottom + 50) {
-                
-                // Calculate center
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                
-                // Calculate distance from center (max tilt 10deg)
-                const rotateX = ((y - centerY) / (rect.height / 2)) * -5;
-                const rotateY = ((x - centerX) / (rect.width / 2)) * 5;
-                
-                // Apply the transformation
-                card.style.transform = `
-                    perspective(1000px) 
-                    rotateX(${rotateX}deg) 
-                    rotateY(${rotateY}deg) 
-                    scale(1.02)
-                `;
-                
-                // Move the glare/gradient based on mouse
-                const glareX = ((x - rect.left) / rect.width) * 100;
-                const glareY = ((y - rect.top) / rect.height) * 100;
-                
-                card.style.background = `
-                    radial-gradient(
-                        circle at ${glareX}% ${glareY}%, 
-                        rgba(255, 255, 255, 0.3) 0%, 
-                        rgba(255, 255, 255, 0.05) 80%
-                    )
-                `;
+            // Check if mouse is near/over the card
+            if (x > rect.left && x < rect.right && 
+                y > rect.top && y < rect.bottom) {
+                applyTilt(card, x, y);
             } else {
-                // Reset when mouse leaves
-                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
-                card.style.background = 'rgba(255, 255, 255, 0.03)'; // Your default background
+                removeTilt(card);
             }
         });
     });
+
+    // TOUCH EVENTS (Mobile)
+    cards.forEach(card => {
+        // When touching starts
+        card.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            applyTilt(card, touch.clientX, touch.clientY);
+        }, { passive: true });
+
+        // When dragging finger
+        card.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            applyTilt(card, touch.clientX, touch.clientY);
+        }, { passive: true });
+
+        // When letting go
+        card.addEventListener('touchend', () => {
+            removeTilt(card);
+        });
+    });
 </script>
+
+
 <script>
     // LIQUID AURORA EFFECT
     const glow = document.getElementById('liquid-glow');
