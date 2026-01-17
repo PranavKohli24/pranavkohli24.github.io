@@ -44,7 +44,7 @@
 
         <main>
             <!-- About Section -->
-            <section id="about" class="section active">
+            <section id="about" class="section active" data-glow="rgba(93, 0, 247, 0.2)">
                 <div class="header-container">
                     <h1 class="header">Hey, I'm Pranav<span class="highlight">.</span></h1>
                     <img src="Pranav.png" alt="Pranav Kohli" class="profile-pic">
@@ -97,7 +97,7 @@
             </section>
 
             <!-- Blog List Section -->
-            <section id="blog" class="section">
+            <section id="blog" class="section" data-glow="rgba(0, 200, 255, 0.15)">
                 <div class="header-container">
                     <h1 class="header">Blogs by Me<span class="highlight">.</span></h1>
                 </div>
@@ -110,7 +110,7 @@
                 </div>
             </section>
 <!-- Contact Section -->
-            <section id="contact" class="section">
+            <section id="contact" class="section" data-glow="rgba(255, 150, 50, 0.15)">
     <div class="header-container">
         <h1 class="header"><span class="highlight">.</span><span class="highlight">.</span><span class="highlight">.</span></h1>
     </div>
@@ -224,7 +224,34 @@
             </div>
         </main>
     </div>
-    
+    <script>
+    // CHAMELEON BACKGROUND
+    const aurora = document.getElementById('liquid-glow');
+    const sections = document.querySelectorAll('section');
+
+    const observerOptions = {
+        root: null,
+        threshold: 0.3 // Trigger when 30% of the section is visible
+    };
+
+    const colorObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Get the color from the section
+                const newColor = entry.target.getAttribute('data-glow');
+                
+                // Paint the aurora
+                if (newColor) {
+                    aurora.style.setProperty('--glow-color', newColor);
+                }
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => {
+        colorObserver.observe(section);
+    });
+</script>
     <script>
     // UNIVERSAL 3D TILT (Desktop + Mobile)
     const cards = document.querySelectorAll('.contact-item');

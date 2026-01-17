@@ -949,7 +949,7 @@ body.no-scroll main {
     height: 600px;
     background: radial-gradient(
         circle, 
-        rgba(93, 0, 247, 0.15) 0%,   /* Your Brand Purple */
+        rgba(93, 0, 247, 0.35) 0%,   /* Your Brand Purple */
         rgba(65, 200, 255, 0.1) 40%, /* A hint of Blue */
         transparent 70%
     );
@@ -983,7 +983,7 @@ body.no-scroll main {
 
 /* The "Thumb" (The moving part) */
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(93, 0, 247, 0.4); /* Brand purple, very subtle */
+    background-color: rgba(93, 0, 247, 0.5); /* Brand purple, very subtle */
     border-radius: 20px; /* Make it a pill shape (Liquid) */
     border: 4px solid transparent; /* Creates padding around the bar so it floats */
     background-clip: content-box; /* Necessary for the floating effect */
