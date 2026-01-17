@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <div id="liquid-glow"></div>
     <!-- Hamburger Menu Button -->
     <button class="hamburger-button" aria-label="Menu" aria-expanded="false">
         <span class="bar"></span>
@@ -223,6 +224,69 @@
             </div>
         </main>
     </div>
+    
+    <script>
+    // 3D TILT EFFECT
+    document.addEventListener('mousemove', (e) => {
+        const cards = document.querySelectorAll('.contact-item');
+        
+        cards.forEach(card => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX;
+            const y = e.clientY;
+            
+            // Check if mouse is near the card (optimization)
+            if (x > rect.left - 50 && x < rect.right + 50 && 
+                y > rect.top - 50 && y < rect.bottom + 50) {
+                
+                // Calculate center
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                // Calculate distance from center (max tilt 10deg)
+                const rotateX = ((y - centerY) / (rect.height / 2)) * -5;
+                const rotateY = ((x - centerX) / (rect.width / 2)) * 5;
+                
+                // Apply the transformation
+                card.style.transform = `
+                    perspective(1000px) 
+                    rotateX(${rotateX}deg) 
+                    rotateY(${rotateY}deg) 
+                    scale(1.02)
+                `;
+                
+                // Move the glare/gradient based on mouse
+                const glareX = ((x - rect.left) / rect.width) * 100;
+                const glareY = ((y - rect.top) / rect.height) * 100;
+                
+                card.style.background = `
+                    radial-gradient(
+                        circle at ${glareX}% ${glareY}%, 
+                        rgba(255, 255, 255, 0.3) 0%, 
+                        rgba(255, 255, 255, 0.05) 80%
+                    )
+                `;
+            } else {
+                // Reset when mouse leaves
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+                card.style.background = 'rgba(255, 255, 255, 0.03)'; // Your default background
+            }
+        });
+    });
+</script>
+<script>
+    // LIQUID AURORA EFFECT
+    const glow = document.getElementById('liquid-glow');
+    
+    document.addEventListener('mousemove', (e) => {
+        const x = e.clientX;
+        const y = e.clientY;
+        
+        // The glow moves to the cursor position
+        // The CSS 'transition' handles the delay/smoothness automatically
+        glow.style.transform = `translate(${x - 300}px, ${y - 300}px)`;
+    });
+</script>
     <script>
     function toggleProfiles() {
         var dropdown = document.getElementById("profiles-dropdown");

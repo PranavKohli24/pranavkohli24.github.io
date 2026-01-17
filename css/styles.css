@@ -241,6 +241,11 @@ body.no-scroll main {
         
     transform: translateZ(0);
     transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+
+    transition: transform 0.1s ease-out, box-shadow 0.4s ease, border 0.4s ease;
+    
+    /* Ensure this is set to prevent blurriness */
+    will-change: transform, background;
 }
 
 .contact-item:hover {
@@ -919,4 +924,29 @@ body.no-scroll main {
 .blog-post-page img.loaded {
     opacity: 1;
     transform: scale(1);
+}
+
+
+#liquid-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 600px; /* Big glow area */
+    height: 600px;
+    background: radial-gradient(
+        circle, 
+        rgba(93, 0, 247, 0.15) 0%,   /* Your Brand Purple */
+        rgba(65, 200, 255, 0.1) 40%, /* A hint of Blue */
+        transparent 70%
+    );
+    filter: blur(80px); /* The "Aurora" softness */
+    z-index: -1; /* Stays behind everything */
+    pointer-events: none; /* Clicks go through it */
+    border-radius: 50%;
+    
+    /* Start centered */
+    transform: translate(-50%, -50%);
+    
+    /* Smooth transition for the lag effect */
+    transition: transform 1.2s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
