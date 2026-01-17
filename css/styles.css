@@ -209,22 +209,60 @@ body.no-scroll main {
     align-items: center;
     gap: 2rem;
     padding: 2rem;
-    background-color: rgba(93, 0, 247, 0.05);
-    border-radius: 12px;
-    border-left: 3px solid transparent;
+    border-radius: 16px; /* Slightly softer corners for liquid feel */
     text-decoration: none;
     color: inherit;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
+    
+    /* --- THE LIQUID GLASS EFFECT --- */
+    
+    /* 1. Translucent Base with a hint of your Brand Purple */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.6) 0%,
+        rgba(93, 0, 247, 0.02) 100% 
+    );
+    
+    /* 2. Frosted Blur (The "Liquid" distortion) */
+    backdrop-filter: blur(20px) saturate(120%);
+    -webkit-backdrop-filter: blur(20px) saturate(120%);
+    
+    /* 3. Specular Highlights (Shiny Edges) */
+    /* Light hits from top-left, so those borders are brighter */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.9);
+    border-left: 1px solid rgba(255, 255, 255, 0.9);
+    
+    /* 4. Depth Shadow */
+    box-shadow: 
+        0 8px 32px 0 rgba(31, 38, 135, 0.05),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2); /* Inner rim */
+        
     transform: translateZ(0);
-    transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .contact-item:hover {
-    background-color: rgba(93, 0, 247, 0.1);
-    border-left-color: var(--highlight-color);
-    transform: translateX(10px);
+    /* Lift effect */
+    transform: translateY(-5px) scale(1.01);
+    
+    /* Increase glossiness on hover */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(93, 0, 247, 0.08) 100% 
+    );
+    
+    /* Stronger Highlight Color Shadow */
+    box-shadow: 
+        0 15px 35px -5px rgba(93, 0, 247, 0.15), /* Your brand purple glow */
+        inset 0 0 20px rgba(255, 255, 255, 0.6); /* Inner light reflection */
+        
+    border-color: rgba(255, 255, 255, 1);
 }
 
+/* Original Icon Styling Preserved */
 .contact-icon {
     width: 200px;
     height: 50px;
@@ -232,6 +270,7 @@ body.no-scroll main {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    transition: transform 0.4s ease;
 }
 
 .contact-item:hover #mail_svg {
@@ -243,6 +282,8 @@ body.no-scroll main {
     height: 32px;
     fill: var(--secondary-text-color);
     transition: all var(--transition-speed) ease;
+    /* Adding a subtle drop shadow to icon to make it float inside the glass */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
 .contact-info h3 {
@@ -265,6 +306,24 @@ body.no-scroll main {
 
 .contact-item:hover .contact-info p {
     color: var(--text-color);
+}
+
+/* Mobile Adjustments */
+@media screen and (max-width: 768px) {
+    .contact-item {
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+    .contact-icon {
+        width: 40px !important;
+        min-width: 40px;
+    }
+    .contact-info h3 {
+        font-size: 1.1rem;
+    }
+    .contact-info p {
+        font-size: 0.9rem;
+    }
 }
 
 /* Blog Section */
