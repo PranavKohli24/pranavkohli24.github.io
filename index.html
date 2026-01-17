@@ -38,7 +38,7 @@
             <a href="#blog">blog</a>
             <a href="https://github.com/PranavKohli24?tab=repositories" target="_blank" rel="noopener noreferrer">projects</a>
             <a href="https://drive.google.com/file/d/10s4sDVGoiWsWDsEmhUHa9QeSC5hf7cU5/view" target="_blank" rel="noopener noreferrer">resume</a>
-            <a href="https://www.pranavkohli.me" target="_blank" rel="noopener noreferrer">digital twin</a>
+            <a href="https://www.pranavkohli.me" target="_blank" rel="noopener noreferrer"><span class="hover-trigger" data-src="/src/images/digital_twin.png" data-width="160px" data-height="160px">digital twin</span></a>
             <a href="#contact">contact</a>
         </nav>
 
@@ -241,7 +241,12 @@
 
             const imageSrc = this.getAttribute('data-src');
             ghost.style.backgroundImage = `url(${imageSrc})`;
-            
+
+            const customWidth = this.getAttribute('data-width');
+            ghost.style.width = customWidth ? customWidth : '365px';
+
+            const customHeight = this.getAttribute('data-height');
+            ghost.style.height = customHeight ? customHeight : '160px';
             // Start the 1-second timer
             hoverTimer = setTimeout(() => {
                 ghost.classList.add('active');
@@ -257,8 +262,8 @@
             // Also stop the logic if mobile (just in case)
             if (window.innerWidth < 768) return;
 
-            const x = e.clientX + 20;
-            const y = e.clientY + 20;
+            const x = e.clientX + 18;
+            const y = e.clientY + 18;
             ghost.style.left = `${x}px`;
             ghost.style.top = `${y}px`;
         });

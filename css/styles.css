@@ -1017,7 +1017,7 @@ body.no-scroll main {
     /* The Image Styling */
     background-size: cover;
     background-position: center;
-    background-color: rgba(255, 255, 255, 0.1);
+    /* background-color: rgba(255, 255, 255, 0.1); */
     
     /* Hidden by default */
     opacity: 0;
@@ -1027,9 +1027,9 @@ body.no-scroll main {
     transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.1, 0.6, 0.2, 1);
     
     /* The Liquid Glass Look */
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(4px);
+    /* box-shadow: 0 20px 40px rgba(0,0,0,0.1); */
+    /* border: 1px solid rgba(255, 255, 255, 0.2); */
+    /* backdrop-filter: blur(4px); */
 }
 
 /* When active, it pops up */
