@@ -157,7 +157,7 @@ body.no-scroll main {
 }
 
 .bio-link {
-    color: #333;
+    color: #555;
     text-decoration: none;
     font-style: italic;
     transition: color 0.2s, transform 0.2s;
