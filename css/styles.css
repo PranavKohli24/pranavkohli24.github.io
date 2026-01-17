@@ -1002,3 +1002,38 @@ body.no-scroll main {
     color: inherit; /* Keep text color same */
     -webkit-text-fill-color: inherit;
 }
+
+
+#ghost-preview {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 365px; /* Size of the preview */
+    height: 160px;
+    border-radius: 18px;
+    z-index: 9999;
+    pointer-events: none; /* Mouse ignores it */
+    
+    /* The Image Styling */
+    background-size: cover;
+    background-position: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    
+    /* Hidden by default */
+    opacity: 0;
+    transform: scale(0.8);
+    
+    /* The Animation */
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.1, 0.6, 0.2, 1);
+    
+    /* The Liquid Glass Look */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+}
+
+/* When active, it pops up */
+#ghost-preview.active {
+    opacity: 1;
+    transform: scale(1);
+}
