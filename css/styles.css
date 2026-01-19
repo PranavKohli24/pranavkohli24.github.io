@@ -210,6 +210,7 @@ body.no-scroll main {
 .contact-section {
     margin-top: 3rem;
     max-width: 68ch;
+    position: relative;
 }
 
 .contact-links {
@@ -1036,4 +1037,50 @@ body.no-scroll main {
 #ghost-preview.active {
     opacity: 1;
     transform: scale(1);
+}
+
+
+/* STAMP CONTAINER */
+.rotating-stamp {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem; /* Sits in the bottom-right corner of the section */
+    width: 140px;
+    height: 140px;
+    opacity: 0.4; /* Keep it subtle and minimal */
+    color: var(--text-color);
+    pointer-events: none; /* Let clicks pass through */
+    z-index: 0;
+    
+    /* Center the inner text */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* THE TEXT RING ANIMATION */
+.rotating-stamp svg {
+    animation: rotateStamp 20s linear infinite;
+    transform-origin: center;
+}
+
+@keyframes rotateStamp {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* THE CENTER INITIALS */
+.stamp-center {
+    position: fixed;
+    font-size: 1.5rem;
+    font-weight: 700;
+    /* Keeps the center static while the ring spins */
+}
+
+/* MOBILE FIX */
+@media (max-width: 768px) {
+    .rotating-stamp {
+        /* On mobile, move it to the background or hide it if it's too crowded */
+        display:none;
+    }
 }
