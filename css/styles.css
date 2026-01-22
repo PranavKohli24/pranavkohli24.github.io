@@ -51,6 +51,7 @@ nav {
     gap: 2.2rem;
     padding-top: 0.6rem;
     transition: transform var(--transition-speed) ease-out;
+
 }
 
 nav a {
@@ -374,7 +375,7 @@ body.no-scroll main {
     border-left: 3px solid transparent;
     padding: 1.5rem;
     cursor: pointer;
-    background-color: rgba(93, 0, 247, 0.1);
+    background-color: #c2b4cc;
     border-radius: 8px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
     transform: translateZ(0);
@@ -384,7 +385,7 @@ body.no-scroll main {
 .blog-post-item:hover {
     border-left-color: var(--highlight-color);
     background-color: rgba(93, 0, 247, 0.05);
-    transform: translateX(8px);
+    transform: translateX(8px) translateY(-2px);
 }
 
 .blog-post-title {
