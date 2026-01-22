@@ -9,7 +9,7 @@ const blogPosts = [
         title: 'How ChatGPT helped me answer much of my curiousity',
         date: 'November 2025',
         image: 'src/images/blog1.jpeg',
-        imageAlt: 'ChatGPT curiosity blog illustration',
+        imageAlt: 'Blog1 Image',
         audioFile: 'src/audio/blog1_audio.mp3',
         content: `
             <p>I've always been like this.</p>
@@ -64,7 +64,99 @@ const blogPosts = [
 
             <p>Honestly, that's all I ever wanted.</p>
         `
-    }
+    },
+        blog2 = {
+    id: 'blog2',
+    title: 'The 3 AM Breakthrough: Saving the Hackathon Demo',
+    date: 'December 2025',
+    image: 'src/images/blog2.jpeg',
+    imageAlt: 'Hackathon team working late night',
+    // audioFile: 'src/audio/blog2_audio.mp3',
+    content: `
+            <p>It was a 24 hour hackathon</p>
+        <p>It was 3:47 AM. The submission deadline was at 8:00 AM sharp.</p>
+
+        <p>The rest of my team was asleep on beanbags behind me. I was the only one left awake, staring at a screen that was mocking me.</p>
+
+        <p>I'd been stuck on the same feature for six hours. The "killer feature" of our app: A live group chat. It sounded so simple. You type a message, and it appears on everyone else's screen instantly.</p>
+
+        <p>The problem? Every time I tested it, the app went crazy. I would type "Hello" once, but the screen would show it twice. Then four times. Then ten. Within seconds, the whole app would freeze.</p>
+
+        <p><b>Hour 4: Confidence</b><br>
+        We had just finished the design. It looked great. I wrote the code to send messages back and forth. It worked perfectly on my own laptop. I felt invincible.</p>
+
+        <p>"We're going to win this," I told my teammate.</p>
+
+        <p><b>Hour 9: The Crash</b><br>
+        We put the website live for testing. Suddenly, chaos. Messages were duplicating endlessly. It was like walking into a room of echoes where everyone is shouting at once.</p>
+
+        <p>I rewrote the code three times. I checked the internet connection. I checked the server, debugged the code.</p>
+
+        <p>Nothing stopped the flood of duplicate messages.</p>
+
+        <p><b>Hour 14: Breaking Point</b><br>
+        This was it. The "Hackathon Wall."</p>
+
+        <p>I was exhausted. My eyes were burning. I had consumed three energy drinks and a questionable amount of pizza. I knew the logic was right. But the result was wrong.</p>
+
+        <p>I considered scrapping the feature. "Maybe we just remove the chat," I thought. "Maybe we just pretend it's not finished."</p>
+
+        <p>But I couldn't give up. Not this close to the finish line.</p>
+
+        <p>I stepped away from the laptop. Walked to the window. Looked at the empty city streets.</p>
+
+        <p>I stopped thinking about the code and started thinking about what I was actually telling the computer to do.</p>
+
+        <p>I realized I had made a fundamental mistake in how I was giving instructions.</p>
+
+        <p>Imagine you hire a receptionist to listen for the phone. Every time the phone rings, they write down the message.</p>
+
+        <p>My mistake was that every time the screen refreshed, I was hiring a <i>new</i> receptionist. But I never told the <i>old</i> receptionist to go home.</p>
+
+        <p>So, after ten minutes, I had 50 receptionists all listening to the same phone, all shouting the same message at the same time.</p>
+
+        <p>I rushed back to the keyboard. I didn't need to add more code. I needed to tell the "old receptionists" to leave.</p>
+
+        <p>I needed a "cleanup" instruction.</p>
+
+        <p>I wrote it out, roughly translating to:</p>
+        <code style="display: block; background: rgba(0,0,0,0.05); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+        When the screen updates:<br>
+        1. Stop listening to the old messages.<br>
+        2. Start listening for new ones.
+        </code>
+
+        <p>Three lines of code. That's all it took to stop the chaos.</p>
+
+        <p>I saved. I reloaded the page. I typed "Hello."</p>
+
+        <p><b>"Hello" appeared exactly once.</b></p>
+
+        <p>That feeling… that's why we do hackathons.</p>
+
+        <p>It's not about the prizes. It's about that specific moment of clarity when the things work.</p>
+
+        <p>You don't just fix a bug. You level up. Suddenly, a complex technical concept wasn't just a theory anymore. It was real. I understood <i>why</i> it mattered to be tidy with your code.</p>
+
+        <p>I spent six hours on one problem. But in those six hours, I learned a lesson about attention to detail that no textbook could teach me.</p>
+
+        <p><b>The real lesson?</b></p>
+
+        <p>Computers do exactly what you tell them to do - even if what you tell them to do is ridiculous.</p>
+
+        <p>In a hackathon, you can learn about frontend, backend, databases, optimisation, and pitching your ideas,, which is why I used to participate in as many hackathons I could</p>
+        <p>Those hours of panic? That's just the tuition fee for the knowledge you're about to gain.</p>
+
+        
+        <br/>
+
+        <p>But we pitched at 9 AM. The feature worked flawlessly. The judges loved the overall solution, <br/>and yes my team won the hackathon!</p>
+
+        <p>And that euphoria of getting into the solutions. That's the thing I'm chasing.</p>
+
+       
+    `
+}
     
     /* 
      * To add a new blog post, copy the template below and fill in your details:

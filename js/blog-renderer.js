@@ -56,8 +56,12 @@
         blogContainer.innerHTML = '';
 
         blogPosts.forEach(post => {
-            const audioPlayer = post.audioFile ? createAudioPlayer(post.id, post.audioFile) : '';
-            
+            // const audioPlayer = post.audioFile ? createAudioPlayer(post.id, post.audioFile) : '';
+            const audioPlayer =
+                typeof post.audioFile === 'string' && post.audioFile.trim() !== ''
+                    ? createAudioPlayer(post.id, post.audioFile)
+                    : '';
+
             const blogSection = `
                 <section id="${post.id}" class="section">
                     <div class="blog-post-page">
