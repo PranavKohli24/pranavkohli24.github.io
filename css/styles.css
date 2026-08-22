@@ -7,7 +7,7 @@
     --secondary-text-color: #505050;
     --highlight-color: #5d00f7;
     --transition-speed: 0.3s;
-    --menu-transition-speed: 0.5s;
+    --menu-transition-speed: 0.8s;
 }
 
 /* Reset and Base Styles */
@@ -720,7 +720,7 @@ body.no-scroll main {
         align-items: center;
         gap: 3.5rem;
         transform: translateX(100%);
-        transition: transform var(--menu-transition-speed) cubic-bezier(0.9, 0.72, 0, 1);
+        transition: transform var(--menu-transition-speed) cubic-bezier(0.22, 1, 0.36, 1);
         z-index: 1000;
         transform-style: preserve-3d;
         will-change: transform;
