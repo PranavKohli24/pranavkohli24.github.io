@@ -71,7 +71,7 @@ const blogPosts = [
     date: 'December 2025',
     image: 'src/images/blog2.jpeg',
     imageAlt: 'Hackathon team working late night',
-    // audioFile: 'src/audio/blog2_audio.mp3',
+    audioFile: 'src/audio/blog2_audio.mp3',
     content: `
             <p>It was a 24 hour hackathon</p>
         <p>It was 3:47 AM. The submission deadline was at 8:00 AM sharp.</p>
