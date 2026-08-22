@@ -463,8 +463,12 @@
 <script>
     // LIQUID AURORA EFFECT
     const glow = document.getElementById('liquid-glow');
-    
+    const gameSection = document.getElementById('game');
+
     document.addEventListener('mousemove', (e) => {
+        // Don't move the glow while the game is active — it's distracting during play
+        if (gameSection && gameSection.classList.contains('active')) return;
+
         const x = e.clientX;
         const y = e.clientY;
         
@@ -473,6 +477,7 @@
         glow.style.transform = `translate(${x - 300}px, ${y - 300}px)`;
     });
 </script>
+
     <script>
     function toggleProfiles() {
         var dropdown = document.getElementById("profiles-dropdown");

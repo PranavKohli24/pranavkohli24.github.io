@@ -1112,6 +1112,14 @@ body.no-scroll main {
     display: flex;
 }
 
+#liquid-glow {
+    transition: opacity 0.4s ease, transform 1.2s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+body:has(#game.section.active) #liquid-glow {
+    opacity: 0;
+}
+
 #game .header-container {
     justify-content: center;
 }
