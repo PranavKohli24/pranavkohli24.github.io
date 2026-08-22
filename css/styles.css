@@ -1296,3 +1296,34 @@ body:has(#game.section.active) #liquid-glow {
         font-size: 1.4rem;
     }
 }
+
+/* Layout for the end-game buttons */
+.game-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap; /* Allows them to stack on very small screens */
+    margin-top: 0.5rem;
+}
+
+/* Secondary Button (Outline style for the Resume) */
+.secondary-btn {
+    background: transparent;
+    color: var(--highlight-color);
+    border: 2px solid var(--highlight-color);
+    padding: 0.85rem 1.8rem;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none; /* Removes the underline from the <a> tag */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.secondary-btn:hover {
+    background: rgba(93, 0, 247, 0.08); /* Light purple tint on hover */
+    transform: translateY(-2px);
+}
