@@ -92,6 +92,12 @@ body.no-scroll main {
     color: var(--highlight-color);
 }
 
+#time-emoji {
+    font-size: 0.35em;
+    vertical-align: middle;
+    display: inline-block;
+}
+
 .subtitle {
     font-size: 1.3rem;
     color: var(--secondary-text-color);

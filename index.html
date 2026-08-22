@@ -46,7 +46,7 @@
             <!-- About Section -->
             <section id="about" class="section active">
                 <div class="header-container">
-                    <h1 class="header">Hey, I'm Pranav<span class="highlight">.</span></h1>
+                    <h1 class="header">Hey, I'm Pranav <span id="time-emoji"></span><span class="highlight">.</span></h1>
                     <img src="Pranav.png" alt="Pranav Kohli" class="profile-pic">
                 </div>
 
@@ -285,6 +285,30 @@
         });
     });
 </script>
+
+<script>
+    // TIME-BASED GREETING EMOJI
+    (function() {
+        const emojiEl = document.getElementById('time-emoji');
+        if (!emojiEl) return;
+
+        const hour = new Date().getHours();
+        let emoji = '🌙'; // default: late night
+
+        if (hour >= 5 && hour < 11) {
+            emoji = '☀️';       // early morning
+        } else if (hour >= 11 && hour < 17) {
+            emoji = '🌤️';       // afternoon
+        } else if (hour >= 17 && hour < 21) {
+            emoji = '🌆';       // evening
+        } else {
+            emoji = '🌙';       // night (21:00–5:00)
+        }
+
+        emojiEl.textContent = emoji;
+    })();
+</script>
+
 
     <script>
     // CHAMELEON BACKGROUND
