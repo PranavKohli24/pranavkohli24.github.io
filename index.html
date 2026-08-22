@@ -238,6 +238,7 @@
 
 <!-- Game Section -->
 <!-- Game Section -->
+<!-- Game Section -->
 <section id="game" class="section" data-glow="rgba(93, 0, 247, 0.35)">
     <div class="header-container">
         <h1 class="header">Escape the Interview<span class="highlight">.</span></h1>
@@ -254,6 +255,12 @@
     <div class="game-canvas-wrap">
         <canvas id="mazeCanvas"></canvas>
 
+        <div class="game-overlay active" id="startOverlay">
+            <h2>Ready to escape?</h2>
+            <p>Four rounds, one maze each. The timer starts the moment you hit play.</p>
+            <button class="primary-btn" id="startBtn">Start Game</button>
+        </div>
+
         <div class="game-overlay" id="winOverlay">
             <h2>You got the offer! 🎉</h2>
             <p>You escaped all four rounds and made it out the other side.</p>
@@ -262,7 +269,7 @@
         </div>
     </div>
 
-    <div class="game-dpad" aria-label="movement controls">
+    <div class="game-dpad pre-start" id="gameDpad" aria-label="movement controls">
         <button class="dpad-btn dpad-up" id="btnUp" aria-label="Move up">↑</button>
         <div class="dpad-mid-row">
             <button class="dpad-btn dpad-left" id="btnLeft" aria-label="Move left">←</button>
@@ -274,6 +281,7 @@
     <p class="game-hint">Arrow keys / WASD to move · swipe or tap arrows on mobile</p>
     <p class="game-best" id="bestScore"></p>
 </section>
+
             <!-- Individual Blog Posts Container -->
             <div id="blogPostsContainer">
                 <!-- Blog posts will be dynamically loaded here -->

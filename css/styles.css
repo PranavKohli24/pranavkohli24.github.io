@@ -1210,6 +1210,10 @@ body:has(#game.section.active) #liquid-glow {
     }
 }
 
+.game-dpad.pre-start {
+    display: none !important;
+}
+
 .game-best {
     font-size: 0.85rem;
     color: var(--secondary-text-color);

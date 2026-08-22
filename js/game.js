@@ -30,7 +30,9 @@
     let startTime = null;
     let timerInterval = null;
     let initialized = false;
+    let gameStarted = false;
     let btnUp, btnDown, btnLeft, btnRight;
+    let startOverlay, startBtn, dpadContainer;
 
     function shuffle(arr) {
         for (let i = arr.length - 1; i > 0; i--) {
@@ -75,7 +77,7 @@
         return g;
     }
 
-    function startRound(index) {
+    function startRound(index, startClock) {
         currentRoundIndex = index;
         const round = ROUNDS[index];
         grid = generateMaze(round.size);
@@ -90,7 +92,7 @@
         hudRound.textContent = index + 1;
         hudMoves.textContent = totalMoves;
 
-        if (index === 0) {
+        if (index === 0 && startClock) {
             totalMoves = 0;
             hudMoves.textContent = 0;
             startTime = Date.now();
@@ -163,6 +165,7 @@
     }
 
     function tryMove(dx, dy) {
+        if (!gameStarted) return;
         if (winOverlay.classList.contains('active')) return;
 
         const cell = grid[playerY][playerX];
@@ -186,7 +189,7 @@
 
     function handleRoundComplete() {
         if (currentRoundIndex < ROUNDS.length - 1) {
-            setTimeout(() => startRound(currentRoundIndex + 1), 350);
+            setTimeout(() => startRound(currentRoundIndex + 1, true), 350);
         } else {
             clearInterval(timerInterval);
             const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
@@ -206,10 +209,18 @@
         if (best) bestScoreEl.textContent = `Your best escape: ${best}s`;
     }
 
+    function handleStart() {
+        gameStarted = true;
+        startOverlay.classList.remove('active');
+        dpadContainer.classList.remove('pre-start');
+        startRound(0, true);
+    }
+
     function resetGame() {
         winOverlay.classList.remove('active');
         showBest();
-        startRound(0);
+        gameStarted = true;
+        startRound(0, true);
     }
 
     function bindElements() {
@@ -230,6 +241,9 @@
         btnDown = document.getElementById('btnDown');
         btnLeft = document.getElementById('btnLeft');
         btnRight = document.getElementById('btnRight');
+        startOverlay = document.getElementById('startOverlay');
+        startBtn = document.getElementById('startBtn');
+        dpadContainer = document.getElementById('gameDpad');
 
         return true;
     }
@@ -269,6 +283,7 @@
         }, { passive: true });
 
         playAgainBtn.addEventListener('click', resetGame);
+        startBtn.addEventListener('click', handleStart);
 
         // D-pad button controls
         const dpadMap = [
@@ -294,7 +309,7 @@
 
         attachListeners();
         showBest();
-        startRound(0);
+        startRound(0, false);
         initialized = true;
     }
 
