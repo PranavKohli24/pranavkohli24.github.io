@@ -1127,7 +1127,7 @@ body:has(#game.section.active) #liquid-glow {
 @media (max-width: 768px) {
     #game .header {
         margin-top: 0; 
-        padding-right: 4rem;
+        padding-right: 2.5rem;
         line-height: 1.1;
     }
 }
