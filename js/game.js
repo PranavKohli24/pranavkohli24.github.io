@@ -201,6 +201,7 @@
             }
 
             winOverlay.classList.add('active');
+            dpadContainer.classList.add('pre-start');
         }
     }
 
@@ -220,6 +221,7 @@
         winOverlay.classList.remove('active');
         showBest();
         gameStarted = true;
+        dpadContainer.classList.remove('pre-start');
         startRound(0, true);
     }
 
