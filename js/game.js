@@ -30,6 +30,7 @@
     let startTime = null;
     let timerInterval = null;
     let initialized = false;
+    let btnUp, btnDown, btnLeft, btnRight;
 
     function shuffle(arr) {
         for (let i = arr.length - 1; i > 0; i--) {
@@ -225,6 +226,10 @@
         finalStats = document.getElementById('finalStats');
         bestScoreEl = document.getElementById('bestScore');
         playAgainBtn = document.getElementById('playAgainBtn');
+        btnUp = document.getElementById('btnUp');
+        btnDown = document.getElementById('btnDown');
+        btnLeft = document.getElementById('btnLeft');
+        btnRight = document.getElementById('btnRight');
 
         return true;
     }
@@ -264,6 +269,23 @@
         }, { passive: true });
 
         playAgainBtn.addEventListener('click', resetGame);
+
+        // D-pad button controls
+        const dpadMap = [
+            [btnUp, 0, -1],
+            [btnDown, 0, 1],
+            [btnLeft, -1, 0],
+            [btnRight, 1, 0]
+        ];
+        dpadMap.forEach(([btn, dx, dy]) => {
+            if (!btn) return;
+            btn.addEventListener('click', () => tryMove(dx, dy));
+            // touchstart gives snappier response than click on mobile
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                tryMove(dx, dy);
+            }, { passive: false });
+        });
     }
 
     function init() {
