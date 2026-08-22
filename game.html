@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escape the Interview — Pranav Kohli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --background-color: #f5f3ef;
+        --text-color: #0a0a0a;
+        --secondary-text-color: #505050;
+        --highlight-color: #5d00f7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--background-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .back-link {
+        position: fixed;
+        top: 2rem;
+        left: 2rem;
+        color: var(--secondary-text-color);
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+    .back-link:hover { color: var(--highlight-color); transform: translateX(-4px); }
+
+    .game-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.2rem;
+        max-width: 560px;
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        text-align: center;
+    }
+    h1 span { color: var(--highlight-color); }
+
+    .flavor {
+        color: var(--secondary-text-color);
+        font-size: 1rem;
+        text-align: center;
+        min-height: 1.4em;
+        max-width: 40ch;
+    }
+
+    .hud {
+        display: flex;
+        gap: 2rem;
+        font-size: 0.9rem;
+        color: var(--secondary-text-color);
+        font-variant-numeric: tabular-nums;
+    }
+    .hud b { color: var(--text-color); }
+
+    #mazeCanvas {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08), inset 0 0 0 1px rgba(0,0,0,0.04);
+        touch-action: none;
+        max-width: 100%;
+        height: auto;
+    }
+
+    .hint {
+        font-size: 0.85rem;
+        color: var(--secondary-text-color);
+        opacity: 0.7;
+        text-align: center;
+    }
+
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(245, 243, 239, 0.92);
+        backdrop-filter: blur(12px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 1.2rem;
+        text-align: center;
+        padding: 2rem;
+        z-index: 10;
+    }
+    .overlay.active { display: flex; }
+    .overlay h2 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+    }
+    .overlay p { color: var(--secondary-text-color); font-size: 1.1rem; max-width: 40ch; }
+    .overlay .stats { font-size: 1rem; color: var(--text-color); }
+
+    button.primary {
+        background: var(--highlight-color);
+        color: #fff;
+        border: none;
+        padding: 0.85rem 1.8rem;
+        border-radius: 100px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, background 0.2s ease;
+    }
+    button.primary:hover { transform: translateY(-2px); background: #4b00c7; }
+
+    .best {
+        font-size: 0.85rem;
+        color: var(--secondary-text-color);
+    }
+</style>
+</head>
+<body>
+
+<a href="/" class="back-link">← Back to site</a>
+
+<div class="game-wrap">
+    <h1 id="roundTitle">Round 1: Resume Screening<span>.</span></h1>
+    <p class="flavor" id="flavorText">They're skimming your resume for 6 seconds. Move fast.</p>
+
+    <div class="hud">
+        <div>Round <b id="hudRound">1</b> / 4</div>
+        <div>Moves <b id="hudMoves">0</b></div>
+        <div>Time <b id="hudTime">0.0s</b></div>
+    </div>
+
+    <canvas id="mazeCanvas"></canvas>
+
+    <p class="hint">Arrow keys / WASD to move · swipe on mobile</p>
+    <p class="best" id="bestScore"></p>
+</div>
+
+<div class="overlay" id="winOverlay">
+    <h2>You got the offer! 🎉</h2>
+    <p>You escaped all four rounds and made it out the other side.</p>
+    <div class="stats" id="finalStats"></div>
+    <button class="primary" id="playAgainBtn">Play again</button>
+</div>
+
+<script>
+(function() {
+    const ROUNDS = [
+        { size: 7,  title: "Round 1: Resume Screening", flavor: "They're skimming your resume for 6 seconds. Move fast." },
+        { size: 9,  title: "Round 2: Online Assessment", flavor: "Two hours, one maze, zero partial credit." },
+        { size: 11, title: "Round 3: Technical Interview", flavor: "\"Can you optimize that?\" Yes. Find the exit faster." },
+        { size: 13, title: "Round 4: HR Round", flavor: "Last one. Where do you see yourself in 5 minutes?" }
+    ];
+
+    const canvas = document.getElementById('mazeCanvas');
+    const ctx = canvas.getContext('2d');
+    const roundTitleEl = document.getElementById('roundTitle');
+    const flavorEl = document.getElementById('flavorText');
+    const hudRound = document.getElementById('hudRound');
+    const hudMoves = document.getElementById('hudMoves');
+    const hudTime = document.getElementById('hudTime');
+    const winOverlay = document.getElementById('winOverlay');
+    const finalStats = document.getElementById('finalStats');
+    const bestScoreEl = document.getElementById('bestScore');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+
+    const CELL = 32;
+    let currentRoundIndex = 0;
+    let grid, cols, rows, playerX, playerY, exitX, exitY;
+    let totalMoves = 0;
+    let startTime = null;
+    let timerInterval = null;
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function generateMaze(size) {
+        cols = size; rows = size;
+        const g = Array.from({ length: rows }, () =>
+            Array.from({ length: cols }, () => ({
+                visited: false, top: true, right: true, bottom: true, left: true
+            }))
+        );
+
+        function neighbors(x, y) {
+            const dirs = [[0, -1, 'top', 'bottom'], [1, 0, 'right', 'left'], [0, 1, 'bottom', 'top'], [-1, 0, 'left', 'right']];
+            const result = [];
+            for (const [dx, dy, a, b] of dirs) {
+                const nx = x + dx, ny = y + dy;
+                if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && !g[ny][nx].visited) {
+                    result.push([nx, ny, a, b]);
+                }
+            }
+            return result;
+        }
+
+        const stack = [[0, 0]];
+        g[0][0].visited = true;
+        while (stack.length) {
+            const [x, y] = stack[stack.length - 1];
+            const ns = shuffle(neighbors(x, y));
+            if (ns.length === 0) { stack.pop(); continue; }
+            const [nx, ny, a, b] = ns[0];
+            g[y][x][a] = false;
+            g[ny][nx][b] = false;
+            g[ny][nx].visited = true;
+            stack.push([nx, ny]);
+        }
+        return g;
+    }
+
+    function startRound(index) {
+        currentRoundIndex = index;
+        const round = ROUNDS[index];
+        grid = generateMaze(round.size);
+        playerX = 0; playerY = 0;
+        exitX = round.size - 1; exitY = round.size - 1;
+
+        canvas.width = cols * CELL;
+        canvas.height = rows * CELL;
+
+        roundTitleEl.innerHTML = round.title + '<span>.</span>';
+        flavorEl.textContent = round.flavor;
+        hudRound.textContent = index + 1;
+
+        if (index === 0) {
+            totalMoves = 0;
+            startTime = Date.now();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 100);
+        }
+
+        draw();
+    }
+
+    function updateTimer() {
+        if (!startTime) return;
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        hudTime.textContent = elapsed + 's';
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = '#0a0a0a';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+
+        for (let y = 0; y < rows; y++) {
+            for (let x = 0; x < cols; x++) {
+                const cell = grid[y][x];
+                const px = x * CELL, py = y * CELL;
+                ctx.beginPath();
+                if (cell.top) { ctx.moveTo(px, py); ctx.lineTo(px + CELL, py); }
+                if (cell.right) { ctx.moveTo(px + CELL, py); ctx.lineTo(px + CELL, py + CELL); }
+                if (cell.bottom) { ctx.moveTo(px, py + CELL); ctx.lineTo(px + CELL, py + CELL); }
+                if (cell.left) { ctx.moveTo(px, py); ctx.lineTo(px, py + CELL); }
+                ctx.stroke();
+            }
+        }
+
+        // exit marker
+        ctx.fillStyle = 'rgba(93, 0, 247, 0.12)';
+        ctx.fillRect(exitX * CELL + 4, exitY * CELL + 4, CELL - 8, CELL - 8);
+        ctx.font = `${CELL * 0.55}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🚪', exitX * CELL + CELL / 2, exitY * CELL + CELL / 2);
+
+        // player
+        ctx.beginPath();
+        ctx.fillStyle = '#5d00f7';
+        ctx.arc(playerX * CELL + CELL / 2, playerY * CELL + CELL / 2, CELL * 0.28, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    function tryMove(dx, dy) {
+        const cell = grid[playerY][playerX];
+        if (dx === 1 && cell.right) return;
+        if (dx === -1 && cell.left) return;
+        if (dy === 1 && cell.bottom) return;
+        if (dy === -1 && cell.top) return;
+
+        const nx = playerX + dx, ny = playerY + dy;
+        if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) return;
+
+        playerX = nx; playerY = ny;
+        totalMoves++;
+        hudMoves.textContent = totalMoves;
+        draw();
+
+        if (playerX === exitX && playerY === exitY) {
+            handleRoundComplete();
+        }
+    }
+
+    function handleRoundComplete() {
+        if (currentRoundIndex < ROUNDS.length - 1) {
+            setTimeout(() => startRound(currentRoundIndex + 1), 350);
+        } else {
+            clearInterval(timerInterval);
+            const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+            finalStats.textContent = `${totalMoves} moves · ${totalTime}s`;
+
+            const best = localStorage.getItem('escapeInterviewBest');
+            if (!best || parseFloat(totalTime) < parseFloat(best)) {
+                localStorage.setItem('escapeInterviewBest', totalTime);
+            }
+
+            winOverlay.classList.add('active');
+        }
+    }
+
+    function showBest() {
+        const best = localStorage.getItem('escapeInterviewBest');
+        if (best) bestScoreEl.textContent = `Your best escape: ${best}s`;
+    }
+
+    // Keyboard controls
+    window.addEventListener('keydown', (e) => {
+        if (winOverlay.classList.contains('active')) return;
+        switch (e.key) {
+            case 'ArrowUp': case 'w': case 'W': tryMove(0, -1); break;
+            case 'ArrowDown': case 's': case 'S': tryMove(0, 1); break;
+            case 'ArrowLeft': case 'a': case 'A': tryMove(-1, 0); break;
+            case 'ArrowRight': case 'd': case 'D': tryMove(1, 0); break;
+        }
+    });
+
+    // Touch / swipe controls
+    let touchStartX = 0, touchStartY = 0;
+    canvas.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            tryMove(dx > 0 ? 1 : -1, 0);
+        } else {
+            tryMove(0, dy > 0 ? 1 : -1);
+        }
+    }, { passive: true });
+
+    playAgainBtn.addEventListener('click', () => {
+        winOverlay.classList.remove('active');
+        showBest();
+        startRound(0);
+    });
+
+    showBest();
+    startRound(0);
+})();
+</script>
+
+</body>
+</html>

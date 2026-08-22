@@ -40,6 +40,7 @@
             <a href="https://drive.google.com/file/d/10s4sDVGoiWsWDsEmhUHa9QeSC5hf7cU5/view" target="_blank" rel="noopener noreferrer">resume</a>
             <a href="https://www.pranavkohli.me" target="_blank" rel="noopener noreferrer"><span class="hover-trigger" data-src="/src/images/digital_twin.png" data-width="160px" data-height="160px">digital twin</span></a>
             <a href="#contact">contact</a>
+            <a href="#game">play</a>
         </nav>
 
         <main>
@@ -234,6 +235,35 @@
     <div class="stamp-center">PK</div>
 </div>
 </section>
+
+<!-- Game Section -->
+<section id="game" class="section" data-glow="rgba(93, 0, 247, 0.35)">
+    <div class="header-container">
+        <h1 class="header">Escape the Interview<span class="highlight">.</span></h1>
+    </div>
+    <p class="subtitle" id="roundTitle">Round 1: Resume Screening</p>
+    <p class="game-flavor" id="flavorText">They're skimming your resume for 6 seconds. Move fast.</p>
+
+    <div class="game-hud">
+        <div>Round <b id="hudRound">1</b> / 4</div>
+        <div>Moves <b id="hudMoves">0</b></div>
+        <div>Time <b id="hudTime">0.0s</b></div>
+    </div>
+
+    <div class="game-canvas-wrap">
+        <canvas id="mazeCanvas"></canvas>
+
+        <div class="game-overlay" id="winOverlay">
+            <h2>You got the offer! 🎉</h2>
+            <p>You escaped all four rounds and made it out the other side.</p>
+            <div class="game-stats" id="finalStats"></div>
+            <button class="primary-btn" id="playAgainBtn">Play again</button>
+        </div>
+    </div>
+
+    <p class="game-hint">Arrow keys / WASD to move · swipe on mobile</p>
+    <p class="game-best" id="bestScore"></p>
+</section>
             <!-- Individual Blog Posts Container -->
             <div id="blogPostsContainer">
                 <!-- Blog posts will be dynamically loaded here -->
@@ -418,6 +448,7 @@
     });
 </script>
 
+<script src="js/game.js"></script>
 
 <script>
     // LIQUID AURORA EFFECT

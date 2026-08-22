@@ -1099,3 +1099,121 @@ body.no-scroll main {
     animation-duration: 0.4s;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* Game Section */
+.game-flavor {
+    color: var(--secondary-text-color);
+    font-size: 1.05rem;
+    margin: -1.5rem 0 2rem 0;
+    max-width: 40ch;
+}
+
+.game-hud {
+    display: flex;
+    gap: 2rem;
+    font-size: 0.9rem;
+    color: var(--secondary-text-color);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 1.5rem;
+}
+
+.game-hud b {
+    color: var(--text-color);
+}
+
+.game-canvas-wrap {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+}
+
+#mazeCanvas {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08), inset 0 0 0 1px rgba(0,0,0,0.04);
+    touch-action: none;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.game-hint {
+    font-size: 0.85rem;
+    color: var(--secondary-text-color);
+    opacity: 0.7;
+    margin-top: 1.2rem;
+}
+
+.game-best {
+    font-size: 0.85rem;
+    color: var(--secondary-text-color);
+    margin-top: 0.3rem;
+}
+
+.game-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(245, 243, 239, 0.95);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    padding: 2rem;
+    z-index: 5;
+}
+
+.game-overlay.active {
+    display: flex;
+}
+
+.game-overlay h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+
+.game-overlay p {
+    color: var(--secondary-text-color);
+    font-size: 1rem;
+    max-width: 32ch;
+}
+
+.game-stats {
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.primary-btn {
+    background: var(--highlight-color);
+    color: #fff;
+    border: none;
+    padding: 0.85rem 1.8rem;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    background: #4b00c7;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .game-flavor {
+        font-size: 0.95rem;
+        margin: -1rem 0 1.5rem 0;
+    }
+    .game-hud {
+        gap: 1.2rem;
+        font-size: 0.85rem;
+    }
+    .game-overlay h2 {
+        font-size: 1.4rem;
+    }
+}
