@@ -1124,6 +1124,12 @@ body:has(#game.section.active) #liquid-glow {
     justify-content: center;
 }
 
+@media (max-width: 768px) {
+    #game .header {
+        margin-top: 2.8rem;
+    }
+}
+
 .game-flavor {
     color: var(--secondary-text-color);
     font-size: 1.05rem;
