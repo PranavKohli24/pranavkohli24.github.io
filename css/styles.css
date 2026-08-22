@@ -1344,19 +1344,35 @@ body:has(#game.section.active) #liquid-glow {
 
 #digital-twin .header-container {
     justify-content: center;
+    margin-bottom: 0;
+}
+
+/* Compact header — this is a chat app now, not a landing section,
+   so the heading shouldn't eat up vertical space */
+#digital-twin .header {
+    font-size: 2rem;
+    margin: 0;
+}
+
+#digital-twin .subtitle {
+    font-size: 0.95rem;
+    margin: 0.3rem 0 1rem 0;
 }
 
 .chat-wrap {
     width: 100%;
-    max-width: 480px;
-    margin-top: 1.5rem;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 11rem);
+    min-height: 400px;
 }
 
 .chat-messages {
     background: #fff;
     border-radius: 20px;
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08), inset 0 0 0 1px rgba(0,0,0,0.04);
-    height: 420px;
+    flex: 1;
     overflow-y: auto;
     padding: 1.5rem;
     display: flex;
@@ -1496,12 +1512,19 @@ body:has(#game.section.active) #liquid-glow {
 }
 
 @media (max-width: 768px) {
+    #digital-twin .header {
+        margin-top: 2.8rem;
+        font-size: 1.6rem;
+    }
+    #digital-twin .subtitle {
+        font-size: 0.85rem;
+    }
     .chat-wrap {
         max-width: 100%;
         padding: 0 0.5rem;
+        height: calc(100vh - 11rem);
     }
     .chat-messages {
-        height: 380px;
         padding: 1.2rem;
     }
     .chat-msg {
