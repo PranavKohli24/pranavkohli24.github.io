@@ -272,3 +272,34 @@
         font-size: 0.9rem;
     }
 }
+
+
+/* Header icon next to the title (replaces per-message avatars) */
+#digital-twin .header-container {
+    justify-content: center;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 0;
+    flex-wrap: nowrap;
+}
+
+.digital-twin-title-stack {
+    text-align: left;
+}
+
+.digital-twin-icon {
+    height: 125px;
+    width: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+#digital-twin .digital-twin-title-stack .subtitle {
+    margin: 0.2rem 0 1rem 0;
+}
+
+@media (max-width: 768px) {
+    .digital-twin-icon {
+        height: 100px;
+    }
+}
