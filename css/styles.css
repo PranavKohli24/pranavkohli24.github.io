@@ -1122,9 +1122,15 @@ html, body {
 /* 3. Make each section scrollable independently */
 .section {
     height: 100%;
-    overflow-y: auto; /* Enables scrolling inside the section */
-    -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling on iPhones */
+    overflow-y: auto; 
+    -webkit-overflow-scrolling: touch; 
     box-sizing: border-box;
+    
+    /* ADD THIS: Gives breathing room at the top so text doesn't clip */
+    padding-top: 1.5rem; 
+    
+    /* Good practice to add bottom padding too, so content doesn't get stuck under mobile swipe bars */
+    padding-bottom: 2rem; 
 }
 
 /* 4. Keep your Digital Twin overrides untouched */
