@@ -1,0 +1,227 @@
+/* Game Section */
+#game {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
+#game.section.active {
+    display: flex;
+}
+
+#liquid-glow {
+    transition: opacity 0.4s ease, transform 1.2s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+body:has(#game.section.active) #liquid-glow {
+    opacity: 0;
+}
+
+#game .header-container {
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    #game .header {
+        margin-top: -1rem; 
+        padding-right: 2.5rem;
+        /* line-height: 1.1; */
+    }
+}
+
+.game-flavor {
+    color: var(--secondary-text-color);
+    font-size: 1.05rem;
+    margin: -1.5rem 0 2rem 0;
+    max-width: 40ch;
+}
+
+.game-hud {
+    display: flex;
+    gap: 2rem;
+    font-size: 0.9rem;
+    color: var(--secondary-text-color);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 1.5rem;
+}
+
+.game-hud b {
+    color: var(--text-color);
+}
+
+.game-canvas-wrap {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+}
+
+#mazeCanvas {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 12px 48px rgba(31, 38, 135, 0.45), inset 0 0 0 1px rgba(0,0,0,0.1);
+    touch-action: none;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.game-hint {
+    font-size: 0.85rem;
+    color: var(--secondary-text-color);
+    opacity: 0.7;
+    margin-top: 1.2rem;
+}
+
+/* D-pad controls */
+.game-dpad {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.dpad-mid-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.dpad-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    border: none;
+    background: rgba(93, 0, 247, 0.08);
+    color: var(--highlight-color);
+    font-size: 1.4rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.dpad-btn:active {
+    background: rgba(93, 0, 247, 0.2);
+    transform: scale(0.94);
+}
+
+@media (max-width: 768px) {
+    .game-dpad {
+        display: flex;
+    }
+}
+
+.game-dpad.pre-start {
+    display: none !important;
+}
+
+.game-best {
+    font-size: 0.85rem;
+    color: var(--secondary-text-color);
+    margin-top: 0.3rem;
+}
+
+.game-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(245, 243, 239, 0.95);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    padding: 1rem;
+    z-index: 5;
+}
+
+.game-overlay.active {
+    display: flex;
+}
+
+.game-overlay h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+
+.game-overlay p {
+    color: var(--secondary-text-color);
+    font-size: 1rem;
+    max-width: 32ch;
+}
+
+.game-stats {
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.primary-btn {
+    background: var(--highlight-color);
+    color: #fff;
+    border: none;
+    padding: 0.85rem 1.8rem;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    background: #4b00c7;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .game-flavor {
+        font-size: 0.95rem;
+        margin: -1rem 0 1.5rem 0;
+    }
+    .game-hud {
+        gap: 1.2rem;
+        font-size: 0.85rem;
+    }
+    .game-overlay h2 {
+        font-size: 1.4rem;
+    }
+}
+
+/* Layout for the end-game buttons */
+.game-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap; /* Allows them to stack on very small screens */
+    margin-top: 0.5rem;
+}
+
+/* Secondary Button (Outline style for the Resume) */
+.secondary-btn {
+    background: transparent;
+    color: var(--highlight-color);
+    border: 2px solid var(--highlight-color);
+    padding: 0.85rem 1.8rem;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none; /* Removes the underline from the <a> tag */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.secondary-btn:hover {
+    background: rgba(93, 0, 247, 0.08); /* Light purple tint on hover */
+    transform: translateY(-2px);
+}
