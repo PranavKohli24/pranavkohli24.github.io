@@ -84,8 +84,20 @@
         playerX = 0; playerY = 0;
         exitX = round.size - 1; exitY = round.size - 1;
 
-        canvas.width = cols * CELL;
-        canvas.height = rows * CELL;
+        // Render at actual screen pixel density so lines, the player dot,
+        // and the profile photo all stay crisp on retina/high-DPI screens.
+        const dpr = window.devicePixelRatio || 1;
+        const logicalWidth = cols * CELL;
+        const logicalHeight = rows * CELL;
+
+        canvas.width = logicalWidth * dpr;
+        canvas.height = logicalHeight * dpr;
+        canvas.style.width = logicalWidth + 'px';
+        canvas.style.height = logicalHeight + 'px';
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
 
         roundTitleEl.textContent = round.title;
         flavorEl.textContent = round.flavor;
@@ -110,7 +122,7 @@
     }
 
     function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, cols * CELL, rows * CELL);
 
         ctx.strokeStyle = '#0a0a0a';
         ctx.lineWidth = 2;
@@ -201,7 +213,6 @@
             }
 
             winOverlay.classList.add('active');
-            dpadContainer.classList.add('pre-start');
         }
     }
 
@@ -221,7 +232,6 @@
         winOverlay.classList.remove('active');
         showBest();
         gameStarted = true;
-        dpadContainer.classList.remove('pre-start');
         startRound(0, true);
     }
 
