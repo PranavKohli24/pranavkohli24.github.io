@@ -232,3 +232,43 @@
         font-size: 0.9rem;
     }
 }
+
+@media (max-width: 768px) {
+    #digital-twin.section.active {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 100dvh;
+        min-height: 0; /* overrides desktop min-height */
+        box-sizing: border-box; /* prevents padding from expanding height */
+        padding-top: 3.5rem; /* adjust based on your header/hamburger */
+        padding-bottom: 1rem;
+        z-index: 999;
+    }
+
+    #digital-twin .header {
+        font-size: 1.6rem;
+    }
+
+    #digital-twin .subtitle {
+        font-size: 0.85rem;
+    }
+
+    .chat-wrap {
+        max-width: 100%;
+        padding: 0 1rem; /* adds breathing room on sides */
+        box-sizing: border-box;
+    }
+
+    .chat-messages {
+        padding: 1.1rem;
+        border-radius: 16px;
+    }
+
+    .chat-msg {
+        max-width: 88%;
+        font-size: 0.9rem;
+    }
+}
