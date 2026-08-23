@@ -243,7 +243,7 @@
         height: 100dvh;
         min-height: 0; /* overrides desktop min-height */
         box-sizing: border-box; /* prevents padding from expanding height */
-        padding-top: 3.5rem; /* adjust based on your header/hamburger */
+        padding-top: 1.5rem; /* adjust based on your header/hamburger */
         padding-bottom: 1rem;
         z-index: 999;
     }
