@@ -1126,11 +1126,19 @@ html, body {
     -webkit-overflow-scrolling: touch; 
     box-sizing: border-box;
     
-    /* ADD THIS: Gives breathing room at the top so text doesn't clip */
     padding-top: 1.5rem; 
+    /* Increased bottom padding so content doesn't stick to the bottom */
+    padding-bottom: 5rem; 
     
-    /* Good practice to add bottom padding too, so content doesn't get stuck under mobile swipe bars */
-    padding-bottom: 2rem; 
+    /* Hides the scrollbar in Firefox */
+    scrollbar-width: none; 
+    /* Hides the scrollbar in IE/Edge */
+    -ms-overflow-style: none; 
+}
+
+/* Hides the scrollbar in Webkit browsers (Chrome, Safari, modern Edge) */
+.section::-webkit-scrollbar {
+    display: none;
 }
 
 /* 4. Keep your Digital Twin overrides untouched */
