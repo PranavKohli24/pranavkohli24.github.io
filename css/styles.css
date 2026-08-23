@@ -1101,49 +1101,48 @@ body.no-scroll main {
 }
 
 
-/* 1. Lock the HTML and Body so the browser URL bar never moves */
+/* 1. Lock HTML & Body */
 html, body {
     margin: 0;
     padding: 0;
     height: 100%; 
-    height: 100dvh; /* Uses dynamic viewport height to exact screen size */
-    overflow: hidden !important; /* Disables page-level scrolling */
-    overscroll-behavior: none; /* Prevents pull-to-refresh bounce */
+    height: 100dvh; 
+    overflow: hidden !important; 
+    overscroll-behavior: none; 
 }
 
-/* 2. Ensure your container and main wrap perfectly */
-.container, main {
+/* 2. Container takes full screen, acts as a column */
+.container {
     height: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden; 
 }
 
-/* 3. Make each section scrollable independently */
+/* 3. Main takes ONLY the remaining space below the nav */
+main {
+    flex: 1; /* Fills remaining space without pushing off-screen */
+    min-height: 0; /* Crucial for flex children to allow internal scrolling */
+    position: relative;
+    overflow: hidden; 
+}
+
+/* 4. Sections handle their own scrolling perfectly now */
 .section {
     height: 100%;
+    width: 100%;
     overflow-y: auto; 
     -webkit-overflow-scrolling: touch; 
     box-sizing: border-box;
     
     padding-top: 1.5rem; 
-    /* Increased bottom padding so content doesn't stick to the bottom */
-    padding-bottom: 5rem; 
+    padding-bottom: 5rem; /* Safe gap at the bottom */
     
-    /* Hides the scrollbar in Firefox */
+    /* Hide scrollbars */
     scrollbar-width: none; 
-    /* Hides the scrollbar in IE/Edge */
     -ms-overflow-style: none; 
 }
 
-/* Hides the scrollbar in Webkit browsers (Chrome, Safari, modern Edge) */
 .section::-webkit-scrollbar {
     display: none;
-}
-
-/* 4. Keep your Digital Twin overrides untouched */
-#digital-twin.section.active {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* Keeps the chat window itself locked */
 }
