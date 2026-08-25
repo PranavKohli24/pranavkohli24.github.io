@@ -1,14 +1,13 @@
 /**
  * Digital Twin Chat Module
- * Talks to the Cloudflare Worker, which proxies DeepSeek securely.
+ * Talks to the Cloudflare Worker, which streams replies from Workers AI
+ * token-by-token for a live typewriter effect.
  */
 
 (function() {
     'use strict';
 
-    // Your deployed Worker's URL
     const WORKER_URL = 'https://pranav-digital-twin.pranavdigitaltwin.workers.dev';
-
     const SESSION_KEY = 'digitalTwinSessionId';
 
     let chatMessages, chatInput, chatSendBtn, chatTyping, chatRemaining;
@@ -35,6 +34,21 @@
         bubble.appendChild(p);
         chatMessages.appendChild(bubble);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+        return bubble;
+    }
+
+    function appendEmptyBotBubble() {
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-msg chat-msg-bot';
+        const p = document.createElement('p');
+        p.textContent = '';
+        const cursor = document.createElement('span');
+        cursor.className = 'stream-cursor';
+        p.appendChild(cursor);
+        bubble.appendChild(p);
+        chatMessages.appendChild(bubble);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return bubble;
     }
 
     function setTyping(visible) {
@@ -45,6 +59,46 @@
     function setInputEnabled(enabled) {
         chatInput.disabled = !enabled;
         chatSendBtn.disabled = !enabled;
+    }
+
+    async function streamReply(res, bubble) {
+        const p = bubble.querySelector('p');
+        const cursor = bubble.querySelector('.stream-cursor');
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let fullText = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // last (possibly incomplete) line stays in buffer
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed.startsWith('data:')) continue;
+                const jsonStr = trimmed.slice(5).trim();
+                if (jsonStr === '[DONE]') continue;
+
+                try {
+                    const parsed = JSON.parse(jsonStr);
+                    if (parsed.response) {
+                        fullText += parsed.response;
+                        p.textContent = fullText;
+                        if (cursor) p.appendChild(cursor);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                } catch (e) {
+                    // partial/malformed chunk — safe to skip, next chunk completes it
+                }
+            }
+        }
+
+        if (cursor) cursor.remove();
+        return fullText;
     }
 
     async function sendMessage() {
@@ -66,29 +120,32 @@
                 body: JSON.stringify({ sessionId, messages: history })
             });
 
-            const data = await res.json();
-
-            setTyping(false);
-
             if (res.status === 429) {
-                appendMessage('error', data.message || "You've reached the message limit for this conversation.");
+                const data = await res.json();
+                setTyping(false);
+                appendMessage('error', data.message || "oops, You've reached the message limit for this conversation. contact pranav for this!");
                 rateLimited = true;
                 setInputEnabled(false);
                 return;
             }
 
-            if (!res.ok) {
-                appendMessage('error', "Something went wrong on my end — try again in a moment.");
+            if (!res.ok || !res.body) {
+                setTyping(false);
+                appendMessage('error', "ouch, Something went wrong on my end - try again in a moment.");
                 setInputEnabled(true);
                 return;
             }
 
-            appendMessage('bot', data.reply);
-            history.push({ role: 'assistant', content: data.reply });
+            setTyping(false);
+            const bubble = appendEmptyBotBubble();
+            const fullText = await streamReply(res, bubble);
+            history.push({ role: 'assistant', content: fullText });
 
-            if (typeof data.messagesRemaining === 'number') {
-                chatRemaining.textContent = data.messagesRemaining > 0
-                    ? `${data.messagesRemaining} messages left in this conversation`
+            const remaining = res.headers.get('X-Messages-Remaining');
+            if (remaining !== null) {
+                const n = parseInt(remaining, 10);
+                chatRemaining.textContent = n > 0
+                    ? `${n} messages left in this conversation`
                     : "That's the last message for this conversation.";
             }
 
@@ -96,7 +153,7 @@
             chatInput.focus();
         } catch (err) {
             setTyping(false);
-            appendMessage('error', "Couldn't reach the server — check your connection and try again.");
+            appendMessage('error', "oops, Couldn't reach the server - check your connection or try again.");
             setInputEnabled(true);
         } finally {
             isSending = false;

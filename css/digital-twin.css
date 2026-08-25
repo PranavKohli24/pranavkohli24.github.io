@@ -1,4 +1,4 @@
-/* Digital Twin Chat Section — futuristic, minimal, fixed layout */
+/* Digital Twin Chat Section — fixed layout, single source of truth for mobile */
 
 #digital-twin {
     flex-direction: column;
@@ -17,9 +17,24 @@
     overflow: hidden;
 }
 
+/* Header icon + title */
 #digital-twin .header-container {
     justify-content: center;
+    align-items: center;
+    gap: 0.9rem;
     margin-bottom: 0;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+}
+
+.digital-twin-title-stack {
+    text-align: left;
+}
+
+.digital-twin-icon {
+    height: 125px;
+    width: auto;
+    object-fit: contain;
     flex-shrink: 0;
 }
 
@@ -28,10 +43,9 @@
     margin: 0;
 }
 
-#digital-twin .subtitle {
+#digital-twin .digital-twin-title-stack .subtitle {
     font-size: 0.95rem;
-    margin: 0.3rem 0 1rem 0;
-    flex-shrink: 0;
+    margin: 0.2rem 0 1rem 0;
 }
 
 /* ---- Chat card ---- */
@@ -77,11 +91,13 @@
 }
 
 .chat-msg-bot {
+    position: relative;
     align-self: flex-start;
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(0, 0, 0, 0.05);
     color: var(--text-color);
     border-bottom-left-radius: 4px;
+    padding-right: 2.1rem; /* room for the speaker icon */
 }
 
 .chat-msg-user {
@@ -98,6 +114,41 @@
     color: #a83232;
     font-size: 0.85rem;
     text-align: center;
+}
+
+/* Speak-aloud button */
+.chat-speak-btn {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.55rem;
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: transparent;
+    color: var(--highlight-color);
+    opacity: 0.4;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 0;
+    transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.chat-speak-btn:hover {
+    opacity: 0.85;
+    background: rgba(93, 0, 247, 0.08);
+}
+
+.chat-speak-btn.speaking {
+    opacity: 1;
+    animation: speakPulse 1.1s infinite ease-in-out;
+}
+
+@keyframes speakPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
 }
 
 .chat-typing {
@@ -125,7 +176,7 @@
     30% { transform: translateY(-4px); opacity: 1; }
 }
 
-/* ---- Input row — pinned via flex, never via position:fixed ---- */
+/* ---- Input row ---- */
 .chat-input-row {
     display: flex;
     gap: 0.6rem;
@@ -192,7 +243,6 @@
     flex-shrink: 0;
 }
 
-/* Scrollbar inside chat */
 .chat-messages::-webkit-scrollbar {
     width: 6px;
 }
@@ -201,38 +251,7 @@
     border-radius: 20px;
 }
 
-/* ---- Mobile ---- */
-@media (max-width: 768px) {
-    #digital-twin.section.active {
-        height: calc(100vh - 5rem);
-        height: calc(100dvh - 5rem);
-        min-height: 380px;
-        padding-top: 2.8rem; /* clears the fixed hamburger button */
-    }
-
-    #digital-twin .header {
-        font-size: 1.6rem;
-    }
-
-    #digital-twin .subtitle {
-        font-size: 0.85rem;
-    }
-
-    .chat-wrap {
-        max-width: 100%;
-    }
-
-    .chat-messages {
-        padding: 1.1rem;
-        border-radius: 16px;
-    }
-
-    .chat-msg {
-        max-width: 88%;
-        font-size: 0.9rem;
-    }
-}
-
+/* ---- Mobile — single, consolidated block ---- */
 @media (max-width: 768px) {
     #digital-twin.section.active {
         position: fixed;
@@ -241,24 +260,28 @@
         right: 0;
         bottom: 0;
         height: 100dvh;
-        min-height: 0; /* overrides desktop min-height */
-        box-sizing: border-box; /* prevents padding from expanding height */
-        padding-top: 1.5rem; /* adjust based on your header/hamburger */
+        min-height: 0;
+        box-sizing: border-box;
+        padding-top: 2.8rem; /* clears the fixed hamburger button */
         padding-bottom: 1rem;
         z-index: 999;
+    }
+
+    .digital-twin-icon {
+        height: 100px;
     }
 
     #digital-twin .header {
         font-size: 1.6rem;
     }
 
-    #digital-twin .subtitle {
+    #digital-twin .digital-twin-title-stack .subtitle {
         font-size: 0.85rem;
     }
 
     .chat-wrap {
         max-width: 100%;
-        padding: 0 1rem; /* adds breathing room on sides */
+        padding: 0 1rem;
         box-sizing: border-box;
     }
 
@@ -273,33 +296,18 @@
     }
 }
 
-
-/* Header icon next to the title (replaces per-message avatars) */
-#digital-twin .header-container {
-    justify-content: center;
-    align-items: center;
-    gap: 0.9rem;
-    margin-bottom: 0;
-    flex-wrap: nowrap;
+/* Blinking cursor while a reply is streaming in */
+.stream-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--highlight-color);
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: cursorBlink 0.8s infinite;
 }
 
-.digital-twin-title-stack {
-    text-align: left;
-}
-
-.digital-twin-icon {
-    height: 125px;
-    width: auto;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-#digital-twin .digital-twin-title-stack .subtitle {
-    margin: 0.2rem 0 1rem 0;
-}
-
-@media (max-width: 768px) {
-    .digital-twin-icon {
-        height: 100px;
-    }
+@keyframes cursorBlink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
 }
