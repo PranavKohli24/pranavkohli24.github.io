@@ -171,6 +171,12 @@
     flex-shrink: 0;
 }
 
+/* Reserve space for the floating Send + Stop controls */
+.chat-input-row.voice-active {
+    padding-right: 56px;
+    box-sizing: border-box;
+}
+
 .chat-input {
     flex: 1;
     min-width: 0;

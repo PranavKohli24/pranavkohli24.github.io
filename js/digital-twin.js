@@ -113,12 +113,17 @@
 
 
     function setRecordingUI(recording) {
-        chatRecording.classList.toggle('active', recording);
-        chatVoiceControls.classList.toggle('active', recording);
+    chatRecording.classList.toggle('active', recording);
+    chatVoiceControls.classList.toggle('active', recording);
 
-        // Hide the normal button only while actually recording.
-        chatSendBtn.style.display = recording ? 'none' : 'flex';
-    }
+    chatInput.parentElement.classList.toggle(
+        'voice-active',
+        recording
+    );
+
+    chatSendBtn.style.display =
+        recording ? 'none' : 'flex';
+}
 
 
     /* =========================================================
