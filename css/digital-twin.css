@@ -159,17 +159,17 @@
         opacity: 1;
     }
 }
-
-
-/* Input */
-
 .chat-input-row {
     position: relative;
     display: flex;
+    align-items: flex-end;
     gap: 0.6rem;
     margin-top: 0.9rem;
     flex-shrink: 0;
 }
+
+/* Input */
+
 
 /* Reserve space for the floating Send + Stop controls */
 .chat-input-row.voice-active {
@@ -180,16 +180,21 @@
 .chat-input {
     flex: 1;
     min-width: 0;
+    height: 2.75rem;
     border: 1px solid rgba(0,0,0,0.08);
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(10px);
-    border-radius: 100px;
-    padding: 0.85rem 1.2rem;
+    border-radius: 22px;
+    padding: 0.7rem 1.2rem;
     font-size: 0.95rem;
     font-family: inherit;
+    line-height: 1.4;
     color: var(--text-color);
     outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    resize: none;
+    overflow-y: hidden;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, height 0.1s ease;
 }
 
 .chat-input:focus {
@@ -423,14 +428,14 @@
 
         box-sizing: border-box;
 
-        padding-top: 2.8rem;
+        padding-top: 1.2rem;
         padding-bottom: 1rem;
 
         z-index: 999;
     }
 
     .digital-twin-icon {
-        height: 100px;
+        height: 115px;
     }
 
     #digital-twin .header {
@@ -479,4 +484,45 @@
     51%, 100% {
         opacity: 0;
     }
+}
+
+
+.chat-messages-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-scroll-bottom-btn {
+    position: absolute;
+    right: 0.9rem;
+    bottom: 0.9rem;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(93, 0, 247, 0.92);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(93, 0, 247, 0.35);
+    opacity: 0;
+    transform: translateY(8px) scale(0.85);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 5;
+}
+
+.chat-scroll-bottom-btn.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.chat-scroll-bottom-btn:hover {
+    transform: scale(1.08);
 }

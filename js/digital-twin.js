@@ -4,6 +4,7 @@
  * token-by-token for a live typewriter effect.
  *
  * Voice input added on top of the original chat logic.
+ * Input auto-grows up to 2 lines, then scrolls internally.
  */
 
 (function() {
@@ -12,7 +13,7 @@
     const WORKER_URL = 'https://pranav-digital-twin.pranavdigitaltwin.workers.dev';
     const SESSION_KEY = 'digitalTwinSessionId';
 
-    let chatMessages, chatInput, chatSendBtn, chatTyping, chatRemaining;
+    let chatMessages, chatInput, chatSendBtn, chatTyping, chatRemaining, chatScrollBottomBtn;
     let chatMicIcon, chatSendIcon;
     let chatRecording, chatVoiceControls, chatVoiceSendBtn, chatVoiceStopBtn;
 
@@ -27,6 +28,37 @@
     let isListening = false;
     let userRequestedStop = false;
     let interimVoiceText = '';
+
+    const NEAR_BOTTOM_PX = 40;
+
+    function isNearBottom() {
+        return (
+            chatMessages.scrollHeight -
+            chatMessages.scrollTop -
+            chatMessages.clientHeight
+        ) <= NEAR_BOTTOM_PX;
+    }
+
+    function updateScrollButtonVisibility() {
+        if (!chatScrollBottomBtn) return;
+        chatScrollBottomBtn.classList.toggle('visible', !isNearBottom());
+    }
+
+    // Call before appending/growing content to snapshot whether the user
+    // was following along near the bottom.
+    function wasFollowingBottom() {
+        return isNearBottom();
+    }
+
+    // Call after appending/growing content. Only snaps to bottom if they
+    // were already following along — otherwise leaves their scroll position
+    // alone so reading older messages isn't interrupted by a streaming reply.
+    function applyScrollFollow(wasFollowing) {
+        if (wasFollowing) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        updateScrollButtonVisibility();
+    }
 
 
     function getOrCreateSessionId() {
@@ -44,7 +76,29 @@
     }
 
 
+    /* =========================================================
+       Auto-growing input (caps at 2 lines, then scrolls)
+       ========================================================= */
+
+    function autoResizeInput() {
+        chatInput.style.height = 'auto';
+        void chatInput.offsetHeight; // force reflow so scrollHeight reads correctly
+
+        const style = window.getComputedStyle(chatInput);
+        const lineHeight = parseFloat(style.lineHeight) || 20;
+        const paddingTop = parseFloat(style.paddingTop) || 0;
+        const paddingBottom = parseFloat(style.paddingBottom) || 0;
+        const maxHeight = lineHeight * 2 + paddingTop + paddingBottom; // hard cap: 2 lines
+
+        const newHeight = Math.min(chatInput.scrollHeight, maxHeight);
+        chatInput.style.height = newHeight + 'px';
+        chatInput.style.overflowY = chatInput.scrollHeight > maxHeight ? 'auto' : 'hidden';
+    }
+
+
     function appendMessage(role, text) {
+        const wasFollowing = role === 'user' ? true : wasFollowingBottom();
+
         const bubble = document.createElement('div');
 
         bubble.className =
@@ -60,13 +114,15 @@
         bubble.appendChild(p);
         chatMessages.appendChild(bubble);
 
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        applyScrollFollow(wasFollowing);
 
         return bubble;
     }
 
 
     function appendEmptyBotBubble() {
+        const wasFollowing = wasFollowingBottom();
+
         const bubble = document.createElement('div');
         bubble.className = 'chat-msg chat-msg-bot';
 
@@ -80,17 +136,19 @@
         bubble.appendChild(p);
 
         chatMessages.appendChild(bubble);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        applyScrollFollow(wasFollowing);
 
         return bubble;
     }
 
 
     function setTyping(visible) {
+        const wasFollowing = visible ? wasFollowingBottom() : false;
+
         chatTyping.style.display = visible ? 'flex' : 'none';
 
         if (visible) {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            applyScrollFollow(wasFollowing);
         }
     }
 
@@ -113,17 +171,17 @@
 
 
     function setRecordingUI(recording) {
-    chatRecording.classList.toggle('active', recording);
-    chatVoiceControls.classList.toggle('active', recording);
+        chatRecording.classList.toggle('active', recording);
+        chatVoiceControls.classList.toggle('active', recording);
 
-    chatInput.parentElement.classList.toggle(
-        'voice-active',
-        recording
-    );
+        chatInput.parentElement.classList.toggle(
+            'voice-active',
+            recording
+        );
 
-    chatSendBtn.style.display =
-        recording ? 'none' : 'flex';
-}
+        chatSendBtn.style.display =
+            recording ? 'none' : 'flex';
+    }
 
 
     /* =========================================================
@@ -215,6 +273,7 @@
 
             interimVoiceText = interimText;
             chatInput.value = currentText;
+            autoResizeInput();
         };
 
 
@@ -342,52 +401,81 @@
     }
 
 
+    function delay(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+
     async function streamReply(res, bubble) {
         const p = bubble.querySelector('p');
         const cursor = bubble.querySelector('.stream-cursor');
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
 
-        let buffer = '';
+        const TYPE_SPEED_MS = 32; // ms per character revealed — raise for slower, lower for faster
+
+        let sseBuffer = '';
         let fullText = '';
+        let networkDone = false;
 
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+        // Background task: pulls data off the network as fast as it arrives,
+        // just accumulating it — doesn't touch the DOM directly.
+        const networkTask = (async () => {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-            buffer += decoder.decode(value, { stream: true });
+                sseBuffer += decoder.decode(value, { stream: true });
 
-            const lines = buffer.split('\n');
-            buffer = lines.pop();
+                const lines = sseBuffer.split('\n');
+                sseBuffer = lines.pop();
 
-            for (const line of lines) {
-                const trimmed = line.trim();
+                for (const line of lines) {
+                    const trimmed = line.trim();
 
-                if (!trimmed.startsWith('data:')) continue;
+                    if (!trimmed.startsWith('data:')) continue;
 
-                const jsonStr = trimmed.slice(5).trim();
+                    const jsonStr = trimmed.slice(5).trim();
 
-                if (jsonStr === '[DONE]') continue;
+                    if (jsonStr === '[DONE]') continue;
 
-                try {
-                    const parsed = JSON.parse(jsonStr);
+                    try {
+                        const parsed = JSON.parse(jsonStr);
 
-                    if (parsed.response) {
-                        fullText += parsed.response;
-                        p.textContent = fullText;
-
-                        if (cursor) {
-                            p.appendChild(cursor);
+                        if (parsed.response) {
+                            fullText += parsed.response;
                         }
-
-                        chatMessages.scrollTop =
-                            chatMessages.scrollHeight;
+                    } catch (e) {
+                        // Ignore incomplete SSE chunks.
                     }
-                } catch (e) {
-                    // Ignore incomplete SSE chunks.
                 }
             }
+
+            networkDone = true;
+        })();
+
+        // Foreground task: reveals one character at a steady pace, regardless
+        // of how much text has already arrived from the network.
+        let displayed = '';
+
+        while (!(networkDone && displayed.length >= fullText.length)) {
+            if (displayed.length < fullText.length) {
+                const wasFollowing = wasFollowingBottom();
+
+                displayed = fullText.slice(0, displayed.length + 1);
+                p.textContent = displayed;
+
+                if (cursor) {
+                    p.appendChild(cursor);
+                }
+
+                applyScrollFollow(wasFollowing);
+            }
+
+            await delay(TYPE_SPEED_MS);
         }
+
+        await networkTask;
 
         if (cursor) {
             cursor.remove();
@@ -431,6 +519,7 @@
 
         chatInput.value = '';
         updateActionButton();
+        autoResizeInput();
 
         isSending = true;
 
@@ -553,6 +642,9 @@
         chatRemaining =
             document.getElementById('chatRemaining');
 
+        chatScrollBottomBtn =
+            document.getElementById('chatScrollBottomBtn');
+
         chatMicIcon =
             document.getElementById('chatMicIcon');
 
@@ -629,6 +721,7 @@
                 }
 
                 updateActionButton();
+                autoResizeInput();
             }
         );
 
@@ -647,6 +740,20 @@
                 }
             }
         );
+
+
+        if (chatScrollBottomBtn) {
+            chatMessages.addEventListener('scroll', () => {
+                updateScrollButtonVisibility();
+            });
+
+            chatScrollBottomBtn.addEventListener('click', () => {
+                chatMessages.scrollTo({
+                    top: chatMessages.scrollHeight,
+                    behavior: 'smooth'
+                });
+            });
+        }
     }
 
 

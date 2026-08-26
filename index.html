@@ -128,11 +128,19 @@
 
     <div class="chat-wrap">
 
-        <div class="chat-messages" id="chatMessages">
-            <div class="chat-msg chat-msg-bot">
-                <p>Hey, I'm Pranav's digital version. Ask me anything - tech, resume, any idea, or just say hi...</p>
-            </div>
+        <div class="chat-messages-wrap">
+    <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg chat-msg-bot">
+            <p>Hey, I'm Pranav's digital version. Ask me anything - tech, resume, any idea, or just say hi...</p>
         </div>
+    </div>
+
+    <button class="chat-scroll-bottom-btn" id="chatScrollBottomBtn" aria-label="Scroll to latest message" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+    </button>
+</div>
 
         <div class="chat-typing" id="chatTyping" style="display: none;">
             <span></span>
@@ -142,14 +150,13 @@
 
         <div class="chat-input-row">
 
-            <input
-                type="text"
+            <textarea
                 id="chatInput"
                 class="chat-input"
                 placeholder="Type a message..."
                 maxlength="500"
-                autocomplete="off"
-            >
+                rows="1"
+            ></textarea>
 
             <!-- Normal mic / send button -->
             <button
