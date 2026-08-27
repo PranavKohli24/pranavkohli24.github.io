@@ -3,8 +3,11 @@
  * Talks to the Cloudflare Worker, which streams replies from Workers AI
  * token-by-token for a live typewriter effect.
  *
- * Voice input added on top of the original chat logic.
- * Input auto-grows up to 2 lines, then scrolls internally.
+ * - Voice input on top of the original chat logic.
+ * - Input auto-grows up to 2 lines, then scrolls internally.
+ * - Scroll position is respected while a reply streams (no forced yanking).
+ * - Typing is never blocked: messages sent while the AI is still replying
+ *   are queued and sent automatically, in order, once it's free.
  */
 
 (function() {
@@ -19,9 +22,13 @@
 
     let history = [];
     let sessionId = null;
-    let isSending = false;
+    let isSending = false;       // true while a request to the API is actively in flight
     let rateLimited = false;
     let initialized = false;
+
+    // Messages the user sent while a previous reply was still streaming.
+    // Processed strictly one at a time, in order.
+    let pendingQueue = [];
 
     // Voice state
     let recognition = null;
@@ -120,11 +127,18 @@
     }
 
 
-    function appendEmptyBotBubble() {
+    function appendEmptyBotBubble(replyQuoteText) {
         const wasFollowing = wasFollowingBottom();
 
         const bubble = document.createElement('div');
         bubble.className = 'chat-msg chat-msg-bot';
+
+        if (replyQuoteText) {
+            const quote = document.createElement('div');
+            quote.className = 'chat-reply-quote';
+            quote.textContent = replyQuoteText;
+            bubble.appendChild(quote);
+        }
 
         const p = document.createElement('p');
         p.textContent = '';
@@ -377,7 +391,7 @@
     function sendVoiceMessage() {
         const text = chatInput.value.trim();
 
-        if (!text || isSending || rateLimited) return;
+        if (!text || rateLimited) return;
 
         userRequestedStop = true;
         isListening = false;
@@ -485,14 +499,19 @@
     }
 
 
-    async function sendMessage() {
+    /* =========================================================
+       Sending: enqueue immediately, process one at a time
+       ========================================================= */
+
+    // Entry point — called on Enter / send click / voice send.
+    // Always shows the user's message right away and never blocks typing.
+    // If the AI is mid-reply, this just adds to the queue and returns.
+    function sendMessage() {
         const text = chatInput.value.trim();
 
-        if (!text || isSending || rateLimited) return;
+        if (!text || rateLimited) return;
 
-        /*
-         * Make sure voice state is closed.
-         */
+        // Close out any active voice recording state.
         if (isListening) {
             userRequestedStop = true;
             isListening = false;
@@ -512,20 +531,44 @@
 
         appendMessage('user', text);
 
+        chatInput.value = '';
+        updateActionButton();
+        autoResizeInput();
+
+        pendingQueue.push({
+            text,
+            // Only show a WhatsApp-style quote when this message was typed
+            // ahead of a reply already in progress — keeps normal one-at-a-time
+            // conversations clean, and only adds context when it's actually needed.
+            showQuote: isSending || pendingQueue.length > 0
+        });
+        processQueue();
+    }
+
+
+    // Works through pendingQueue strictly one message at a time.
+    // Safe to call repeatedly — it's a no-op if already processing
+    // or if the queue is empty.
+    async function processQueue() {
+        if (isSending) return;
+        if (pendingQueue.length === 0) return;
+        if (rateLimited) {
+            pendingQueue = [];
+            return;
+        }
+
+        const item = pendingQueue.shift();
+        const { text, showQuote } = item;
+
+        // Only add to the API-context history right before it's actually
+        // used, so a still-queued later message never confuses the model
+        // about what it's replying to.
         history.push({
             role: 'user',
             content: text
         });
 
-        chatInput.value = '';
-        updateActionButton();
-        autoResizeInput();
-
         isSending = true;
-
-        chatInput.disabled = true;
-        chatSendBtn.disabled = true;
-
         setTyping(true);
 
         try {
@@ -552,6 +595,9 @@
                 );
 
                 rateLimited = true;
+                chatInput.disabled = true;
+                chatSendBtn.disabled = true;
+                pendingQueue = [];
 
                 return;
             }
@@ -564,17 +610,12 @@
                     "ouch, Something went wrong on my end - try again in a moment."
                 );
 
-                chatInput.disabled = false;
-                chatSendBtn.disabled = false;
-
-                updateActionButton();
-
                 return;
             }
 
             setTyping(false);
 
-            const bubble = appendEmptyBotBubble();
+            const bubble = appendEmptyBotBubble(showQuote ? text : null);
 
             const fullText =
                 await streamReply(res, bubble);
@@ -598,13 +639,6 @@
                         : "That's the last message for this conversation.";
             }
 
-            chatInput.disabled = false;
-            chatSendBtn.disabled = false;
-
-            updateActionButton();
-
-            chatInput.focus();
-
         } catch (err) {
             setTyping(false);
 
@@ -613,13 +647,14 @@
                 "oops, Couldn't reach the server - check your connection or try again."
             );
 
-            chatInput.disabled = false;
-            chatSendBtn.disabled = false;
-
-            updateActionButton();
-
         } finally {
             isSending = false;
+
+            // Automatically continue with whatever the user typed
+            // while this reply was streaming.
+            if (pendingQueue.length > 0 && !rateLimited) {
+                processQueue();
+            }
         }
     }
 
@@ -672,13 +707,15 @@
         chatSendBtn.addEventListener(
             'click',
             () => {
-                if (isSending || rateLimited) return;
+                if (rateLimited) return;
 
                 if (
                     chatInput.value.trim()
                 ) {
                     sendMessage();
-                } else {
+                } else if (!isSending) {
+                    // Don't start a fresh recording while the AI is
+                    // actively replying — keep that part serialized.
                     startVoiceRecording();
                 }
             }
