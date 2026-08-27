@@ -424,7 +424,7 @@
             /(https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g,
             (match) => {
                 if (match.includes('@')) {
-                    return `<a href="mailto:${match}?subject=${encodeURIComponent('hello pranav kohli')}">✉ ${match}</a>`;
+                    return `<a href="mailto:${match}?subject=${encodeURIComponent('Hello Pranav Kohli')}">✉ ${match}</a>`;
                 }
 
                 if (match === '+918860271737' || match === '8860271737') {
@@ -444,12 +444,20 @@
 
 function addLinkPreviews(bubble, text) {
     const urls = text.match(
-        /https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24/gi
+        /https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/pranavkohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}/gi
     ) || [];
 
-    const normalizedUrls = urls.map(url =>
-        url.startsWith('http') ? url : `https://${url}`
-    );
+    const normalizedUrls = urls.map(url => {
+        url = url.replace(/[),.!?]+$/, '');
+
+        if (url.includes('@')) {
+            return url;
+        }
+
+        return url.startsWith('http')
+            ? url
+            : `https://${url}`;
+    });
 
     const previews = [
         {
@@ -472,6 +480,13 @@ function addLinkPreviews(bubble, text) {
             description: 'View my resume',
             image: '/src/images/resume_preview.png',
             domain: 'drive.google.com'
+        },
+        {
+            match: 'kohlipranav24@gmail.com',
+            title: 'Email Pranav',
+            description: 'Tap to send mail',
+            image: `/src/images/mail_preview${Math.floor(Math.random() * 2) + 1}.png`,
+            domain: 'kohlipranav24@gmail.com'
         }
     ];
 
@@ -482,9 +497,14 @@ function addLinkPreviews(bubble, text) {
 
         const card = document.createElement('a');
 
-        card.href = preview.match;
-        card.target = '_blank';
-        card.rel = 'noopener noreferrer';
+        if (preview.match.includes('@')) {
+            card.href = `mailto:${preview.match}?subject=${encodeURIComponent('Hello Pranav Kohli')}`;
+        } else {
+            card.href = preview.match;
+            card.target = '_blank';
+            card.rel = 'noopener noreferrer';
+        }
+
         card.className = 'link-preview';
 
         card.innerHTML = `
