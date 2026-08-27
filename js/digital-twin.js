@@ -421,7 +421,7 @@
 
     function renderLinkedText(element, text, cursor) {
         element.innerHTML = text.replace(
-            /(https?:\/\/[^\s]+|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g,
+            /(https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g,
             (match) => {
                 if (match.includes('@')) {
                     return `<a href="mailto:${match}">✉ ${match}</a>`;
@@ -431,7 +431,11 @@
                     return `<a href="tel:+918860271737" style="font-weight: 600;">${match}</a>`;
                 }
 
-                return `<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+                const href = match.startsWith('http')
+                    ? match
+                    : `https://${match}`;
+
+                return `<a href="${href}" target="_blank" rel="noopener noreferrer">${match}</a>`;
             }
         );
 
@@ -439,6 +443,14 @@
 }
 
 function addLinkPreviews(bubble, text) {
+    const urls = text.match(
+        /https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24/gi
+    ) || [];
+
+    const normalizedUrls = urls.map(url =>
+        url.startsWith('http') ? url : `https://${url}`
+    );
+
     const previews = [
         {
             match: 'https://github.com/PranavKohli24',
@@ -464,7 +476,9 @@ function addLinkPreviews(bubble, text) {
     ];
 
     previews.forEach(preview => {
-        if (!text.includes(preview.match)) return;
+        if (!normalizedUrls.some(
+            url => url.toLowerCase() === preview.match.toLowerCase()
+        )) return;
 
         const card = document.createElement('a');
 
