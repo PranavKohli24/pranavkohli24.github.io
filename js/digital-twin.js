@@ -521,6 +521,12 @@ function addLinkPreviews(bubble, text) {
         `;
 
         bubble.appendChild(card);
+
+        const previewImage = card.querySelector('.link-preview-image');
+
+        previewImage.addEventListener('load', () => {
+            previewImage.classList.add('loaded');
+        });
     });
 }
 
