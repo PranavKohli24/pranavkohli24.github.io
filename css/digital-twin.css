@@ -103,6 +103,15 @@
     border-bottom-left-radius: 4px;
 }
 
+.chat-msg-bot a {
+    color: #0A66C2;
+    text-decoration: underline;
+}
+
+.chat-msg-bot a:hover {
+    opacity: 1;
+}
+
 .chat-reply-quote {
     font-size: 0.78rem;
     line-height: 1.35;

@@ -419,6 +419,14 @@
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+    function renderLinkedText(element, text, cursor) {
+        element.innerHTML = text.replace(
+            /(https?:\/\/[^\s]+)/g,
+            '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+        );
+
+        if (cursor) element.appendChild(cursor);
+    }
 
     async function streamReply(res, bubble) {
         const p = bubble.querySelector('p');
@@ -477,11 +485,7 @@
                 const wasFollowing = wasFollowingBottom();
 
                 displayed = fullText.slice(0, displayed.length + 1);
-                p.textContent = displayed;
-
-                if (cursor) {
-                    p.appendChild(cursor);
-                }
+                renderLinkedText(p, displayed, cursor);
 
                 applyScrollFollow(wasFollowing);
             }
