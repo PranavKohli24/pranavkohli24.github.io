@@ -435,8 +435,61 @@
             }
         );
 
-        if (cursor) element.appendChild(cursor);
-    }
+       if (cursor) element.appendChild(cursor);
+}
+
+function addLinkPreviews(bubble, text) {
+    const previews = [
+        {
+            match: 'https://github.com/PranavKohli24',
+            title: 'GitHub',
+            description: 'PranavKohli24',
+            image: '/src/images/github_preview.png',
+            domain: 'github.com'
+        },
+        {
+            match: 'https://linkedin.com/in/pranavkohli24',
+            title: 'LinkedIn',
+            description: 'Pranav Kohli',
+            image: '/src/images/linkedin_preview.png',
+            domain: 'linkedin.com'
+        },
+        {
+            match: 'https://drive.google.com/file/d/1sRL-trbYmkjwWxeYPqwt3ZFYAyQ6vScG/view?usp=drive_link',
+            title: 'Pranav Kohli - Resume',
+            description: 'View my resume',
+            image: '/src/images/resume_preview.png',
+            domain: 'drive.google.com'
+        }
+    ];
+
+    previews.forEach(preview => {
+        if (!text.includes(preview.match)) return;
+
+        const card = document.createElement('a');
+
+        card.href = preview.match;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+        card.className = 'link-preview';
+
+        card.innerHTML = `
+            <img
+                src="${preview.image}"
+                alt=""
+                class="link-preview-image"
+            >
+            <div class="link-preview-content">
+                <div class="link-preview-title">${preview.title}</div>
+                <div class="link-preview-description">${preview.description}</div>
+                <div class="link-preview-domain">${preview.domain}</div>
+            </div>
+        `;
+
+        bubble.appendChild(card);
+    });
+}
+
 
     async function streamReply(res, bubble) {
         const p = bubble.querySelector('p');
@@ -633,6 +686,8 @@
 
             const fullText =
                 await streamReply(res, bubble);
+
+            addLinkPreviews(bubble, fullText);
 
             history.push({
                 role: 'assistant',
