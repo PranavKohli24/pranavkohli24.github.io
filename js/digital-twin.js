@@ -424,7 +424,7 @@
             /(https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g,
             (match) => {
                 if (match.includes('@')) {
-                    return `<a href="mailto:${match}">✉ ${match}</a>`;
+                    return `<a href="mailto:${match}?subject=${encodeURIComponent('hello pranav kohli')}">✉ ${match}</a>`;
                 }
 
                 if (match === '+918860271737' || match === '8860271737') {
