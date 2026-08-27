@@ -421,8 +421,18 @@
 
     function renderLinkedText(element, text, cursor) {
         element.innerHTML = text.replace(
-            /(https?:\/\/[^\s]+)/g,
-            '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+            /(https?:\/\/[^\s]+|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g,
+            (match) => {
+                if (match.includes('@')) {
+                    return `<a href="mailto:${match}">✉ ${match}</a>`;
+                }
+
+                if (match === '+918860271737' || match === '8860271737') {
+                    return `<a href="tel:+918860271737" style="font-weight: 600;">${match}</a>`;
+                }
+
+                return `<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+            }
         );
 
         if (cursor) element.appendChild(cursor);
