@@ -522,11 +522,11 @@ function addLinkPreviews(bubble, text) {
             domain: 'drive.google.com'
         },
         {
-            match: 'kohlipranav24@gmail.com',
+            match: 'hey@pranavkohli.me',
             title: 'Email Pranav',
             description: 'Tap to send mail',
             image: `/src/images/mail_preview${Math.floor(Math.random() * 2) + 1}.png`,
-            domain: 'kohlipranav24@gmail.com'
+            domain: 'hey@pranavkohli.me'
         }
     ];
 
