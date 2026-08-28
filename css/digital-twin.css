@@ -60,6 +60,126 @@
     min-height: 0;
 }
 
+.chat-suggestions {
+    display: flex;
+    gap: 0.8rem;
+    overflow-x: auto;
+    padding: 0.5rem 0.2rem 1.3rem 0.8rem;
+    flex-shrink: 0;
+    scrollbar-width: none;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.chat-suggestions.changing {
+    opacity: 0;
+    transform: translateY(4px);
+}
+
+.chat-suggestions::-webkit-scrollbar {
+    display: none;
+}
+
+.chat-suggestion {
+    position: relative;
+    flex: 0 0 auto;
+
+    padding: 0.75rem 1.1rem;
+    padding-left: 1rem;
+
+    border: 1px solid rgba(93, 0, 247, 0.12);
+    border-radius: 32px;
+
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    color: #526078;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 18px rgba(31, 38, 135, 0.08),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+
+    animation: suggestionFloat 3.5s ease-in-out infinite;
+
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.chat-suggestion::before {
+    content: "";
+    position: absolute;
+
+    left: 38px;
+    bottom: -9px;
+
+    width: 15px;
+    height: 15px;
+
+    background: rgba(255, 255, 255, 0.82);
+    border-right: 1px solid rgba(93, 0, 247, 0.12);
+    border-bottom: 1px solid rgba(93, 0, 247, 0.12);
+
+    transform: rotate(45deg);
+
+    border-radius: 0 0 8px 0;
+}
+
+.chat-suggestion::after {
+    content: "";
+    position: absolute;
+
+    left: -7px;
+    bottom: -4px;
+
+    width: 10px;
+    height: 10px;
+
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(93, 0, 247, 0.12);
+    border-radius: 50%;
+
+    box-shadow:
+        -7px 8px 0 -2px rgba(255, 255, 255, 0.82),
+        -7px 8px 0 -1px rgba(93, 0, 247, 0.12);
+}
+
+.chat-suggestion:hover {
+    transform: translateY(-4px);
+    box-shadow:
+        0 10px 25px rgba(31, 38, 135, 0.13),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+@keyframes suggestionFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+.chat-suggestion:nth-child(2) {
+    animation-delay: 0.7s;
+}
+
+.chat-suggestion:nth-child(3) {
+    animation-delay: 1.4s;
+}
+
+.chat-suggestion:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 24px rgba(31, 38, 135, 0.12);
+}
+
+
 .chat-messages {
     position: relative;
     background: rgba(255, 255, 255, 0.65);
@@ -531,7 +651,7 @@
     }
 
     .digital-twin-icon {
-        height: 115px;
+        height: 105px;
     }
 
     #digital-twin .header {

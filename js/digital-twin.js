@@ -442,6 +442,46 @@
        if (cursor) element.appendChild(cursor);
 }
 
+
+const suggestionQuestions = [
+    "Tell me about Pranav's skills",
+    "What has Pranav built?",
+    "Tell me about Pranav",
+    "Tell me pranav hobbies",
+    "What technologies does Pranav use?",
+    "say hello",
+    "What is Pranav working on?",
+    "Can you show me Pranav's resume?",
+    "How can I contact Pranav?",
+    "How is pranav as a person?",
+    "Tell me about Pranav's projects"
+];
+
+function renderSuggestions() {
+    const container = document.getElementById('chatSuggestions');
+    if (!container) return;
+
+    const shuffled = [...suggestionQuestions]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+
+    container.innerHTML = shuffled.map(question => `
+        <button class="chat-suggestion" type="button">
+            ✧ ${question}
+        </button>
+    `).join('');
+
+    container.querySelectorAll('.chat-suggestion').forEach(button => {
+        button.addEventListener('click', () => {
+            chatInput.value = button.textContent.replace('✧ ', '').trim();
+            updateActionButton();
+            autoResizeInput();
+            sendMessage();
+        });
+    });
+}
+
+
 function addLinkPreviews(bubble, text) {
     const urls = text.match(
         /https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/pranavkohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}/gi
@@ -813,6 +853,15 @@ function addLinkPreviews(bubble, text) {
 
     function attachListeners() {
 
+        document.querySelectorAll('.chat-suggestion').forEach((button) => {
+            button.addEventListener('click', () => {
+                chatInput.value = button.textContent.replace('✧ ', '').trim();
+                updateActionButton();
+                autoResizeInput();
+                sendMessage();
+            });
+        });
+
         chatSendBtn.addEventListener(
             'click',
             () => {
@@ -913,7 +962,19 @@ function addLinkPreviews(bubble, text) {
         setupSpeechRecognition();
         attachListeners();
 
+        renderSuggestions();
         updateActionButton();
+
+        setInterval(() => {
+    const suggestions = document.getElementById('chatSuggestions');
+
+    suggestions.classList.add('changing');
+
+    setTimeout(() => {
+            renderSuggestions();
+            suggestions.classList.remove('changing');
+        }, 350);
+    }, 15000);
 
         initialized = true;
     }
