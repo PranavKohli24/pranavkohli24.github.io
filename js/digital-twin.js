@@ -472,13 +472,53 @@ function renderSuggestions() {
     `).join('');
 
     container.querySelectorAll('.chat-suggestion').forEach(button => {
-        button.addEventListener('click', () => {
-            chatInput.value = button.textContent.replace('✧ ', '').trim();
+    button.addEventListener('click', () => {
+        const question = button.textContent.replace('✧ ', '').trim();
+
+        const start = button.getBoundingClientRect();
+        const end = chatMessages.getBoundingClientRect();
+
+        const flyingBubble = button.cloneNode(true);
+
+        flyingBubble.style.position = 'fixed';
+        flyingBubble.style.left = `${start.left}px`;
+        flyingBubble.style.top = `${start.top}px`;
+        flyingBubble.style.width = `${start.width}px`;
+        flyingBubble.style.zIndex = '9999';
+        flyingBubble.style.margin = '0';
+        flyingBubble.style.pointerEvents = 'none';
+        flyingBubble.style.animation = 'none';
+
+        document.body.appendChild(flyingBubble);
+
+        button.style.visibility = 'hidden';
+
+        requestAnimationFrame(() => {
+            flyingBubble.style.transition =
+                'left 0.55s cubic-bezier(0.4, 0, 0.2, 1), ' +
+                'top 0.55s cubic-bezier(0.4, 0, 0.2, 1), ' +
+                'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)';
+
+            flyingBubble.style.left =
+                `${end.right - start.width}px`;
+
+            flyingBubble.style.top =
+                `${end.bottom - 55}px`;
+
+            flyingBubble.style.transform = 'scale(0.92)';
+        });
+
+        setTimeout(() => {
+            flyingBubble.remove();
+            button.style.visibility = '';
+
+            chatInput.value = question;
             updateActionButton();
             autoResizeInput();
             sendMessage();
-        });
+        }, 550);
     });
+});
 }
 
 
