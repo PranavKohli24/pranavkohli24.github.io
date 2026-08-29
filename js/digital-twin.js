@@ -576,7 +576,8 @@ function createCalendarUrl(
         action: 'TEMPLATE',
         text: title,
         dates: `${formatCalendarDate(start)}/${formatCalendarDate(end)}`,
-        details: 'Meeting with Pranav Kohli'
+        details: 'Meeting with Pranav Kohli',
+        add: 'hey@pranavkohli.me'
     });
 
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
