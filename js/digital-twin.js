@@ -801,11 +801,20 @@ function addLinkPreviews(bubble, text) {
         // of how much text has already arrived from the network.
         let displayed = '';
 
-        while (!(networkDone && displayed.length >= fullText.length)) {
-            if (displayed.length < fullText.length) {
+        while (!(networkDone && displayed.length >= fullText
+            .split(/\[CALENDAR_EVENT\]/i)[0].length)) {
+
+            const visibleTarget =
+                fullText.split(/\[CALENDAR_EVENT\]/i)[0];
+
+            if (displayed.length < visibleTarget.length) {
                 const wasFollowing = wasFollowingBottom();
 
-                displayed = fullText.slice(0, displayed.length + 1);
+                displayed = visibleTarget.slice(
+                    0,
+                    displayed.length + 1
+                );
+
                 renderLinkedText(p, displayed, cursor);
 
                 applyScrollFollow(wasFollowing);
