@@ -638,7 +638,7 @@
         right: 0;
         bottom: 0;
 
-        height: 100dvh;
+        height: 100svh;
         min-height: 0;
 
         box-sizing: border-box;
