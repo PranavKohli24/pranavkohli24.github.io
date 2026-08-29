@@ -654,16 +654,31 @@
         z-index: 999;
     }
 
+    #digital-twin .header-container {
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .digital-twin-title-stack {
+        text-align: left;
+        min-width: 0;
+    }
+
     .digital-twin-icon {
         height: 105px;
     }
 
     #digital-twin .header {
-        font-size: 1.6rem;
+        font-size: 1.45rem;
+        line-height: 1.15;
     }
 
     #digital-twin .digital-twin-title-stack .subtitle {
-        font-size: 0.85rem;
+        font-size: 0.78rem;
+        margin: 0.15rem 0 0 0;
     }
 
     .chat-wrap {
