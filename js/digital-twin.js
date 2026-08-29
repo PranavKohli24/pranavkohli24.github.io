@@ -420,32 +420,63 @@
     }
 
     function renderLinkedText(element, text, cursor) {
-        element.innerHTML = text.replace(
-            /(https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g,
-            (match) => {
-                if (match.includes('@')) {
-                    return `<a href="mailto:${match}?subject=${encodeURIComponent('Hello Pranav Kohli')}">✉ ${match}</a>`;
-                }
+    const marker = '[CALENDAR_EVENT]';
 
-                if (match === '+918860271737' || match === '8860271737') {
-                    return `<a href="tel:+918860271737" style="font-weight: 600;">${match}</a>`;
-                }
+    let markerIndex = text.search(/\[CALENDAR_EVENT\]/i);
 
-                const href = match.startsWith('http')
-                    ? match
-                    : `https://${match}`;
+    // The response streams character-by-character, so hide even a
+    // partially typed CALENDAR_EVENT marker before it becomes visible.
+    if (markerIndex === -1) {
+        for (let i = 1; i < marker.length; i++) {
+            const suffix = text.slice(-i);
 
-                return `<a href="${href}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+            if (
+                suffix.toLowerCase() ===
+                marker.slice(0, i).toLowerCase()
+            ) {
+                markerIndex = text.length - i;
+                break;
             }
-        );
+        }
+    }
 
-       if (cursor) element.appendChild(cursor);
+    const visibleText = (
+        markerIndex === -1
+            ? text
+            : text.slice(0, markerIndex)
+    ).trim();
+
+    element.innerHTML = visibleText.replace(
+        /(https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g,
+        (match) => {
+            if (match.includes('@')) {
+                return `<a href="mailto:${match}?subject=${encodeURIComponent('Hello Pranav Kohli')}">✉ ${match}</a>`;
+            }
+
+            if (
+                match === '+918860271737' ||
+                match === '8860271737'
+            ) {
+                return `<a href="tel:+918860271737" style="font-weight: 600;">${match}</a>`;
+            }
+
+            const href = match.startsWith('http')
+                ? match
+                : `https://${match}`;
+
+            return `<a href="${href}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+        }
+    );
+
+    if (cursor) {
+        element.appendChild(cursor);
+    }
 }
 
 
 const suggestionQuestions = [
-    "Tell me about Pranav's skills",
-    "What has Pranav built?",
+    "mention some of pranav's skills",
+    "schedule a meet with pranav",
     "Tell me about Pranav",
     "Tell me pranav hobbies",
     "What technologies does Pranav use?",
@@ -522,7 +553,113 @@ function renderSuggestions() {
 }
 
 
+function createCalendarUrl(
+    date,
+    time,
+    duration = 30,
+    title = 'Meeting with Pranav Kohli'
+) {
+    const start = new Date(`${date}T${time}:00`);
+    if (Number.isNaN(start.getTime())) return null;
+
+    const end = new Date(
+        start.getTime() + duration * 60 * 1000
+    );
+
+    const formatCalendarDate = (d) => {
+        const pad = (n) => String(n).padStart(2, '0');
+
+        return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+    };
+
+    const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text: title,
+        dates: `${formatCalendarDate(start)}/${formatCalendarDate(end)}`,
+        details: 'Meeting with Pranav Kohli'
+    });
+
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+function addCalendarPreview(bubble, text) {
+    const match = text.match(
+        /\[CALENDAR_EVENT\]([\s\S]*?)\[\/CALENDAR_EVENT\]/i
+    );
+
+    if (!match) return;
+
+    const block = match[1];
+
+    const date =
+        block.match(
+            /\bdate\s*=\s*(\d{4}-\d{2}-\d{2})/i
+        )?.[1];
+
+    const time =
+        block.match(
+            /\btime\s*=\s*(\d{2}:\d{2})/i
+        )?.[1];
+
+    const duration = parseInt(
+        block.match(/\bduration\s*=\s*(\d+)/i)?.[1] || '30',
+        10
+    );
+
+    if (!date || !time) return;
+
+    const calendarUrl =
+        createCalendarUrl(date, time, duration);
+
+    if (!calendarUrl) return;
+
+    const card = document.createElement('a');
+
+card.href = calendarUrl;
+card.target = '_blank';
+card.rel = 'noopener noreferrer';
+card.className = 'link-preview';
+
+card.innerHTML = `
+    <img
+        src="/src/images/calendar_preview.png"
+        alt=""
+        class="link-preview-image"
+    >
+
+    <div class="link-preview-content">
+        <div class="link-preview-title">
+            Schedule a meet with Pranav
+        </div>
+
+        <div class="link-preview-description">
+            Add meeting to calendar
+        </div>
+
+        <div class="link-preview-domain">
+            calendar.google.com
+        </div>
+    </div>
+`;
+
+    bubble.appendChild(card);
+
+    const previewImage = card.querySelector('.link-preview-image');
+
+    if (previewImage) {
+        if (previewImage.complete) {
+            previewImage.classList.add('loaded');
+        } else {
+            previewImage.addEventListener('load', () => {
+                previewImage.classList.add('loaded');
+            });
+        }
+    }
+}
+
 function addLinkPreviews(bubble, text) {
+    addCalendarPreview(bubble, text);
+
     const urls = text.match(
         /https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/pranavkohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}/gi
     ) || [];
@@ -617,7 +754,7 @@ function addLinkPreviews(bubble, text) {
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
 
-        const TYPE_SPEED_MS = 32; // ms per character revealed — raise for slower, lower for faster
+        const TYPE_SPEED_MS = 30; // ms per character revealed — raise for slower, lower for faster
 
         let sseBuffer = '';
         let fullText = '';
@@ -812,6 +949,11 @@ function addLinkPreviews(bubble, text) {
             history.push({
                 role: 'assistant',
                 content: fullText
+                    .replace(
+                        /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi,
+                        ''
+                    )
+                    .trim()
             });
 
             const remaining =
