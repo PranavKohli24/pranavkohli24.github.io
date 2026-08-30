@@ -25,6 +25,8 @@
     margin-bottom: 0;
     flex-wrap: nowrap;
     flex-shrink: 0;
+    
+    transform: translateX(-6px);
 }
 
 .digital-twin-title-stack {
