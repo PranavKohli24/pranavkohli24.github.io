@@ -39,5 +39,14 @@ function showSection() {
 }
 
 // Initialize navigation
-window.addEventListener('hashchange', showSection);
+// Initialize navigation
+window.addEventListener('hashchange', () => {
+    if (window.menuBackHandled) {
+        window.menuBackHandled = false;
+        return;
+    }
+
+    showSection();
+});
+
 window.addEventListener('load', showSection);
