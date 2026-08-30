@@ -698,7 +698,7 @@ main {
 
     .container {
         flex-direction: column;
-        padding: 2rem 1rem;
+        padding: 2rem 2rem;
     }
     
     .hamburger-button {
@@ -1095,4 +1095,12 @@ main {
 ::view-transition-new(root) {
     animation-duration: 0.4s;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+@media (max-width: 768px) {
+    #digital-twin {
+        margin-left: -4px;
+        width: calc(100% + 4px);
+    }
 }
