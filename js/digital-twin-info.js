@@ -106,36 +106,108 @@
         /* =================================================
            OPEN
            ================================================= */
-
         function open() {
 
             /*
-             * Desktop:
-             * position the info card relative to the
-             * actual ⓘ button.
-             */
-            if (window.innerWidth > 768) {
+            * Get the position of the ⓘ button.
+            */
+            const buttonRect =
+                infoButton.getBoundingClientRect();
 
-                const rect =
-                    infoButton.getBoundingClientRect();
+
+            /*
+            * Desktop:
+            * Keep the sheet positioned below the
+            * ⓘ button and aligned to its right edge.
+            */
+            if (window.innerWidth > 768) {
 
                 const gap = 10;
 
-
                 sheet.style.top =
-                    `${rect.bottom + gap}px`;
+                    `${buttonRect.bottom + gap}px`;
 
                 sheet.style.right =
                     `${Math.max(
                         16,
-                        window.innerWidth - rect.right
+                        window.innerWidth - buttonRect.right
                     )}px`;
+
             }
 
 
             /*
-             * Show the sheet.
-             */
+            * Mobile:
+            * The sheet is already positioned at the bottom
+            * by CSS.
+            *
+            * We temporarily make it visible so we can
+            * calculate where the ⓘ button sits relative
+            * to the sheet.
+            */
+            if (window.innerWidth <= 768) {
+
+                /*
+                * Temporarily make the sheet measurable.
+                * It remains visually hidden because
+                * scale is almost zero.
+                */
+                sheet.style.display =
+                    'block';
+
+                sheet.style.opacity =
+                    '0';
+
+                sheet.style.transform =
+                    'scale(0.01)';
+
+
+                const sheetRect =
+                    sheet.getBoundingClientRect();
+
+
+                /*
+                * Calculate the ⓘ button's center relative
+                * to the sheet.
+                */
+                const originX =
+                    buttonRect.left +
+                    (buttonRect.width / 2) -
+                    sheetRect.left;
+
+                const originY =
+                    buttonRect.top +
+                    (buttonRect.height / 2) -
+                    sheetRect.top;
+
+
+                /*
+                * Make the sheet grow from the ⓘ button.
+                */
+                sheet.style.transformOrigin =
+                    `${originX}px ${originY}px`;
+            }
+
+
+            /*
+            * Prepare the opening animation.
+            */
+            sheet.style.transition =
+                'none';
+
+            sheet.style.transform =
+                'scale(0.01)';
+
+            overlay.style.transition =
+                'opacity 0.45s ease';
+
+            overlay.style.opacity =
+                '0';
+
+
+            /*
+            * Make the overlay visible.
+            */
             overlay.classList.add(
                 'active'
             );
@@ -150,17 +222,37 @@
                 'false'
             );
 
-            
 
             /*
-             * Add a temporary browser-history entry.
-             *
-             * The URL does not change.
-             *
-             * This means the first Back action closes
-             * the info sheet instead of leaving the
-             * Digital Twin page.
-             */
+            * Let the browser render the starting
+            * position before beginning the animation.
+            */
+            requestAnimationFrame(() => {
+
+                requestAnimationFrame(() => {
+
+                    sheet.style.transition =
+                        'transform 0.65s cubic-bezier(0.22, 1, 0.36, 1)';
+
+                    sheet.style.transform =
+                        'scale(1)';
+
+                    sheet.style.opacity =
+                        '1';
+
+                    overlay.style.opacity =
+                        '1';
+
+                });
+
+            });
+
+
+            /*
+            * Add temporary browser history state.
+            *
+            * Back will close the info sheet first.
+            */
             if (!infoHistoryActive) {
 
                 history.pushState(
@@ -174,7 +266,6 @@
                 infoHistoryActive = true;
             }
         }
-
 
         /* =================================================
            CLOSE UI
