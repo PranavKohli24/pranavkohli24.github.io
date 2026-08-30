@@ -1096,11 +1096,3 @@ main {
     animation-duration: 0.4s;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-
-@media (max-width: 768px) {
-    #digital-twin {
-        margin-left: -4px;
-        width: calc(100% + 4px);
-    }
-}
