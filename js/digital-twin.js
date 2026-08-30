@@ -705,6 +705,20 @@ function addLinkPreviews(bubble, text) {
             description: 'Tap to send mail',
             image: `/src/images/mail_preview${Math.floor(Math.random() * 2) + 1}.png`,
             domain: 'hey@pranavkohli.me'
+        },
+        {
+            match: 'https://www.geeksforgeeks.org/profile/pranavkohli',
+            title: 'GeeksforGeeks',
+            description: 'Tap to view my DSA profile',
+            image: '/src/images/geeksforgeeks.png',
+            domain: 'geeksforgeeks.org'
+        },
+        {
+            match: 'https://codeforces.com/profile/pranavkohli',
+            title: 'Codeforces',
+            description: 'Tap to view my Competitive Programming profile',
+            image: '/src/images/codeforces.jpeg',
+            domain: 'codeforces.com'
         }
     ];
 
