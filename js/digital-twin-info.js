@@ -182,40 +182,23 @@
 
         function closeUI() {
 
-            sheet.style.transform =
-                '';
+            dragging = false;
+            didDrag = false;
+            startY = 0;
+            currentY = 0;
 
-            sheet.style.top =
-                '';
+            sheet.style.transform = '';
+            sheet.style.top = '';
+            sheet.style.right = '';
+            sheet.style.transition = '';
 
-            sheet.style.right =
-                '';
+            overlay.style.opacity = '';
+            overlay.style.transition = '';
 
-            sheet.style.transition =
-                '';
+            overlay.classList.remove('active');
 
-            overlay.style.opacity =
-                '';
-
-            overlay.style.transition =
-                '';
-
-
-            overlay.classList.remove(
-                'active'
-            );
-
-
-            infoButton.setAttribute(
-                'aria-expanded',
-                'false'
-            );
-
-            overlay.setAttribute(
-                'aria-hidden',
-                'true'
-            );
-
+            infoButton.setAttribute('aria-expanded', 'false');
+            overlay.setAttribute('aria-hidden', 'true');
         }
 
 
@@ -476,7 +459,7 @@
         }
 
 
-        function endDrag() {
+        function endDrag(event) {
 
             if (!dragging) {
                 return;
@@ -485,6 +468,14 @@
 
             dragging = false;
 
+            if (
+                event &&
+                event.currentTarget &&
+                event.currentTarget.hasPointerCapture &&
+                event.currentTarget.hasPointerCapture(event.pointerId)
+            ) {
+                event.currentTarget.releasePointerCapture(event.pointerId);
+            }
 
             if (
                 currentY >= 110
