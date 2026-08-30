@@ -39,7 +39,17 @@ function showSection() {
 }
 
 // Initialize navigation
-// Initialize navigation
+document.querySelectorAll('nav a[href^="#"]').forEach(link => {
+    link.addEventListener('click', event => {
+        const targetId = link.getAttribute('href').substring(1);
+        const currentSection = document.querySelector('.section.active');
+
+        if (currentSection && currentSection.id === targetId) {
+            event.preventDefault();
+        }
+    });
+});
+
 window.addEventListener('hashchange', () => {
     if (window.menuBackHandled) {
         window.menuBackHandled = false;
