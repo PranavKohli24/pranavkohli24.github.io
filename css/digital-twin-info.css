@@ -23,14 +23,21 @@
     border-radius: 50%;
 
     background: transparent;
-
     color: #111;
 
     cursor: pointer;
 
     transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
+        transform 0.2s ease,
+        opacity 0.2s ease;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+.digital-twin-info-btn svg {
+    display: block;
+    width: 20px;
+    height: 20px;
 }
 
 .digital-twin-info-btn:hover {
@@ -41,10 +48,13 @@
     transform: scale(0.92);
 }
 
-.digital-twin-info-btn svg {
-    display: block;
-}
+@media (min-width: 769px) {
 
+    .digital-twin-info-btn {
+        margin-top: -2px;
+    }
+
+}
 
 /* =========================================================
    OVERLAY

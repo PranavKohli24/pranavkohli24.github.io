@@ -824,3 +824,30 @@
     font-size: 1rem;
     opacity: 0.5;
 }
+
+
+.digital-twin-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: fit-content;
+}
+
+@media (max-width: 768px) {
+
+    .digital-twin-title-row {
+        gap: 0.3rem;
+    }
+
+    .digital-twin-info-btn {
+        width: 30px;
+        height: 30px;
+        margin-top: -1px;
+    }
+
+    .digital-twin-info-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+}
