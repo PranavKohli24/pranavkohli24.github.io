@@ -209,33 +209,22 @@
         function close() {
 
             if (
-                !overlay.classList.contains(
-                    'active'
-                )
+                !overlay.classList.contains('active')
             ) {
                 return;
             }
 
+            const shouldGoBack =
+                infoHistoryActive;
 
-            /*
-             * If the sheet has a temporary history
-             * entry, remove it first.
-             *
-             * The popstate handler will close the UI.
-             */
-            if (infoHistoryActive) {
-
-                infoHistoryActive = false;
-
-                history.back();
-
-                return;
-            }
-
+            infoHistoryActive = false;
 
             closeUI();
-        }
 
+            if (shouldGoBack) {
+                history.back();
+            }
+        }
 
         /* =================================================
            INFO BUTTON

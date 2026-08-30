@@ -852,3 +852,12 @@
     }
 
 }
+
+@media (max-width: 768px) {
+
+    .chat-suggestion {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+
+}
