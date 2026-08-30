@@ -785,8 +785,14 @@ function addLinkPreviews(bubble, text) {
                     try {
                         const parsed = JSON.parse(jsonStr);
 
+                        // Legacy Workers AI format (e.g. Llama 3.1 8B)
                         if (parsed.response) {
                             fullText += parsed.response;
+                        }
+                        // Newer OpenAI-compatible format (e.g. GLM-4.7-Flash
+                        // and other chat-completions-style models)
+                        else if (parsed.choices && parsed.choices[0] && parsed.choices[0].delta && parsed.choices[0].delta.content) {
+                            fullText += parsed.choices[0].delta.content;
                         }
                     } catch (e) {
                         // Ignore incomplete SSE chunks.
