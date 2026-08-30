@@ -36,6 +36,7 @@
 
 .digital-twin-info-btn svg {
     display: block;
+
     width: 20px;
     height: 20px;
 }
@@ -48,6 +49,7 @@
     transform: scale(0.92);
 }
 
+
 @media (min-width: 769px) {
 
     .digital-twin-info-btn {
@@ -55,6 +57,7 @@
     }
 
 }
+
 
 /* =========================================================
    OVERLAY
@@ -90,11 +93,12 @@
 /* =========================================================
    SHEET
    ========================================================= */
+
 .digital-twin-info-sheet {
     position: fixed;
 
     width: min(420px, calc(100vw - 32px));
-    max-height: min(78vh, 720px);
+    height: min(78vh, 720px);
 
     overflow: hidden;
 
@@ -192,28 +196,21 @@
 
 
 /* =========================================================
-   SCROLLABLE CONTENT
+   SHEET CONTENT
    ========================================================= */
 
 .digital-twin-info-inner {
-    max-height: min(82vh, 780px);
+    height: 100%;
+    min-height: 0;
 
-    overflow-y: auto;
-    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
 
     padding: 54px 34px 20px;
 
     box-sizing: border-box;
-
-    overscroll-behavior: contain;
-
-    touch-action: pan-y;
-
-    scrollbar-width: none;
-}
-
-.digital-twin-info-inner::-webkit-scrollbar {
-    display: none;
 }
 
 
@@ -231,14 +228,27 @@
 
     padding-right: 130px;
 
+    flex-shrink: 0;
+
     /*
      * Header is also a drag zone.
      */
     touch-action: none;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    cursor: grab;
+}
+
+.digital-twin-info-header:active {
+    cursor: grabbing;
 }
 
 
-/* Title */
+/* =========================================================
+   TITLE
+   ========================================================= */
 
 .digital-twin-info-heading {
     position: relative;
@@ -281,7 +291,9 @@
 }
 
 
-/* Avatar */
+/* =========================================================
+   AVATAR
+   ========================================================= */
 
 .digital-twin-info-avatar {
     position: absolute;
@@ -310,6 +322,8 @@
 
     margin: 15px 0 10px;
 
+    flex-shrink: 0;
+
     background:
         linear-gradient(
             90deg,
@@ -329,10 +343,30 @@
     flex-direction: column;
 
     gap: 4px;
+
+    flex: 1;
+    min-height: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    overscroll-behavior: contain;
+
+    -webkit-overflow-scrolling: touch;
+
+    scrollbar-width: none;
+
+    touch-action: pan-y;
+}
+
+.digital-twin-info-list::-webkit-scrollbar {
+    display: none;
 }
 
 
-/* Feature */
+/* =========================================================
+   FEATURE
+   ========================================================= */
 
 .digital-twin-info-feature {
     display: grid;
@@ -352,10 +386,14 @@
     border-radius: 21px;
 
     background: rgba(255, 255, 255, 0.64);
+
+    flex-shrink: 0;
 }
 
 
-/* Icon */
+/* =========================================================
+   ICON
+   ========================================================= */
 
 .digital-twin-info-icon {
     width: 48px;
@@ -387,7 +425,9 @@
 }
 
 
-/* Text */
+/* =========================================================
+   TEXT
+   ========================================================= */
 
 .digital-twin-info-feature h3 {
     margin: 0 0 3px;
@@ -432,6 +472,8 @@
     padding: 11px 17px;
 
     border-radius: 20px;
+
+    flex-shrink: 0;
 
     background:
         linear-gradient(
@@ -495,10 +537,12 @@
         justify-content: center;
     }
 
+
     .digital-twin-info-sheet {
         position: relative;
 
         width: 100%;
+        height: 90svh;
         max-height: 90svh;
 
         border-radius: 27px 27px 0 0;
@@ -520,7 +564,8 @@
 
 
     .digital-twin-info-inner {
-        max-height: 90svh;
+        height: 100%;
+        max-height: none;
 
         padding:
             48px

@@ -76,6 +76,11 @@
                 'digitalTwinInfoClose'
             );
 
+        const header =
+            document.querySelector(
+                '.digital-twin-info-header'
+            );
+
 
         if (
             !infoButton ||
@@ -362,6 +367,7 @@
 
                     const gap = 10;
 
+
                     sheet.style.top =
                         `${rect.bottom + gap}px`;
 
@@ -410,7 +416,15 @@
             currentY = 0;
 
 
-            handle.setPointerCapture(
+            /*
+             * Capture the pointer on whichever element
+             * started the drag.
+             *
+             * This can be either:
+             *   - the handle
+             *   - the header
+             */
+            event.currentTarget.setPointerCapture(
                 event.pointerId
             );
 
@@ -522,27 +536,39 @@
 
 
         /* =================================================
-           HANDLE POINTER EVENTS
+           DRAG TARGETS
            ================================================= */
 
-        handle.addEventListener(
-            'pointerdown',
-            startDrag
-        );
+        const dragTargets = [
+            handle,
+            header
+        ].filter(Boolean);
 
-        handle.addEventListener(
-            'pointermove',
-            moveDrag
-        );
 
-        handle.addEventListener(
-            'pointerup',
-            endDrag
-        );
+        dragTargets.forEach(
+            target => {
 
-        handle.addEventListener(
-            'pointercancel',
-            endDrag
+                target.addEventListener(
+                    'pointerdown',
+                    startDrag
+                );
+
+                target.addEventListener(
+                    'pointermove',
+                    moveDrag
+                );
+
+                target.addEventListener(
+                    'pointerup',
+                    endDrag
+                );
+
+                target.addEventListener(
+                    'pointercancel',
+                    endDrag
+                );
+
+            }
         );
 
 
