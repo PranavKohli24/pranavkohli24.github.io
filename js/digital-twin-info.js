@@ -150,9 +150,7 @@
                 'false'
             );
 
-            document.body.style.overflow =
-                'hidden';
-
+            
 
             /*
              * Add a temporary browser-history entry.
@@ -218,9 +216,6 @@
                 'true'
             );
 
-
-            document.body.style.overflow =
-                '';
         }
 
 
