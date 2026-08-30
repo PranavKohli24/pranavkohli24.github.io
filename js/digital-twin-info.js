@@ -81,6 +81,11 @@
                 '.digital-twin-info-header'
             );
 
+        const avatarVideo =
+            document.getElementById(
+                'digitalTwinInfoAvatar'
+            );
+            
 
         if (
             !infoButton ||
@@ -221,6 +226,20 @@
                 'aria-hidden',
                 'false'
             );
+
+            if (avatarVideo) {
+
+                avatarVideo.currentTime = 0;
+
+                const playPromise =
+                    avatarVideo.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        // Browser blocked playback.
+                    });
+                }
+            }
 
 
             /*

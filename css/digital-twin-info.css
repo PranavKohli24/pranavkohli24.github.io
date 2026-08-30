@@ -299,7 +299,6 @@
 /* =========================================================
    AVATAR
    ========================================================= */
-
 .digital-twin-info-avatar {
     position: absolute;
 
@@ -311,11 +310,16 @@
 
     object-fit: contain;
 
+    /*
+     * Makes the video's pure-white background
+     * visually disappear into the sheet.
+     */
+    mix-blend-mode: multiply;
+
     pointer-events: none;
 
     user-select: none;
 }
-
 
 /* =========================================================
    DIVIDER
