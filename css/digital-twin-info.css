@@ -62,7 +62,6 @@
 /* =========================================================
    OVERLAY
    ========================================================= */
-
 .digital-twin-info-overlay {
     position: fixed;
     inset: 0;
@@ -83,7 +82,13 @@
         visibility 0.25s ease;
 }
 
+.digital-twin-info-overlay:not(.active) {
+    display: none;
+}
+
 .digital-twin-info-overlay.active {
+    display: block;
+
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
@@ -531,7 +536,11 @@
     }
 
 
-    .digital-twin-info-overlay {
+     .digital-twin-info-overlay {
+        display: none;
+    }
+
+    .digital-twin-info-overlay.active {
         display: flex;
         align-items: flex-end;
         justify-content: center;
