@@ -69,6 +69,22 @@ nav a:hover {
     transform: translateX(6px);
 }
 
+nav a.active {
+    position: relative;
+}
+
+nav a.active::after {
+    content: '';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--highlight-color);
+    transform: translateY(-50%);
+}
+
 /* Main Content */
 main {
     padding-left: 7rem;

@@ -20,6 +20,13 @@ function updateDOM(sectionId) {
 function showSection() {
     const hash = window.location.hash || '#about';
     const sectionId = hash.substring(1);
+
+    document.querySelectorAll('nav a[href^="#"]').forEach(link => {
+        link.classList.toggle(
+            'active',
+            link.getAttribute('href') === `#${sectionId}`
+        );
+    });
     
     // Pause all audio players when navigating
     if (typeof window.pauseAllAudioPlayers === 'function') {
