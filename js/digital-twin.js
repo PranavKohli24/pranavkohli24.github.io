@@ -419,26 +419,89 @@
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+    const digitalTwinPhotos = {
+    childhood: {
+        image: '/src/images/memories/pranav_kid.jpeg',
+        title: 'Pranav as a kid',
+        caption: 'A little throwback to younger Pranav.'
+    },
+
+    'first-hackathon': {
+        image: '/src/images/memories/pranav_hackathon.jpeg',
+        title: 'First hackathon win',
+        caption: 'Pranav winning his first hackathon.'
+    },
+
+    spain: {
+        image: '/src/images/memories/pranav_spain.jpeg',
+        title: 'Spain',
+        caption: 'Pranav in Spain.'
+    },
+
+    'first-cricket-match': {
+        image: '/src/images/memories/pranav_cricket.jpeg',
+        title: 'First cricket match',
+        caption: 'The first time Pranav watched a cricket match in a stadium.'
+    },
+
+    'poshmark-move': {
+        image: '/src/images/memories/pranav_poshmark.jpeg',
+        title: 'Moving out for Poshmark',
+        caption: 'Pranav moving out of state to chennai for his job at Poshmark.'
+    },
+
+    dog: {
+        image: '/src/images/memories/pranav_dog.jpeg',
+        title: "Pranav's dog",
+        caption: 'Pranav with his dog.'
+    }
+};
+
+
     function renderLinkedText(element, text, cursor) {
+    
     const marker = '[CALENDAR_EVENT]';
+const photoMarker = '[SHOW_PHOTO]';
 
-    let markerIndex = text.search(/\[CALENDAR_EVENT\]/i);
+let markerIndex = text.search(/\[CALENDAR_EVENT\]/i);
+let photoMarkerIndex = text.search(/\[SHOW_PHOTO\]/i);
 
+if (
+    photoMarkerIndex !== -1 &&
+    (markerIndex === -1 || photoMarkerIndex < markerIndex)
+) {
+    markerIndex = photoMarkerIndex;
+}
     // The response streams character-by-character, so hide even a
     // partially typed CALENDAR_EVENT marker before it becomes visible.
+   if (markerIndex === -1) {
+    for (let i = 1; i < marker.length; i++) {
+        const suffix = text.slice(-i);
+
+        if (
+            suffix.toLowerCase() ===
+            marker.slice(0, i).toLowerCase()
+        ) {
+            markerIndex = text.length - i;
+            break;
+        }
+    }
+
+    // Also hide a partially streamed [SHOW_PHOTO] marker
     if (markerIndex === -1) {
-        for (let i = 1; i < marker.length; i++) {
+        for (let i = 1; i < photoMarker.length; i++) {
             const suffix = text.slice(-i);
 
             if (
                 suffix.toLowerCase() ===
-                marker.slice(0, i).toLowerCase()
+                photoMarker.slice(0, i).toLowerCase()
             ) {
                 markerIndex = text.length - i;
                 break;
             }
         }
     }
+}
 
     const visibleText = (
         markerIndex === -1
@@ -473,6 +536,57 @@
     }
 }
 
+function addPhotoPreview(bubble, text) {
+    const match = text.match(
+        /\[SHOW_PHOTO\]\s*id\s*=\s*([a-z0-9-]+)\s*\[\/SHOW_PHOTO\]/i
+    );
+
+    if (!match) return;
+
+    const photoId = match[1].toLowerCase();
+    const photo = digitalTwinPhotos[photoId];
+
+    if (!photo) return;
+
+    const card = document.createElement('div');
+    card.className = 'digital-twin-photo';
+
+    card.innerHTML = `
+        <img
+            src="${photo.image}"
+            alt="${photo.title}"
+            class="digital-twin-photo-image"
+        >
+
+        <div class="digital-twin-photo-info">
+            <div class="digital-twin-photo-title">
+                ${photo.title}
+            </div>
+
+            <div class="digital-twin-photo-caption">
+                ${photo.caption}
+            </div>
+        </div>
+    `;
+
+    bubble.appendChild(card);
+
+    const image = card.querySelector('.digital-twin-photo-image');
+
+    if (image.complete) {
+        requestAnimationFrame(() => {
+            image.classList.add('loaded');
+        });
+    } else {
+        image.addEventListener('load', () => {
+            requestAnimationFrame(() => {
+                image.classList.add('loaded');
+            });
+        });
+    }
+}
+
+
 
 const suggestionQuestions = [
     "mention some of pranav's skills",
@@ -485,7 +599,8 @@ const suggestionQuestions = [
     "Can you show me Pranav's resume?",
     "How can I contact Pranav?",
     "How is pranav as a person?",
-    "Tell me about Pranav's projects"
+    "Tell me about Pranav's projects",
+    "Show me a picture of pranav with his dog"
 ];
 
 function renderSuggestions() {
@@ -814,12 +929,21 @@ function addLinkPreviews(bubble, text) {
         // Foreground task: reveals one character at a steady pace, regardless
         // of how much text has already arrived from the network.
         let displayed = '';
-
         while (!(networkDone && displayed.length >= fullText
-            .split(/\[CALENDAR_EVENT\]/i)[0].length)) {
+        .replace(
+            /\[SHOW_PHOTO\][\s\S]*?\[\/SHOW_PHOTO\]/gi,
+            ''
+        )
+        .split(/\[CALENDAR_EVENT\]/i)[0]
+        .length)) {
 
             const visibleTarget =
-                fullText.split(/\[CALENDAR_EVENT\]/i)[0];
+            fullText
+                .replace(
+                    /\[SHOW_PHOTO\][\s\S]*?\[\/SHOW_PHOTO\]/gi,
+                    ''
+                )
+                .split(/\[CALENDAR_EVENT\]/i)[0];
 
             if (displayed.length < visibleTarget.length) {
                 const wasFollowing = wasFollowingBottom();
@@ -969,15 +1093,20 @@ function addLinkPreviews(bubble, text) {
                 await streamReply(res, bubble);
 
             addLinkPreviews(bubble, fullText);
+            addPhotoPreview(bubble, fullText);
 
             history.push({
                 role: 'assistant',
                 content: fullText
-                    .replace(
-                        /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi,
-                        ''
-                    )
-                    .trim()
+                .replace(
+                    /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi,
+                    ''
+                )
+                .replace(
+                    /\[SHOW_PHOTO\][\s\S]*?\[\/SHOW_PHOTO\]/gi,
+                    ''
+                )
+                .trim()
             });
 
             const remaining =
