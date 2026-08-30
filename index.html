@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/game.css">
     <link rel="stylesheet" href="css/digital-twin.css">
+    <link rel="stylesheet" href="css/digital-twin-info.css">
 </head>
 
 <body>
@@ -116,14 +117,62 @@
             
 <!-- Digital Twin Chat Section -->
 <section id="digital-twin" class="section" data-glow="rgba(93, 0, 247, 0.35)">
-    <div class="header-container">
-        <img src="/src/images/digital_twin.png" alt="" class="digital-twin-icon">
+   <div class="header-container">
+    <img
+        src="/src/images/digital_twin.png"
+        alt=""
+        class="digital-twin-icon"
+    >
 
-        <div class="digital-twin-title-stack">
-            <h1 class="header">Digital Twin<span class="highlight">.</span></h1>
-            <p class="subtitle">a version of me you can talk to</p>
-        </div>
+    <div class="digital-twin-title-stack">
+        <h1 class="header">
+            Digital Twin<span class="highlight">.</span>
+        </h1>
+
+        <p class="subtitle">
+            a version of me you can talk to
+        </p>
     </div>
+
+    <button
+        id="digitalTwinInfoBtn"
+        class="digital-twin-info-btn"
+        type="button"
+        aria-label="About this Digital Twin"
+        aria-expanded="false"
+    >
+        <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+        >
+            <circle
+                cx="12"
+                cy="12"
+                r="9.5"
+            ></circle>
+
+            <line
+                x1="12"
+                y1="10"
+                x2="12"
+                y2="16"
+            ></line>
+
+            <circle
+                cx="12"
+                cy="7"
+                r="0.65"
+                fill="currentColor"
+                stroke="none"
+            ></circle>
+        </svg>
+    </button>
+</div>
 
     <div class="chat-wrap">
 
@@ -263,6 +312,10 @@
 
         <p class="chat-remaining" id="chatRemaining"></p>
     </div>
+
+    <!-- Digital Twin Info component -->
+    <div id="digitalTwinInfoMount"></div>
+
 </section>
 
 <!-- Contact Section -->
@@ -628,6 +681,7 @@
 </script>
 
 <script src="js/digital-twin.js"></script>
+<script src="js/digital-twin-info.js"></script>
 <script src="js/game.js"></script>
 
 <script>

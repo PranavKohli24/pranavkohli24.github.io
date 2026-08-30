@@ -1,0 +1,248 @@
+<!-- Digital Twin Info Sheet -->
+
+<!-- Reusable icons -->
+<svg aria-hidden="true" style="display:none">
+    <symbol id="dt-icon-chat" viewBox="0 0 24 24">
+        <path d="M7 18.5c-2.8-.6-4.5-2.4-4.5-5.2C2.5 9.8 5.4 7 9 7h6c3.6 0 6.5 2.8 6.5 6.3 0 3.4-2.8 6.2-6.3 6.2H11l-4 2v-3z"/>
+        <circle cx="8" cy="13.2" r=".8" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="13.2" r=".8" fill="currentColor" stroke="none"/>
+        <circle cx="16" cy="13.2" r=".8" fill="currentColor" stroke="none"/>
+    </symbol>
+
+    <symbol id="dt-icon-brain" viewBox="0 0 24 24">
+        <path d="M9.5 4.5a3 3 0 0 0-3 3v.3a3.2 3.2 0 0 0-1.2 6.1A3.2 3.2 0 0 0 8 19.5c.5 0 1-.1 1.5-.3"/>
+        <path d="M14.5 4.5a3 3 0 0 1 3 3v.3a3.2 3.2 0 0 1 1.2 6.1A3.2 3.2 0 0 1 16 19.5c-.5 0-1-.1-1.5-.3"/>
+        <path d="M12 3v18"/>
+        <path d="M8.5 8.5c1.2-.2 2.2.4 2.7 1.4"/>
+        <path d="M15.5 8.5c-1.2-.2-2.2.4-2.7 1.4"/>
+        <path d="M8.5 15.5c1.2.2 2.2-.4 2.7-1.4"/>
+        <path d="M15.5 15.5c-1.2.2-2.2-.4-2.7-1.4"/>
+    </symbol>
+
+    <symbol id="dt-icon-mic" viewBox="0 0 24 24">
+        <rect x="8" y="2.5" width="8" height="14" rx="4"/>
+        <path d="M4.5 11a7.5 7.5 0 0 0 15 0"/>
+        <line x1="12" y1="18.5" x2="12" y2="22"/>
+        <line x1="8.5" y1="22" x2="15.5" y2="22"/>
+    </symbol>
+
+    <symbol id="dt-icon-link" viewBox="0 0 24 24">
+        <path d="M10 13.8a4 4 0 0 0 5.7.1l3-3a4 4 0 0 0-5.7-5.7l-1.7 1.7"/>
+        <path d="M14 10.2a4 4 0 0 0-5.7-.1l-3 3A4 4 0 0 0 11 18.8l1.7-1.7"/>
+    </symbol>
+
+    <symbol id="dt-icon-calendar" viewBox="0 0 24 24">
+        <rect x="3" y="4.5" width="18" height="17" rx="2.5"/>
+        <line x1="7" y1="2.5" x2="7" y2="6.5"/>
+        <line x1="17" y1="2.5" x2="17" y2="6.5"/>
+        <line x1="3" y1="9" x2="21" y2="9"/>
+        <circle cx="7" cy="13" r=".7" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="13" r=".7" fill="currentColor" stroke="none"/>
+        <circle cx="17" cy="13" r=".7" fill="currentColor" stroke="none"/>
+        <circle cx="7" cy="17" r=".7" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="17" r=".7" fill="currentColor" stroke="none"/>
+        <circle cx="17" cy="17" r=".7" fill="currentColor" stroke="none"/>
+    </symbol>
+
+    <symbol id="dt-icon-camera" viewBox="0 0 24 24">
+        <rect x="3" y="7" width="18" height="13" rx="2"/>
+        <circle cx="12" cy="13.5" r="3.5"/>
+        <path d="M8 7l1.2-2h5.6L16 7"/>
+    </symbol>
+
+    <symbol id="dt-icon-sparkle" viewBox="0 0 24 24">
+        <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z"/>
+        <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z"/>
+    </symbol>
+</svg>
+
+
+<!-- Overlay -->
+<div
+    id="digitalTwinInfoOverlay"
+    class="digital-twin-info-overlay"
+    aria-hidden="true"
+>
+    <div
+        id="digitalTwinInfoSheet"
+        class="digital-twin-info-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="digitalTwinInfoTitle"
+    >
+
+        <!-- Drag handle -->
+        <button
+            id="digitalTwinInfoClose"
+            class="digital-twin-info-handle"
+            type="button"
+            aria-label="Close"
+        >
+            <span></span>
+        </button>
+
+
+        <div class="digital-twin-info-inner">
+
+            <!-- Header -->
+           <div class="digital-twin-info-header">
+
+    <div class="digital-twin-info-heading">
+        <h2 id="digitalTwinInfoTitle">
+            About this <em>Digital Twin.</em>
+        </h2>
+
+        <p>
+            Here are a few things you can do.
+        </p>
+    </div>
+
+    <img
+        class="digital-twin-info-avatar"
+        src="/src/images/digital_twin.png"
+        alt=""
+    >
+
+</div>
+
+
+            <div class="digital-twin-info-divider"></div>
+
+
+            <!-- Features -->
+            <div class="digital-twin-info-list">
+
+                <div class="digital-twin-info-feature">
+                    <div class="digital-twin-info-icon">
+                        <svg viewBox="0 0 24 24">
+                            <use href="#dt-icon-chat"></use>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h3>Ask me anything</h3>
+                        <p>
+                            Ask about Pranav's experience, projects,
+                            skills, interests, or anything about him.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="digital-twin-info-feature">
+                    <div class="digital-twin-info-icon">
+                        <svg viewBox="0 0 24 24">
+                            <use href="#dt-icon-brain"></use>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h3>I remember our conversation</h3>
+                        <p>
+                            I remember what we talk about, so you can
+                            ask follow-up questions anytime.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="digital-twin-info-feature">
+                    <div class="digital-twin-info-icon">
+                        <svg viewBox="0 0 24 24">
+                            <use href="#dt-icon-mic"></use>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h3>Talk instead of typing</h3>
+                        <p>
+                            Use the microphone to speak your message.
+                            I'll listen and reply.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="digital-twin-info-feature">
+                    <div class="digital-twin-info-icon">
+                        <svg viewBox="0 0 24 24">
+                            <use href="#dt-icon-link"></use>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h3>Find Pranav online</h3>
+                        <p>
+                            Ask for LinkedIn, GitHub, resume, or other
+                            links and I'll share them with you.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="digital-twin-info-feature">
+                    <div class="digital-twin-info-icon">
+                        <svg viewBox="0 0 24 24">
+                            <use href="#dt-icon-calendar"></use>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h3>Schedule a call</h3>
+                        <p>
+                            Tell me a date and time, and I'll prepare
+                            a calendar invite with Pranav already added.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="digital-twin-info-feature">
+                    <div class="digital-twin-info-icon">
+                        <svg viewBox="0 0 24 24">
+                            <use href="#dt-icon-camera"></use>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h3>Show me a picture</h3>
+                        <p>
+                            Ask to see a random picture of Pranav.
+                            I'll pick one from his collection.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="digital-twin-info-feature">
+                    <div class="digital-twin-info-icon">
+                        <svg viewBox="0 0 24 24">
+                            <use href="#dt-icon-sparkle"></use>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h3>Try the suggestions</h3>
+                        <p>
+                            Not sure what to ask? Tap one of the
+                            suggested questions to get started.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- Tip -->
+            <div class="digital-twin-info-tip">
+                <span class="digital-twin-info-tip-icon">✧</span>
+
+                <div>
+                    <strong>Not sure what to ask?</strong>
+                    <p>Just say hi, I'm here to help! 😊</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
