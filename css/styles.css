@@ -698,7 +698,7 @@ main {
 
     .container {
         flex-direction: column;
-        padding: 2rem 2rem;
+        padding: 2rem 1rem;
     }
     
     .hamburger-button {
