@@ -104,7 +104,10 @@
 
 
     function appendMessage(role, text) {
-        const wasFollowing = role === 'user' ? true : wasFollowingBottom();
+        const wasFollowing =
+            role === 'user'
+                ? true
+                : wasFollowingBottom();
 
         const bubble = document.createElement('div');
 
@@ -115,17 +118,41 @@
                     ? 'chat-msg chat-msg-error'
                     : 'chat-msg chat-msg-bot';
 
-        const p = document.createElement('p');
-        p.textContent = text;
 
-        bubble.appendChild(p);
+        // Error message with Pranav image
+        if (role === 'error') {
+
+            const image = document.createElement('img');
+
+            image.src = '/src/images/error_image_twin.png';
+            image.alt = '';
+            image.className = 'chat-error-image';
+
+
+            const message = document.createElement('p');
+
+            message.textContent = text;
+
+
+            bubble.appendChild(image);
+            bubble.appendChild(message);
+
+        } else {
+
+            const p = document.createElement('p');
+
+            p.textContent = text;
+
+            bubble.appendChild(p);
+        }
+
+
         chatMessages.appendChild(bubble);
 
         applyScrollFollow(wasFollowing);
 
         return bubble;
     }
-
 
     function appendEmptyBotBubble(replyQuoteText) {
         const wasFollowing = wasFollowingBottom();
@@ -1111,7 +1138,8 @@ while (
                 appendMessage(
                     'error',
                     data.message ||
-                    "oops, You've reached the message limit for this conversation. contact pranav for this!"
+                    "Oops, you've reached the message limit for this conversation. Feel free to reach out to Pranav at +918860271737"
+
                 );
 
                 rateLimited = true;
@@ -1127,7 +1155,7 @@ while (
 
                 appendMessage(
                     'error',
-                    "ouch, Something went wrong on my end - try again in a moment."
+                    "ouch, Something went wrong on my end :( - try again in a moment."
                 );
 
                 return;
@@ -1176,7 +1204,7 @@ while (
 
             appendMessage(
                 'error',
-                "oops, Couldn't reach the server - check your connection or try again."
+                "Oops, looks like I couldn't reach Pranav! My bad :( In the meantime, please check your internet connection and try again."
             );
 
         } finally {

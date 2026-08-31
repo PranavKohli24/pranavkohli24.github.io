@@ -332,13 +332,39 @@
 }
 
 .chat-msg-error {
-    align-self: center;
-    background: rgba(200, 50, 50, 0.08);
-    color: #a83232;
-    font-size: 0.85rem;
-    text-align: center;
+    align-self: flex-start;
+
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+
+    max-width: 78%;
+
+    padding: 0.8rem 1rem;
+
+    background: rgba(255, 255, 255, 0.72);
+
+    border: 1px solid rgba(123, 44, 255, 0.12);
+
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+
+    color: var(--text-color);
 }
 
+
+.chat-error-image {
+    width: 100px;
+    height: 100px;
+
+    flex-shrink: 0;
+
+    object-fit: contain;
+
+    border-radius: 12px;
+}
 
 /* Typing */
 
