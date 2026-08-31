@@ -435,7 +435,7 @@
     spain: {
         image: '/src/images/memories/pranav_spain.jpeg',
         title: 'Spain',
-        caption: 'Pranav in Spain.'
+        caption: 'A memory from my trip to spain.'
     },
 
     'first-cricket-match': {
