@@ -330,9 +330,11 @@
         #A76BCF 0%,
         #9658BE 100%
         );
-    color: #fff;
+    color: rgb(255, 255, 255) !important;
+    opacity:1;
+    font-weight: 500;
+
     border-bottom-right-radius: 4px;
-    box-shadow: 0 4px 14px rgba(93, 0, 247, 0.25);
 }
 
 .chat-msg-error {
