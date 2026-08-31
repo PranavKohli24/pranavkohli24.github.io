@@ -396,8 +396,14 @@
     box-sizing: border-box;
 }
 
-.chat-input {
+.chat-input-wrap {
+    position: relative;
     flex: 1;
+    min-width: 0;
+}
+
+.chat-input {
+    width: 100%;
     min-width: 0;
     height: 2.75rem;
     border: 1px solid rgba(0,0,0,0.08);
@@ -414,6 +420,34 @@
     overflow-y: hidden;
     box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, height 0.1s ease;
+}
+
+.chat-input-placeholder {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+
+    transform: translateY(-50%) scale(1);
+    transform-origin: left center;
+
+    color: var(--secondary-text-color);
+    opacity: 0.65;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.22s ease,
+        transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Animate placeholder away when user types */
+.chat-input-wrap:has(.chat-input:not(:placeholder-shown))
+.chat-input-placeholder {
+    opacity: 0;
+
+    transform:
+        translateY(-70%)
+        scale(0.78);
 }
 
 .chat-input:focus {
