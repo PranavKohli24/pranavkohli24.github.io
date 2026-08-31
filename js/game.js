@@ -8,10 +8,26 @@
     'use strict';
 
     const ROUNDS = [
-        { size: 7, title: "Round 1: Resume Screening", flavor: "They're skimming your resume for 6 seconds. Move fast." },
-        { size: 9, title: "Round 2: Online Assessment", flavor: "Two hours, one maze, zero partial credit." },
-        { size: 11, title: "Round 3: Technical Interview", flavor: "\"Can you optimize that?\" Yes. Find the exit faster." },
-        { size: 13, title: "Round 4: HR Round", flavor: "Last one. Where do you see yourself in 5 minutes?" }
+        {
+            size: 7,
+            title: "Round 1: Resume Screening",
+            flavor: "They're skimming your resume for 6 seconds. Move fast."
+        },
+        {
+            size: 9,
+            title: "Round 2: Online Assessment",
+            flavor: "Two hours, one maze, zero partial credit."
+        },
+        {
+            size: 11,
+            title: "Round 3: Technical Interview",
+            flavor: "\"Can you optimize that?\" Yes. Find the exit faster."
+        },
+        {
+            size: 13,
+            title: "Round 4: HR Round",
+            flavor: "Last one. Where do you see yourself in 5 minutes?"
+        }
     ];
 
     const CELL = 32;
@@ -71,6 +87,8 @@
     let startOverlay,
         startBtn,
         dpadContainer;
+
+    let gameSectionObserver = null;
 
 
     function shuffle(arr) {
@@ -714,6 +732,7 @@
             resetGame
         );
 
+
         startBtn.addEventListener(
             'click',
             handleStart
@@ -764,6 +783,46 @@
                 { passive: false }
             );
         });
+
+
+        // Pause when the browser/tab becomes hidden.
+        document.addEventListener(
+            'visibilitychange',
+            () => {
+                if (
+                    document.hidden &&
+                    gameStarted &&
+                    !gamePaused
+                ) {
+                    pauseGame();
+                }
+            }
+        );
+    }
+
+
+    function observeGameSection() {
+        const gameSection = document.getElementById('game');
+
+        if (!gameSection) return;
+
+        gameSectionObserver = new MutationObserver(() => {
+            if (
+                gameStarted &&
+                !gamePaused &&
+                !isGameSectionActive()
+            ) {
+                pauseGame();
+            }
+        });
+
+        gameSectionObserver.observe(
+            gameSection,
+            {
+                attributes: true,
+                attributeFilter: ['class']
+            }
+        );
     }
 
 
@@ -773,6 +832,8 @@
         if (!bindElements()) return;
 
         attachListeners();
+        observeGameSection();
+
         showBest();
 
         startRound(0, false);
