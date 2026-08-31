@@ -44,16 +44,68 @@ body:has(#game.section.active) #liquid-glow {
     color: var(--secondary-text-color);
     font-variant-numeric: tabular-nums;
     margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 20;
+    pointer-events: auto;
 }
 
 .game-hud b {
     color: var(--text-color);
 }
 
+.game-time {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.pause-btn {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(93, 0, 247, 0.08);
+    color: var(--highlight-color);
+    font-size: 0.72rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    z-index: 20;
+    pointer-events: auto;
+    transition: background 0.2s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.game-hud.game-started .pause-btn {
+    display: inline-flex;
+}
+
+.pause-btn:hover {
+    background: rgba(93, 0, 247, 0.15);
+    transform: scale(1.08);
+}
+
+.pause-btn:active {
+    transform: scale(0.92);
+}
+
 .game-canvas-wrap {
     position: relative;
     display: inline-block;
     max-width: 100%;
+}
+
+.game-canvas-wrap.is-paused #mazeCanvas {
+    filter: none;
+    transform: none;
+}
+
+.game-canvas-wrap.is-paused {
+    overflow: hidden;
+    border-radius: 16px;
 }
 
 #mazeCanvas {
@@ -140,6 +192,12 @@ body:has(#game.section.active) #liquid-glow {
     text-align: center;
     padding: 1rem;
     z-index: 5;
+}
+
+#pauseOverlay {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
 }
 
 .game-overlay.active {

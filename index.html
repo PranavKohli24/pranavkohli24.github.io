@@ -461,8 +461,6 @@
 </section>
 
 <!-- Game Section -->
-<!-- Game Section -->
-<!-- Game Section -->
 <section id="game" class="section" data-glow="rgba(93, 0, 247, 0.35)">
     <div class="header-container">
         <h1 class="header">Escape the Interview<span class="highlight">.</span></h1>
@@ -470,14 +468,27 @@
     <p class="subtitle" id="roundTitle">Round 1: Resume Screening</p>
     <p class="game-flavor" id="flavorText">They're skimming your resume for 6 seconds. Move fast.</p>
 
-    <div class="game-hud">
+    <div class="game-hud" id="gameHud">
         <div>Round <b id="hudRound">1</b> / 4</div>
         <div>Moves <b id="hudMoves">0</b></div>
-        <div>Time <b id="hudTime">0.0s</b></div>
+
+        <div class="game-time">
+            <span>Time <b id="hudTime">0.0s</b></span>
+            <button
+                class="pause-btn"
+                id="pauseBtn"
+                aria-label="Pause game"
+                title="Pause game"
+            >⏸</button>
+        </div>
     </div>
 
     <div class="game-canvas-wrap">
         <canvas id="mazeCanvas"></canvas>
+        <div class="game-overlay" id="pauseOverlay">
+            <h2>Game paused</h2>
+            <button class="primary-btn" id="resumeBtn">Resume</button>
+        </div>
 
         <div class="game-overlay active" id="startOverlay">
             <h2>Ready to escape?</h2>
