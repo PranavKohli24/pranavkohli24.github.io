@@ -877,6 +877,59 @@ function addLinkPreviews(bubble, text) {
     });
 }
 
+    function getVisibleResponseText(text) {
+    // Remove complete SHOW_* command blocks.
+    let visible = text.replace(
+        /\[SHOW_[A-Z_]+\][\s\S]*?\[\/SHOW_[A-Z_]+\]/gi,
+        ''
+    );
+
+    // Remove complete calendar command blocks.
+    visible = visible.replace(
+        /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi,
+        ''
+    );
+
+    // If a complete internal command has started but has no closing tag yet,
+    // hide everything from that command onward.
+    const openCommandIndex = visible.search(
+        /\[(?:SHOW_[A-Z_]+|CALENDAR_EVENT)\]/i
+    );
+
+    if (openCommandIndex !== -1) {
+        visible = visible.slice(0, openCommandIndex);
+    }
+
+    // Hide partially streamed commands such as:
+    // [S
+    // [SH
+    // [SHOW_
+    // [CAL
+    // [CALENDAR_E
+    const internalStarts = [
+        '[SHOW_',
+        '[CALENDAR_EVENT]'
+    ];
+
+    for (const marker of internalStarts) {
+        for (let i = marker.length - 1; i >= 1; i--) {
+            const suffix = visible.slice(-i);
+
+            if (
+                suffix.toLowerCase() ===
+                marker.slice(0, i).toLowerCase()
+            ) {
+                visible = visible.slice(0, -i);
+                break;
+            }
+        }
+    }
+
+    return visible.trimEnd();
+}
+
+
+
 
     async function streamReply(res, bubble) {
         const p = bubble.querySelector('p');
@@ -929,22 +982,17 @@ function addLinkPreviews(bubble, text) {
         // Foreground task: reveals one character at a steady pace, regardless
         // of how much text has already arrived from the network.
         let displayed = '';
-        while (!(networkDone && displayed.length >= fullText
-        .replace(
-            /\[SHOW_PHOTO\][\s\S]*?\[\/SHOW_PHOTO\]/gi,
-            ''
-        )
-        .split(/\[CALENDAR_EVENT\]/i)[0]
-        .length)) {
 
-            const visibleTarget =
-            fullText
-                .replace(
-                    /\[SHOW_PHOTO\][\s\S]*?\[\/SHOW_PHOTO\]/gi,
-                    ''
-                )
-                .split(/\[CALENDAR_EVENT\]/i)[0];
+while (
+    !(
+        networkDone &&
+        displayed.length >=
+        getVisibleResponseText(fullText).length
+    )
+) {
 
+    const visibleTarget =
+        getVisibleResponseText(fullText);
             if (displayed.length < visibleTarget.length) {
                 const wasFollowing = wasFollowingBottom();
 
@@ -1099,11 +1147,11 @@ function addLinkPreviews(bubble, text) {
                 role: 'assistant',
                 content: fullText
                 .replace(
-                    /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi,
+                    /\[SHOW_[A-Z_]+\][\s\S]*?\[\/SHOW_[A-Z_]+\]/gi,
                     ''
                 )
                 .replace(
-                    /\[SHOW_PHOTO\][\s\S]*?\[\/SHOW_PHOTO\]/gi,
+                    /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi,
                     ''
                 )
                 .trim()
