@@ -64,7 +64,6 @@ body:has(#game.section.active) #liquid-glow {
     height: 26px;
     padding: 0;
     border: none;
-    outline: none;
     border-radius: 50%;
     background: rgba(93, 0, 247, 0.08);
     color: var(--highlight-color);
@@ -76,34 +75,21 @@ body:has(#game.section.active) #liquid-glow {
     position: relative;
     z-index: 20;
     pointer-events: auto;
-    -webkit-appearance: none;
-    appearance: none;
-    -webkit-tap-highlight-color: transparent;
     transition: background 0.2s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .game-hud.game-started .pause-btn {
     display: inline-flex;
 }
 
-.pause-btn:focus,
-.pause-btn:focus-visible,
-.pause-btn:active {
-    outline: none;
-    box-shadow: none;
-}
-
-.pause-btn:hover,
-.pause-btn:focus-visible {
+.pause-btn:hover {
     background: rgba(93, 0, 247, 0.15);
-    color: var(--highlight-color);
+    transform: scale(1.08);
 }
 
-@media (max-width: 768px) {
-    .pause-btn:active {
-        background: rgba(93, 0, 247, 0.2);
-        color: var(--highlight-color);
-    }
+.pause-btn:active {
+    transform: scale(0.92);
 }
 
 .game-canvas-wrap {
