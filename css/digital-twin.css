@@ -1004,6 +1004,7 @@
 
     .chat-suggestions {
         padding-left: 0.2rem;
+        gap: 0.4 rem;
     }
 }
 
