@@ -17,6 +17,7 @@
     const SESSION_KEY = 'digitalTwinSessionId';
 
     let chatMessages, chatInput, chatSendBtn, chatTyping, chatRemaining, chatScrollBottomBtn;
+    let chatInputRow;
     let chatMicIcon, chatSendIcon;
     let chatRecording, chatVoiceControls, chatVoiceSendBtn, chatVoiceStopBtn;
 
@@ -99,7 +100,7 @@
 
         const newHeight = Math.min(chatInput.scrollHeight, maxHeight);
         chatInput.style.height = newHeight + 'px';
-        chatInput.style.overflowY = chatInput.scrollHeight > maxHeight ? 'auto' : 'hidden';
+        chatInput.style.overflowY = 'hidden';
     }
 
 
@@ -1269,6 +1270,9 @@ while (
         chatInput =
             document.getElementById('chatInput');
 
+        chatInputRow =
+            document.querySelector('.chat-input-row');
+
         chatSendBtn =
             document.getElementById('chatSendBtn');
 
@@ -1403,6 +1407,26 @@ while (
         }
     }
 
+    function keepInputInVisualViewport() {
+    if (!chatInputRow || !window.visualViewport) return;
+
+    const update = () => {
+        const viewport = window.visualViewport;
+
+        chatInputRow.style.position = 'fixed';
+        chatInputRow.style.left = '0';
+        chatInputRow.style.right = '0';
+        chatInputRow.style.width = '100%';
+
+        chatInputRow.style.bottom =
+            `${window.innerHeight - viewport.height - viewport.offsetTop}px`;
+    };
+
+    update();
+
+    window.visualViewport.addEventListener('resize', update);
+    window.visualViewport.addEventListener('scroll', update);
+}
 
     function init() {
         if (initialized) return;
@@ -1413,6 +1437,7 @@ while (
 
         setupSpeechRecognition();
         attachListeners();
+        keepInputInVisualViewport();
 
         renderSuggestions();
         updateActionButton();
