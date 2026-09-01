@@ -168,6 +168,25 @@
     }
 
 
+    function keepControlsVisible() {
+        if (window.innerWidth > 768) return;
+
+        setTimeout(() => {
+            const dpad = document.getElementById('gameDpad');
+
+            if (!dpad) return;
+
+            const rect = dpad.getBoundingClientRect();
+
+            if (rect.bottom > window.innerHeight - 30) {
+                window.scrollBy({
+                    top: rect.bottom - window.innerHeight + 100,
+                    behavior: 'smooth'
+                });
+            }
+        }, 100);
+    }
+
     function startRound(index, startClock) {
         currentRoundIndex = index;
 
@@ -218,6 +237,11 @@
         }
 
         draw();
+
+        // Keep mobile controls visible when the maze gets bigger
+        if (index > 0) {
+            keepControlsVisible();
+        }
     }
 
 
