@@ -999,3 +999,25 @@
         height: 200px;
     }
 }
+
+@media (max-width: 768px) {
+    .chat-suggestions {
+        position: relative;
+        padding-left: 0.2rem;
+    }
+
+    .chat-suggestions::after {
+        content: "";
+        position: sticky;
+        right: 0;
+        min-width: 28px;
+        height: 100%;
+        margin-left: -28px;
+        pointer-events: none;
+        background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 255, 255, 0.95)
+        );
+    }
+}
