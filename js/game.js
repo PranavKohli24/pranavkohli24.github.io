@@ -30,7 +30,7 @@
         }
     ];
 
-    const CELL = 32;
+    let CELL = 32;
 
     const profileImg = new Image();
     let profileImgLoaded = false;
@@ -167,30 +167,21 @@
         return g;
     }
 
+    function getCellSize(size) {
+        if (window.innerWidth <= 768) {
+            if (size >= 13) return 25; // Round 4
+            if (size >= 11) return 28; // Round 3
+        }
 
-    function keepControlsVisible() {
-        if (window.innerWidth > 768) return;
-
-        setTimeout(() => {
-            const dpad = document.getElementById('gameDpad');
-
-            if (!dpad) return;
-
-            const rect = dpad.getBoundingClientRect();
-
-            if (rect.bottom > window.innerHeight - 30) {
-                window.scrollBy({
-                    top: rect.bottom - window.innerHeight + 100,
-                    behavior: 'smooth'
-                });
-            }
-        }, 100);
+        return 32;
     }
 
     function startRound(index, startClock) {
         currentRoundIndex = index;
 
         const round = ROUNDS[index];
+
+        CELL = getCellSize(round.size);
 
         grid = generateMaze(round.size);
 
@@ -238,10 +229,6 @@
 
         draw();
 
-        // Keep mobile controls visible when the maze gets bigger
-        if (index > 0) {
-            keepControlsVisible();
-        }
     }
 
 
