@@ -704,7 +704,7 @@
         right: 0;
         bottom: 0;
 
-        height: 100svh;
+        height: 100dvh;;
         min-height: 0;
 
         box-sizing: border-box;
@@ -1007,3 +1007,40 @@
     }
 }
 
+@media (max-width: 768px) {
+
+    #digital-twin.section.active {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .chat-wrap {
+        flex: 1;
+        min-height: 0;
+
+        display: flex;
+        flex-direction: column;
+
+        overflow: hidden;
+    }
+
+    .chat-messages-wrap {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .chat-messages {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .chat-input-row {
+        flex-shrink: 0;
+    }
+}
