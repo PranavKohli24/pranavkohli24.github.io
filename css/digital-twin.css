@@ -129,25 +129,6 @@
     border-radius: 0 0 8px 0;
 }
 
-.chat-suggestion::after {
-    content: "";
-    position: absolute;
-
-    left: -7px;
-    bottom: -4px;
-
-    width: 10px;
-    height: 10px;
-
-    background: rgba(255, 255, 255, 0.82);
-    border: 1px solid rgba(93, 0, 247, 0.12);
-    border-radius: 50%;
-
-    box-shadow:
-        -7px 8px 0 -2px rgba(255, 255, 255, 0.82),
-        -7px 8px 0 -1px rgba(93, 0, 247, 0.12);
-}
-
 .chat-suggestion:hover {
     transform: translateY(-4px);
     box-shadow:
