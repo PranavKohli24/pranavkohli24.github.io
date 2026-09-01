@@ -89,27 +89,17 @@
 
     function autoResizeInput() {
         chatInput.style.height = 'auto';
-        void chatInput.offsetHeight;
+        void chatInput.offsetHeight; // force reflow so scrollHeight reads correctly
 
         const style = window.getComputedStyle(chatInput);
         const lineHeight = parseFloat(style.lineHeight) || 20;
         const paddingTop = parseFloat(style.paddingTop) || 0;
         const paddingBottom = parseFloat(style.paddingBottom) || 0;
+        const maxHeight = lineHeight * 2 + paddingTop + paddingBottom; // hard cap: 2 lines
 
-        const maxHeight =
-            lineHeight * 2 +
-            paddingTop +
-            paddingBottom;
-
-        const newHeight = Math.min(
-            chatInput.scrollHeight,
-            maxHeight
-        );
-
+        const newHeight = Math.min(chatInput.scrollHeight, maxHeight);
         chatInput.style.height = newHeight + 'px';
-
-        // Never allow the textarea to become its own scroll container.
-        chatInput.style.overflowY = 'hidden';
+        chatInput.style.overflowY = chatInput.scrollHeight > maxHeight ? 'auto' : 'hidden';
     }
 
 
