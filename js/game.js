@@ -258,12 +258,12 @@
 
         pauseBtn.setAttribute(
             'aria-label',
-            'Resume game'
+            'Continue game'
         );
 
         pauseBtn.setAttribute(
             'title',
-            'Resume game'
+            'Continue game'
         );
     }
 
