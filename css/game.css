@@ -39,6 +39,8 @@ body:has(#game.section.active) #liquid-glow {
 
 .game-hud {
     display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
     gap: 2rem;
     font-size: 0.9rem;
     color: var(--secondary-text-color);
@@ -245,8 +247,11 @@ body:has(#game.section.active) #liquid-glow {
         margin: -1rem 0 1.5rem 0;
     }
     .game-hud {
-        gap: 1.2rem;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 1rem;
         font-size: 0.85rem;
+        white-space: nowrap;
     }
     .game-overlay h2 {
         font-size: 1.4rem;
