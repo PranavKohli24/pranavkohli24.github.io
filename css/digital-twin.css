@@ -1007,32 +1007,3 @@
     }
 }
 
-@media (max-width: 768px) {
-
-    .chat-input-row {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-
-        width: 100%;
-        box-sizing: border-box;
-
-        padding: 0.6rem 1rem 0.8rem;
-        margin: 0;
-
-        background: linear-gradient(
-            to top,
-            rgba(255, 255, 255, 0.96),
-            rgba(255, 255, 255, 0.78),
-            transparent
-        );
-
-        z-index: 1000;
-    }
-
-    .chat-messages {
-        padding-bottom: 5.5rem;
-    }
-
-}
