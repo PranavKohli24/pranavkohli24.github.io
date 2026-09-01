@@ -1001,23 +1001,31 @@
 }
 
 @media (max-width: 768px) {
+
     .chat-suggestions {
         position: relative;
         padding-left: 0.2rem;
     }
 
     .chat-suggestions::after {
-        content: "";
+        content: "→";
         position: sticky;
         right: 0;
-        min-width: 28px;
-        height: 100%;
-        margin-left: -28px;
+        margin-left: -20px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        min-width: 24px;
+        height: 32px;
+
+        color: #6334d8;
+        font-size: 1rem;
+        font-weight: bold;
+
         pointer-events: none;
-        background: linear-gradient(
-            to right,
-            transparent,
-            rgba(255, 255, 255, 0.95)
-        );
+        opacity: 0.7;
     }
+
 }
