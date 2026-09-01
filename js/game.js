@@ -375,7 +375,7 @@
 
         ctx.beginPath();
 
-        ctx.fillStyle = '#5d00f7';
+        ctx.fillStyle = '#AC85EC';
 
         ctx.arc(
             playerX * CELL + CELL / 2,
