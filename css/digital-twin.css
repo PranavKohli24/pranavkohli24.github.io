@@ -1005,5 +1005,21 @@
     .chat-suggestions {
         padding-left: 0.2rem;
     }
+}
 
+
+@media (max-width: 768px) {
+    .chat-input-row {
+        position: fixed;
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 1000;
+        margin-top: 0;
+    }
+
+    /* Prevent messages from going behind the fixed input */
+    .chat-messages {
+        padding-bottom: 5rem;
+    }
 }
