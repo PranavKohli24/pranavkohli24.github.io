@@ -439,8 +439,7 @@
     caret-color: var(--highlight-color);
     outline: none;
     resize: none;
-    overflow: hidden;
-    overscroll-behavior: none;
+    overflow-y: hidden;
     box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, height 0.1s ease;
 }
