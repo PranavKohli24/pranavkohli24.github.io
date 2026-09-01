@@ -169,8 +169,8 @@
 
     function getCellSize(size) {
         if (window.innerWidth <= 768) {
-            if (size >= 13) return 25; // Round 4
-            if (size >= 11) return 28; // Round 3
+            if (size >= 13) return 22; // Round 4
+            if (size >= 11) return 25; // Round 3
         }
 
         return 32;
