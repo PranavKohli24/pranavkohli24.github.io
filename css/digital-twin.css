@@ -1007,13 +1007,3 @@
     }
 }
 
-@media (max-width: 768px) {
-    #digital-twin:has(#chatInput:focus) .chat-input-row {
-        position: fixed;
-        left: 1rem;
-        right: 1rem;
-        bottom: 1rem;
-        z-index: 1000;
-        margin-top: 0;
-    }
-}
