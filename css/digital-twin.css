@@ -335,6 +335,16 @@
     box-shadow: 0 4px 12px rgba(99, 52, 216, 0.16);
 }
 
+.chat-msg-user::selection {
+    background: #6334d8;
+    color: #ffffff;
+}
+
+.chat-msg-user *::selection {
+    background: #6334d8;
+    color: #ffffff;
+}
+
 .chat-msg-error {
     align-self: flex-start;
 
