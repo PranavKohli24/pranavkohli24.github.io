@@ -1007,27 +1007,3 @@
     }
 
 }
-
-@media (max-width: 768px) {
-    #digital-twin.section.active {
-        height: 100dvh;
-        overflow: hidden;
-    }
-
-    .chat-wrap {
-        min-height: 0;
-    }
-
-    .chat-messages-wrap {
-        min-height: 0;
-    }
-
-    .chat-messages {
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .chat-input-row {
-        flex-shrink: 0;
-    }
-}
