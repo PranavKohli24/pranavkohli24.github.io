@@ -564,53 +564,65 @@ if (
 }
 
 function addPhotoPreview(bubble, text) {
+    // Only accept the exact internal photo command.
+    // The ID itself must also exist in our local registry.
     const match = text.match(
         /\[SHOW_PHOTO\]\s*id\s*=\s*([a-z0-9-]+)\s*\[\/SHOW_PHOTO\]/i
     );
 
     if (!match) return;
 
-    const photoId = match[1].toLowerCase();
+    const photoId = match[1].trim().toLowerCase();
     const photo = digitalTwinPhotos[photoId];
 
+    // Never render an unknown photo ID.
     if (!photo) return;
+
+    // Only one photo can be rendered per AI response.
+    if (bubble.querySelector('.digital-twin-photo')) return;
 
     const card = document.createElement('div');
     card.className = 'digital-twin-photo';
 
-    card.innerHTML = `
-        <img
-            src="${photo.image}"
-            alt="${photo.title}"
-            class="digital-twin-photo-image"
-        >
+    const image = document.createElement('img');
+    image.src = photo.image;
+    image.alt = photo.title;
+    image.className = 'digital-twin-photo-image';
 
-        <div class="digital-twin-photo-info">
-            <div class="digital-twin-photo-title">
-                ${photo.title}
-            </div>
+    const info = document.createElement('div');
+    info.className = 'digital-twin-photo-info';
 
-            <div class="digital-twin-photo-caption">
-                ${photo.caption}
-            </div>
-        </div>
-    `;
+    const title = document.createElement('div');
+    title.className = 'digital-twin-photo-title';
+    title.textContent = photo.title;
 
+    const caption = document.createElement('div');
+    caption.className = 'digital-twin-photo-caption';
+    caption.textContent = photo.caption;
+
+    info.appendChild(title);
+    info.appendChild(caption);
+
+    card.appendChild(image);
+    card.appendChild(info);
     bubble.appendChild(card);
 
-    const image = card.querySelector('.digital-twin-photo-image');
-
-    if (image.complete) {
+    const revealImage = () => {
         requestAnimationFrame(() => {
             image.classList.add('loaded');
         });
+    };
+
+    if (image.complete) {
+        revealImage();
     } else {
-        image.addEventListener('load', () => {
-            requestAnimationFrame(() => {
-                image.classList.add('loaded');
-            });
-        });
+        image.addEventListener('load', revealImage, { once: true });
     }
+
+    // If the file does not exist, remove the empty card.
+    image.addEventListener('error', () => {
+        card.remove();
+    }, { once: true });
 }
 
 
