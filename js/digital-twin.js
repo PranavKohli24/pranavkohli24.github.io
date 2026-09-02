@@ -102,6 +102,35 @@
         chatInput.style.overflowY = chatInput.scrollHeight > maxHeight ? 'auto' : 'hidden';
     }
 
+    function parseReaction(text) {
+        const match = text.match(
+            /\[REACTION\]\s*([^\[\]\r\n]+?)\s*\[\/REACTION\]/u
+        );
+
+        if (!match) return null;
+
+        return match[1].trim();
+    }
+
+
+    function addReactionToBubble(bubble, emoji) {
+        if (!bubble || !emoji) return;
+
+        // Prevent duplicate reactions
+        bubble.querySelector('.chat-reaction')?.remove();
+
+        const reaction = document.createElement('span');
+        reaction.className = 'chat-reaction';
+        reaction.textContent = emoji;
+
+        bubble.appendChild(reaction);
+    }
+
+
+    function getLastUserBubble() {
+        const bubbles = chatMessages.querySelectorAll('.chat-msg-user');
+        return bubbles[bubbles.length - 1] || null;
+    }
 
     function appendMessage(role, text) {
         const wasFollowing =
@@ -957,11 +986,15 @@ function addLinkPreviews(bubble, text) {
         /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi,
         ''
     );
+    visible = visible.replace(
+        /\[REACTION\][\s\S]*?\[\/REACTION\]/gi,
+        ''
+    );
 
     // If a complete internal command has started but has no closing tag yet,
     // hide everything from that command onward.
     const openCommandIndex = visible.search(
-        /\[(?:SHOW_[A-Z_]+|CALENDAR_EVENT)\]/i
+        /\[(?:SHOW_[A-Z_]+|CALENDAR_EVENT|REACTION)\]/i
     );
 
     if (openCommandIndex !== -1) {
@@ -976,7 +1009,8 @@ function addLinkPreviews(bubble, text) {
     // [CALENDAR_E
     const internalStarts = [
         '[SHOW_',
-        '[CALENDAR_EVENT]'
+        '[CALENDAR_EVENT]',
+        '[REACTION]'
     ];
 
     for (const marker of internalStarts) {
@@ -1010,6 +1044,7 @@ function addLinkPreviews(bubble, text) {
         let sseBuffer = '';
         let fullText = '';
         let networkDone = false;
+        let reactionResponse = false;
 
         // Background task: pulls data off the network as fast as it arrives,
         // just accumulating it — doesn't touch the DOM directly.
@@ -1037,6 +1072,13 @@ function addLinkPreviews(bubble, text) {
 
                         if (parsed.response) {
                             fullText += parsed.response;
+
+                            if (
+                                !reactionResponse &&
+                                /^\s*\[REACTION\]/i.test(fullText)
+                            ) {
+                                reactionResponse = true;
+                            }
                         }
                     } catch (e) {
                         // Ignore incomplete SSE chunks.
@@ -1051,17 +1093,22 @@ function addLinkPreviews(bubble, text) {
         // of how much text has already arrived from the network.
         let displayed = '';
 
-while (
-    !(
-        networkDone &&
-        displayed.length >=
-        getVisibleResponseText(fullText).length
-    )
-) {
+        while (
+            !(
+                networkDone &&
+                displayed.length >=
+                getVisibleResponseText(fullText).length
+            )
+        ) {
 
-    const visibleTarget =
-        getVisibleResponseText(fullText);
-            if (displayed.length < visibleTarget.length) {
+            const visibleTarget =
+                getVisibleResponseText(fullText);
+
+            // Never render anything from a reaction response.
+            if (
+                !reactionResponse &&
+                displayed.length < visibleTarget.length
+            ) {
                 const wasFollowing = wasFollowingBottom();
 
                 displayed = visibleTarget.slice(
@@ -1117,7 +1164,7 @@ while (
         setRecordingUI(false);
         chatSendBtn.classList.remove('listening');
 
-        appendMessage('user', text);
+        const userBubble = appendMessage('user', text);
 
         chatInput.value = '';
         updateActionButton();
@@ -1125,11 +1172,10 @@ while (
 
         pendingQueue.push({
             text,
-            // Only show a WhatsApp-style quote when this message was typed
-            // ahead of a reply already in progress — keeps normal one-at-a-time
-            // conversations clean, and only adds context when it's actually needed.
+            userBubble,
             showQuote: isSending || pendingQueue.length > 0
         });
+
         processQueue();
     }
 
@@ -1146,8 +1192,7 @@ while (
         }
 
         const item = pendingQueue.shift();
-        const { text, showQuote } = item;
-
+        const { text, userBubble, showQuote } = item;
         // Only add to the API-context history right before it's actually
         // used, so a still-queued later message never confuses the model
         // about what it's replying to.
@@ -1209,8 +1254,15 @@ while (
             const fullText =
                 await streamReply(res, bubble);
 
-            addLinkPreviews(bubble, fullText);
-            addPhotoPreview(bubble, fullText);
+            const reaction = parseReaction(fullText);
+
+            if (reaction) {
+                bubble.remove();
+                addReactionToBubble(userBubble, reaction);
+            } else {
+                addLinkPreviews(bubble, fullText);
+                addPhotoPreview(bubble, fullText);
+            }
 
             history.push({
                 role: 'assistant',
