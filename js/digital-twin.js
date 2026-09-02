@@ -1378,23 +1378,6 @@ function addLinkPreviews(bubble, text) {
         return true;
     }
 
-    function setupKeyboardAvoidance() {
-        if (!window.visualViewport) return;
-
-        const root = document.documentElement;
-
-        const applyInset = () => {
-            const vv = window.visualViewport;
-            const overlap = Math.max(0, window.innerHeight - vv.height);
-
-            root.style.setProperty('--keyboard-inset', overlap + 'px');
-        };
-
-        // Only the keyboard opening/closing changes vv.height — normal
-        // scrolling doesn't, so this never fires mid-scroll.
-        window.visualViewport.addEventListener('resize', applyInset);
-    }
-
     function attachListeners() {
 
         document.querySelectorAll('.chat-suggestion').forEach((button) => {
@@ -1505,7 +1488,6 @@ function addLinkPreviews(bubble, text) {
 
         setupSpeechRecognition();
         attachListeners();
-        setupKeyboardAvoidance();
 
         renderSuggestions();
         updateActionButton();
