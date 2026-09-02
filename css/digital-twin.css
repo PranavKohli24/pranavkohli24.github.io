@@ -1053,31 +1053,36 @@
     position: relative;
 }
 
-@media (max-width: 768px) {
-    .chat-suggestions {
-        position: relative;
-        padding-top: 0.55rem;
-    }
+.chat-suggestions-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
 
-    .chat-suggestions::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0.8rem;
+.chat-suggestions {
+    display: flex;
+    gap: 0.8rem;
+    overflow-x: auto;
+    padding: 0.1rem 0.2rem 1.3rem 0.8rem;
+    scrollbar-width: none;
+}
 
-        width: 24px;
-        height: 2px;
+.chat-suggestions-wrap::after {
+    content: "";
+    position: absolute;
+    top: -0.1rem;
+    right: 0.8rem;
 
-        border-radius: 999px;
-        background: rgba(93, 0, 247, 0.35);
-        box-shadow: 0 0 8px rgba(93, 0, 247, 0.15);
+    width: 24px;
+    height: 2px;
+    border-radius: 999px;
 
-        opacity: 1;
-        transition: opacity 0.25s ease;
-        pointer-events: none;
-    }
+    background: rgba(93, 0, 247, 0.35);
+    box-shadow: 0 0 8px rgba(93, 0, 247, 0.15);
 
-    .chat-suggestions.scrolled-end::after {
-        opacity: 0;
-    }
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.chat-suggestions-wrap.scrolled-end::after {
+    opacity: 0;
 }
