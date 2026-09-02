@@ -665,7 +665,7 @@ const suggestionQuestions = [
     "say hello",
     "What is Pranav working on?",
     "Can you show me Pranav's resume?",
-    "How can I contact Pranav?",
+    "How can I reach to Pranav?",
     "How is pranav as a person?",
     "Tell me about Pranav's projects",
     "Show me a picture of pranav with his dog"
@@ -976,8 +976,10 @@ function addLinkPreviews(bubble, text) {
 
     function cleanAIFormatting(text) {
         return text
-            .replace(/\*\*/g, '')   // Remove **
-            .replace(/--/g, '-');    // Remove double dash
+            .replace(/\*\*/g, '')
+            .replace(/--/g, '-')
+            .replace(/—/g, '-')
+            .replace(/–/g, '-');
     }
 
     function getVisibleResponseText(text) {
