@@ -1053,6 +1053,29 @@
     scrollbar-width: none;
 }
 
+.chat-suggestions-wrap::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 24px;
+    height: 2px;
+    border-radius: 999px;
+
+    background: rgba(93, 0, 247, 0.35);
+    box-shadow: 0 0 8px rgba(93, 0, 247, 0.15);
+
+    pointer-events: none;
+    opacity: 0;                      /* hidden by default — you start at the left */
+    transition: opacity 0.25s ease;
+    z-index: 10;
+}
+
+.chat-suggestions-wrap.scrolled-start::before {
+    opacity: 1;
+}
+
 .chat-suggestions-wrap::after {
     content: "";
     position: absolute;

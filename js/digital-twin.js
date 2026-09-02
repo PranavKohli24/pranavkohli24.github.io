@@ -679,7 +679,10 @@ function updateSuggestionScrollHint() {
         container.scrollLeft + container.clientWidth >=
         container.scrollWidth - 2;
 
+    const reachedStart = container.scrollLeft <= 2;
+
     container.parentElement.classList.toggle('scrolled-end', reachedEnd);
+    container.parentElement.classList.toggle('scrolled-start', !reachedStart);
 }
 
 function renderSuggestions() {
