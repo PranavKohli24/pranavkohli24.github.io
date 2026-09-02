@@ -1379,37 +1379,20 @@ function addLinkPreviews(bubble, text) {
     }
 
     function setupKeyboardAvoidance() {
-        if (!window.visualViewport || !chatInput) return;
+        if (!window.visualViewport) return;
 
         const root = document.documentElement;
-        let rafId = null;
 
         const applyInset = () => {
-            rafId = null;
-
             const vv = window.visualViewport;
-            const overlap = Math.max(
-                0,
-                window.innerHeight - vv.height - vv.offsetTop
-            );
+            const overlap = Math.max(0, window.innerHeight - vv.height);
 
             root.style.setProperty('--keyboard-inset', overlap + 'px');
         };
 
-        // Coalesce rapid-fire events into one update per animation frame,
-        // instead of letting each intermediate keyboard-animation tick
-        // trigger its own layout change.
-        const scheduleInset = () => {
-            if (rafId !== null) return;
-            rafId = requestAnimationFrame(applyInset);
-        };
-
-        window.visualViewport.addEventListener('resize', scheduleInset);
-        window.visualViewport.addEventListener('scroll', scheduleInset);
-
-        chatInput.addEventListener('blur', () => {
-            root.style.setProperty('--keyboard-inset', '0px');
-        });
+        // Only the keyboard opening/closing changes vv.height — normal
+        // scrolling doesn't, so this never fires mid-scroll.
+        window.visualViewport.addEventListener('resize', applyInset);
     }
 
     function attachListeners() {
