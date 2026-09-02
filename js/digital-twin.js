@@ -671,6 +671,17 @@ const suggestionQuestions = [
     "Show me a picture of pranav with his dog"
 ];
 
+function updateSuggestionScrollHint() {
+    const container = document.getElementById('chatSuggestions');
+    if (!container) return;
+
+    const reachedEnd =
+        container.scrollLeft + container.clientWidth >=
+        container.scrollWidth - 2;
+
+    container.classList.toggle('scrolled-end', reachedEnd);
+}
+
 function renderSuggestions() {
     const container = document.getElementById('chatSuggestions');
     if (!container) return;
@@ -733,6 +744,8 @@ function renderSuggestions() {
         }, 550);
     });
 });
+requestAnimationFrame(updateSuggestionScrollHint);
+
 }
 
 
@@ -1476,6 +1489,16 @@ function addLinkPreviews(bubble, text) {
 
         renderSuggestions();
         updateActionButton();
+
+        const suggestions = document.getElementById('chatSuggestions');
+
+        if (suggestions) {
+            suggestions.addEventListener(
+                'scroll',
+                updateSuggestionScrollHint,
+                { passive: true }
+            );
+        }
 
         setInterval(() => {
     const suggestions = document.getElementById('chatSuggestions');
