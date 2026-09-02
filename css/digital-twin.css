@@ -1109,3 +1109,10 @@
         gap: 0.1rem;
     }
 }
+
+@media (max-width: 768px) {
+    #digital-twin.section.active {
+        padding-bottom: calc(1rem + var(--keyboard-inset, 0px));
+        /* no transition — let it track the keyboard 1:1 */
+    }
+}

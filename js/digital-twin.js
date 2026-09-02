@@ -1378,6 +1378,39 @@ function addLinkPreviews(bubble, text) {
         return true;
     }
 
+    function setupKeyboardAvoidance() {
+        if (!window.visualViewport || !chatInput) return;
+
+        const root = document.documentElement;
+        let rafId = null;
+
+        const applyInset = () => {
+            rafId = null;
+
+            const vv = window.visualViewport;
+            const overlap = Math.max(
+                0,
+                window.innerHeight - vv.height - vv.offsetTop
+            );
+
+            root.style.setProperty('--keyboard-inset', overlap + 'px');
+        };
+
+        // Coalesce rapid-fire events into one update per animation frame,
+        // instead of letting each intermediate keyboard-animation tick
+        // trigger its own layout change.
+        const scheduleInset = () => {
+            if (rafId !== null) return;
+            rafId = requestAnimationFrame(applyInset);
+        };
+
+        window.visualViewport.addEventListener('resize', scheduleInset);
+        window.visualViewport.addEventListener('scroll', scheduleInset);
+
+        chatInput.addEventListener('blur', () => {
+            root.style.setProperty('--keyboard-inset', '0px');
+        });
+    }
 
     function attachListeners() {
 
@@ -1489,6 +1522,7 @@ function addLinkPreviews(bubble, text) {
 
         setupSpeechRecognition();
         attachListeners();
+        setupKeyboardAvoidance();
 
         renderSuggestions();
         updateActionButton();
