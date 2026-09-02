@@ -1052,15 +1052,13 @@
 .chat-suggestions {
     position: relative;
 }
-
 .chat-suggestions-wrap {
     position: relative;
     flex-shrink: 0;
+    padding-top: 0.55rem;
 }
 
 .chat-suggestions {
-    display: flex;
-    gap: 0.8rem;
     overflow-x: auto;
     padding: 0.1rem 0.2rem 1.3rem 0.8rem;
     scrollbar-width: none;
@@ -1069,7 +1067,7 @@
 .chat-suggestions-wrap::after {
     content: "";
     position: absolute;
-    top: -0.1rem;
+    top: 0;
     right: 0.8rem;
 
     width: 24px;
@@ -1080,6 +1078,7 @@
     box-shadow: 0 0 8px rgba(93, 0, 247, 0.15);
 
     pointer-events: none;
+    opacity: 1;
     transition: opacity 0.25s ease;
 }
 
