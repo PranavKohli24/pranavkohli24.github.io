@@ -1498,6 +1498,17 @@ function addLinkPreviews(bubble, text) {
                 updateSuggestionScrollHint,
                 { passive: true }
             );
+
+            // Container starts at 0 width while the section is hidden,
+            // which makes the initial reachedEnd check wrongly say "true".
+            // Recompute whenever its real size becomes available.
+            if (window.ResizeObserver) {
+                const suggestionsResizeObserver = new ResizeObserver(() => {
+                    updateSuggestionScrollHint();
+                });
+
+                suggestionsResizeObserver.observe(suggestions);
+            }
         }
 
         setInterval(() => {
