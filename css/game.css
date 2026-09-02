@@ -288,3 +288,20 @@ body:has(#game.section.active) #liquid-glow {
     background: rgba(93, 0, 247, 0.08); /* Light purple tint on hover */
     transform: translateY(-2px);
 }
+
+
+#winOverlay.active {
+    animation: offerReveal 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes offerReveal {
+    0% {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
