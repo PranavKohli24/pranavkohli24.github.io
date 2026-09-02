@@ -974,6 +974,12 @@ function addLinkPreviews(bubble, text) {
     });
 }
 
+    function cleanAIFormatting(text) {
+        return text
+            .replace(/\*\*/g, '')   // Remove **
+            .replace(/--/g, '-');    // Remove double dash
+    }
+
     function getVisibleResponseText(text) {
     // Remove complete SHOW_* command blocks.
     let visible = text.replace(
@@ -1027,7 +1033,7 @@ function addLinkPreviews(bubble, text) {
         }
     }
 
-    return visible.trimEnd();
+    return cleanAIFormatting(visible).trimEnd();
 }
 
 
