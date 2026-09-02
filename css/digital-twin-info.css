@@ -302,7 +302,7 @@
 .digital-twin-info-avatar {
     position: absolute;
 
-    right: 0;
+    right: 6px;
     bottom: -4px;
 
     width: 140px;
