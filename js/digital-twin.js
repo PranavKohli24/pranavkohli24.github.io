@@ -1334,7 +1334,7 @@ function addLinkPreviews(bubble, text) {
                 const limitBubble = appendMessage(
                     'error',
                     data.message ||
-                    "Oops, you've reached the message limit for this conversation. Feel free to reach out to Pranav at +918860271737 or at his email - hey@pranavkohli.me",
+                    "Oops, you've reached the message limit for this conversation! But hey, you can talk to the real Pranav instead of his AI version 😄 Reach him at hey@pranavkohli.me or give him a call at +918860271737",
                     true
                 );
 
@@ -1355,7 +1355,7 @@ function addLinkPreviews(bubble, text) {
 
                 appendMessage(
                     'error',
-                    "ouch, Something went wrong on my end, my bad :( - try again in a moment."
+                    "Ouch, something went wrong on my end :( Pranav is looking into it and fixing it. Grab a coffee and try again in a moment!"
                 );
 
                 return;
