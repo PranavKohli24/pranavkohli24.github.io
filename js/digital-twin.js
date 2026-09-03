@@ -1322,6 +1322,8 @@ function addLinkPreviews(bubble, text) {
 
                 setTyping(false);
 
+                chatRemaining.textContent = '';
+
                 const limitBubble = appendMessage(
                     'error',
                     data.message ||
