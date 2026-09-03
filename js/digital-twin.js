@@ -1334,7 +1334,7 @@ function addLinkPreviews(bubble, text) {
                 const limitBubble = appendMessage(
                     'error',
                     data.message ||
-                    "Oops, you've reached the message limit for this conversation. Feel free to reach out to Pranav at +918860271737",
+                    "Oops, you've reached the message limit for this conversation. Feel free to reach out to Pranav at +918860271737 or at his email - hey@pranavkohli.me",
                     true
                 );
 
