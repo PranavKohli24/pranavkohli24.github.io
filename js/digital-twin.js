@@ -947,7 +947,22 @@ function addLinkPreviews(bubble, text) {
             description: 'Tap to view my Competitive Programming profile',
             image: '/src/images/codeforces.jpeg',
             domain: 'codeforces.com'
-        }
+        },
+        {
+            match: 'https://sipwithpranav.app/',
+            title: 'Sip with Pranav',
+            description: 'Tap to view my mocktail shop app',
+            image: '/src/images/velvetpour.png',
+            domain: 'sipwithpranav.app'
+        },
+        {
+            match: 'https://rasoi-bazaar.vercel.app/',
+            title: 'Rasoi Bazaar',
+            description: 'Tap to cook a new dish today',
+            image: '/src/images/rasoibazaar.png',
+            domain: ''
+        },
+        
     ];
 
     previews.forEach(preview => {
