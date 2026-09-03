@@ -1265,7 +1265,7 @@ function addLinkPreviews(bubble, text) {
 
                 appendMessage(
                     'error',
-                    "ouch, Something went wrong on my end :( - try again in a moment."
+                    "ouch, Something went wrong on my end, my bad :( - try again in a moment."
                 );
 
                 return;
