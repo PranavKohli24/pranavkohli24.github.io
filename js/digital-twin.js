@@ -132,7 +132,7 @@
         return bubbles[bubbles.length - 1] || null;
     }
 
-    function appendMessage(role, text) {
+    function appendMessage(role, text, hideErrorImage = false) {
         const wasFollowing =
             role === 'user'
                 ? true
@@ -150,22 +150,20 @@
 
         // Error message with Pranav image
         if (role === 'error') {
+            if (!hideErrorImage) {
+                const image = document.createElement('img');
 
-            const image = document.createElement('img');
+                image.src = '/src/images/error_image_twin.png';
+                image.alt = '';
+                image.className = 'chat-error-image';
 
-            image.src = '/src/images/error_image_twin.png';
-            image.alt = '';
-            image.className = 'chat-error-image';
-
+                bubble.appendChild(image);
+            }
 
             const message = document.createElement('p');
-
             message.textContent = text;
 
-
-            bubble.appendChild(image);
             bubble.appendChild(message);
-
         } else {
 
             const p = document.createElement('p');
@@ -1218,6 +1216,70 @@ function addLinkPreviews(bubble, text) {
         processQueue();
     }
 
+    function showShareChatCard() {
+        if (chatMessages.querySelector('.chat-share-card')) return;
+        const card = document.createElement('div');
+        card.className = 'chat-share-card';
+
+        card.innerHTML = `
+            <img
+                src="/src/images/twin_bye_image.png"
+                alt=""
+                class="chat-share-image"
+            >
+
+            <div class="chat-share-content">
+                <div class="chat-share-title">
+                    Share this conversation
+                </div>
+
+                <div class="chat-share-description">
+                    Keep or share this chat with someone.
+                </div>
+
+                <button
+                    type="button"
+                    class="chat-share-btn"
+                    id="chatShareBtn"
+                >
+                    <span>↗</span>
+                    Share Chat
+                </button>
+            </div>
+        `;
+
+        chatMessages.appendChild(card);
+
+        card.querySelector('#chatShareBtn').addEventListener('click', async () => {
+            const text = history
+                .map(message =>
+                    `${message.role === 'user' ? 'You' : 'Pranav'}: ${message.content}`
+                )
+                .join('\n\n');
+
+            try {
+                if (navigator.share) {
+                    await navigator.share({
+                        title: "Conversation with Pranav's Digital Twin",
+                        text
+                    });
+                } else {
+                    await navigator.clipboard.writeText(text);
+                    card.querySelector('.chat-share-btn').innerHTML =
+                        '<span>✓</span> Copied';
+                }
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.warn('Could not share chat:', error);
+                }
+            }
+        });
+
+        requestAnimationFrame(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+    }
+
 
     // Works through pendingQueue strictly one message at a time.
     // Safe to call repeatedly — it's a no-op if already processing
@@ -1260,17 +1322,21 @@ function addLinkPreviews(bubble, text) {
 
                 setTyping(false);
 
-                appendMessage(
+                const limitBubble = appendMessage(
                     'error',
                     data.message ||
-                    "Oops, you've reached the message limit for this conversation. Feel free to reach out to Pranav at +918860271737"
-
+                    "Oops, you've reached the message limit for this conversation. Feel free to reach out to Pranav at +918860271737",
+                    true
                 );
+
+                limitBubble.classList.add('chat-limit-bubble');
 
                 rateLimited = true;
                 chatInput.disabled = true;
                 chatSendBtn.disabled = true;
                 pendingQueue = [];
+
+                showShareChatCard();
 
                 return;
             }
@@ -1329,6 +1395,15 @@ function addLinkPreviews(bubble, text) {
                     n > 0
                         ? `${n} messages left in this conversation`
                         : "That's the last message for this conversation.";
+
+                if (n === 0) {
+                    rateLimited = true;
+                    chatInput.disabled = true;
+                    chatSendBtn.disabled = true;
+                    chatVoiceSendBtn.disabled = true;
+                    chatVoiceStopBtn.disabled = true;
+                    showShareChatCard();
+                }
             }
 
         } catch (err) {
