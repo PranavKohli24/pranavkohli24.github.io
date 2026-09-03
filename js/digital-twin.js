@@ -1387,7 +1387,7 @@ function addLinkPreviews(bubble, text) {
                 res.headers.get(
                     'X-Messages-Remaining'
                 );
-
+            
             if (remaining !== null) {
                 const n = parseInt(remaining, 10);
 
@@ -1395,15 +1395,6 @@ function addLinkPreviews(bubble, text) {
                     n > 0
                         ? `${n} messages left in this conversation`
                         : "That's the last message for this conversation.";
-
-                if (n === 0) {
-                    rateLimited = true;
-                    chatInput.disabled = true;
-                    chatSendBtn.disabled = true;
-                    chatVoiceSendBtn.disabled = true;
-                    chatVoiceStopBtn.disabled = true;
-                    showShareChatCard();
-                }
             }
 
         } catch (err) {
