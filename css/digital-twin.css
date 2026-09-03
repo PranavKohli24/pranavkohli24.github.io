@@ -832,7 +832,35 @@
 }
 
 .chat-limit-bubble {
-    color: #9ca3af;
+    background-color: #9ca3af;
+}
+
+.chat-email-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 0.45rem;
+    padding: 0.5rem 0.9rem;
+
+    border-radius: 10px;
+
+    background: transparent;
+    border: 1px solid rgba(99, 52, 216, 0.18);
+
+    color: #6334d8;
+
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: background 0.18s ease;
+}
+
+.chat-email-btn:hover {
+    background: rgba(99, 52, 216, 0.06);
 }
 
 /* Scrollbar */

@@ -1245,6 +1245,13 @@ function addLinkPreviews(bubble, text) {
                     <span>↗</span>
                     Share Chat
                 </button>
+
+                <a
+                    href="mailto:hey@pranavkohli.me"
+                    class="chat-email-btn"
+                >
+                    Email Pranav
+                </a>
             </div>
         `;
 
