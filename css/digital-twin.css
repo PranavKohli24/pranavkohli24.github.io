@@ -831,6 +831,10 @@
     }
 }
 
+.chat-limit-bubble {
+    color: #9ca3af;
+}
+
 /* Scrollbar */
 
 .chat-messages::-webkit-scrollbar {
