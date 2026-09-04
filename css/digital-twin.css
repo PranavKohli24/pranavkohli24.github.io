@@ -874,15 +874,13 @@
     border-radius: 20px;
 }
 
-
+html:has(#digital-twin.section.active),
+body:has(#digital-twin.section.active) {
+    overflow: hidden;
+}
 /* Mobile */
 
 @media (max-width: 768px) {
-
-    html:has(#digital-twin.section.active),
-    body:has(#digital-twin.section.active) {
-        overflow: hidden;
-    }
 
     #digital-twin.section.active {
         position: fixed;
