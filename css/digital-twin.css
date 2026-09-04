@@ -53,7 +53,7 @@
 
 .chat-wrap {
     width: 100%;
-    max-width: 920px;
+    max-width: 720px;
     display: flex;
     flex-direction: column;
     flex: 1;
