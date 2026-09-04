@@ -1408,6 +1408,20 @@ function addLinkPreviews(bubble, text) {
 
             setTyping(false);
 
+            const remaining =
+                res.headers.get(
+                    'X-Messages-Remaining'
+                );
+            
+            if (remaining !== null) {
+                const n = parseInt(remaining, 10);
+
+                chatRemaining.textContent =
+                    n > 0
+                        ? `${n} messages left in this conversation`
+                        : "That's the last message for this conversation.";
+            }
+
             const bubble = appendEmptyBotBubble(showQuote ? text : null);
 
             const fullText =
@@ -1437,19 +1451,6 @@ function addLinkPreviews(bubble, text) {
                 .trim()
             });
 
-            const remaining =
-                res.headers.get(
-                    'X-Messages-Remaining'
-                );
-            
-            if (remaining !== null) {
-                const n = parseInt(remaining, 10);
-
-                chatRemaining.textContent =
-                    n > 0
-                        ? `${n} messages left in this conversation`
-                        : "That's the last message for this conversation.";
-            }
 
         } catch (err) {
             setTyping(false);
