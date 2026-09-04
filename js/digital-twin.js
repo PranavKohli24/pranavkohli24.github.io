@@ -1428,10 +1428,16 @@ function addLinkPreviews(bubble, text) {
                 await streamReply(res, bubble);
 
             const reaction = parseReaction(fullText);
+            const visibleText = getVisibleResponseText(fullText);
 
             if (reaction) {
                 bubble.remove();
                 addReactionToBubble(userBubble, reaction);
+            } else if (!visibleText.trim()) {
+                // Model returned nothing renderable — fall back to a reaction
+                // instead of leaving an empty bubble.
+                bubble.remove();
+                addReactionToBubble(userBubble, '👀');
             } else {
                 addLinkPreviews(bubble, fullText);
                 addPhotoPreview(bubble, fullText);
