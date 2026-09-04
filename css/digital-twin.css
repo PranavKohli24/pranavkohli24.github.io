@@ -874,13 +874,15 @@
     border-radius: 20px;
 }
 
-html:has(#digital-twin.section.active),
-body:has(#digital-twin.section.active) {
-    overflow: hidden;
-}
+
 /* Mobile */
 
 @media (max-width: 768px) {
+
+    html:has(#digital-twin.section.active),
+    body:has(#digital-twin.section.active) {
+        overflow: hidden;
+    }
 
     #digital-twin.section.active {
         position: fixed;
@@ -889,7 +891,7 @@ body:has(#digital-twin.section.active) {
         right: 0;
         bottom: 0;
 
-        height: 100svh;;
+        height: 100svh;
         min-height: 0;
 
         box-sizing: border-box;
