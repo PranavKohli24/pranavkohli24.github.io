@@ -669,6 +669,9 @@ const suggestionQuestions = [
     "Show me a picture of pranav with his dog"
 ];
 
+let recentlyUsedSuggestions = [];
+const MAX_RECENT_SUGGESTIONS = 3;
+
 function updateSuggestionScrollHint() {
     const container = document.getElementById('chatSuggestions');
     if (!container) return;
@@ -687,7 +690,8 @@ function renderSuggestions() {
     const container = document.getElementById('chatSuggestions');
     if (!container) return;
 
-    const shuffled = [...suggestionQuestions]
+    const shuffled = suggestionQuestions
+        .filter(question => !recentlyUsedSuggestions.includes(question))
         .sort(() => Math.random() - 0.5)
         .slice(0, 3);
 
@@ -736,13 +740,47 @@ function renderSuggestions() {
 
         setTimeout(() => {
             flyingBubble.remove();
+
+            recentlyUsedSuggestions.push(question);
+
+            if (recentlyUsedSuggestions.length > MAX_RECENT_SUGGESTIONS) {
+                recentlyUsedSuggestions.shift();
+            }
+
+            // Get the other 2 currently visible suggestions
+            const existingQuestions = Array.from(
+                container.querySelectorAll('.chat-suggestion')
+            )
+                .filter(existingButton => existingButton !== button)
+                .map(existingButton =>
+                    existingButton.textContent.replace('✧ ', '').trim()
+                );
+
+            // Pick a replacement that isn't among the other 2
+            // and isn't the suggestion that was clicked
+            const availableQuestions = suggestionQuestions.filter(
+                suggestion =>
+                    suggestion !== question &&
+                    !existingQuestions.includes(suggestion)
+            );
+
+            const newQuestion =
+                availableQuestions[
+                    Math.floor(Math.random() * availableQuestions.length)
+                ];
+
+            // Replace only the clicked pill
+            button.textContent = `✧ ${newQuestion}`;
             button.style.visibility = '';
 
+            // Send the originally clicked suggestion
             chatInput.value = question;
             updateActionButton();
             autoResizeInput();
             sendMessage();
         }, 550);
+
+
     });
 });
 requestAnimationFrame(updateSuggestionScrollHint);
@@ -958,6 +996,13 @@ function addLinkPreviews(bubble, text) {
             title: 'Rasoi Bazaar',
             description: 'Tap to cook a new dish today',
             image: '/src/images/rasoibazaar.png',
+            domain: ''
+        },
+        {
+            match: 'https://www.facebook.com/codingcompetitions/hacker-cup/2025/certificate/2967516210101538',
+            title: 'Meta HackerCup',
+            description: 'AIR - 331, Global Rank - 1457',
+            image: '/src/images/meta_hackercup.png',
             domain: ''
         },
         
