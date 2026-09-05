@@ -1114,6 +1114,121 @@ function addLinkPreviews(bubble, text) {
 
 
 
+    const MAX_BUBBLES = 3;
+    const BUBBLE_PAUSE_MS = 450; // pause between bubbles — mimics sending separate texts
+    const SPLIT_LENGTH_CEILING = 280;
+
+    async function streamMultiBubbleReply(res, replyQuoteText) {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        const TYPE_SPEED_MS = 30;
+
+        let sseBuffer = '';
+        let fullText = '';
+        let networkDone = false;
+        let reactionResponse = false;
+
+        const networkTask = (async () => {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                sseBuffer += decoder.decode(value, { stream: true });
+                const lines = sseBuffer.split('\n');
+                sseBuffer = lines.pop();
+
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed.startsWith('data:')) continue;
+
+                    const jsonStr = trimmed.slice(5).trim();
+                    if (jsonStr === '[DONE]') continue;
+
+                    try {
+                        const parsed = JSON.parse(jsonStr);
+                        if (parsed.response) {
+                            fullText += parsed.response;
+
+                            if (!reactionResponse && /^\s*\[REACTION\]/i.test(fullText)) {
+                                reactionResponse = true;
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore incomplete SSE chunks.
+                    }
+                }
+            }
+            networkDone = true;
+        })();
+
+        let bubbles = [];
+        let consumedRaw = 0;    // chars already finalized into earlier bubbles
+        let revealedInSeg = 0;  // chars revealed in the current bubble's segment
+
+        function newBubble(withQuote) {
+            const bubble = appendEmptyBotBubble(withQuote ? replyQuoteText : null);
+            const entry = {
+                bubble,
+                p: bubble.querySelector('p'),
+                cursor: bubble.querySelector('.stream-cursor')
+            };
+            bubbles.push(entry);
+            return entry;
+        }
+
+        let current = newBubble(true);
+
+        while (true) {
+            const visibleTarget = getVisibleResponseText(fullText);
+            const remaining = visibleTarget.slice(consumedRaw);
+
+            if (networkDone && revealedInSeg >= remaining.length) break;
+
+            if (!reactionResponse && revealedInSeg < remaining.length) {
+                revealedInSeg++;
+                const segment = remaining.slice(0, revealedInSeg);
+
+                const boundary = segment.match(/^([\s\S]*?)\n\n+([\s\S]*)$/);
+
+
+                if (
+                    boundary &&
+                    bubbles.length < MAX_BUBBLES &&
+                    boundary[1].trim().length > 0 &&
+                    visibleTarget.length < SPLIT_LENGTH_CEILING
+                ) {
+                    // Finish the current bubble at the boundary, start a fresh one.
+                    const wasFollowing = wasFollowingBottom();
+                    renderLinkedText(current.p, boundary[1].trim(), null);
+                    if (current.cursor) current.cursor.remove();
+                    applyScrollFollow(wasFollowing);
+
+                    consumedRaw += boundary[1].length + (segment.length - boundary[1].length - boundary[2].length);
+                    revealedInSeg = 0;
+
+                    await delay(BUBBLE_PAUSE_MS);
+                    setTyping(true);
+                    await delay(300);
+                    setTyping(false);
+
+                    current = newBubble(false);
+                    continue;
+                }
+
+                const wasFollowing = wasFollowingBottom();
+                renderLinkedText(current.p, segment, current.cursor);
+                applyScrollFollow(wasFollowing);
+            }
+
+            await delay(TYPE_SPEED_MS);
+        }
+
+        await networkTask;
+
+        if (current.cursor) current.cursor.remove();
+
+        return { fullText, lastBubble: current.bubble };
+    }
 
     async function streamReply(res, bubble) {
         const p = bubble.querySelector('p');
@@ -1408,55 +1523,44 @@ function addLinkPreviews(bubble, text) {
 
             setTyping(false);
 
+            const { fullText, lastBubble } =
+                await streamMultiBubbleReply(res, showQuote ? text : null);
+
             const remaining =
-                res.headers.get(
-                    'X-Messages-Remaining'
-                );
-            
+                res.headers.get('X-Messages-Remaining');
+
             if (remaining !== null) {
                 const n = parseInt(remaining, 10);
-
                 chatRemaining.textContent =
                     n > 0
                         ? `${n} messages left in this conversation`
                         : "That's the last message for this conversation.";
             }
 
-            const bubble = appendEmptyBotBubble(showQuote ? text : null);
-
-            const fullText =
-                await streamReply(res, bubble);
-
             const reaction = parseReaction(fullText);
             const visibleText = getVisibleResponseText(fullText);
 
+            const hasPhotoCommand = /\[SHOW_PHOTO\]\s*id\s*=\s*[a-z0-9-]+\s*\[\/SHOW_PHOTO\]/i.test(fullText);
+            const hasCalendarCommand = /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/i.test(fullText);
+
             if (reaction) {
-                bubble.remove();
+                lastBubble.remove();
                 addReactionToBubble(userBubble, reaction);
-            } else if (!visibleText.trim()) {
-                // Model returned nothing renderable — fall back to a reaction
-                // instead of leaving an empty bubble.
-                bubble.remove();
+            } else if (!visibleText.trim() && !hasPhotoCommand && !hasCalendarCommand) {
+                lastBubble.remove();
                 addReactionToBubble(userBubble, '👀');
             } else {
-                addLinkPreviews(bubble, fullText);
-                addPhotoPreview(bubble, fullText);
+                addLinkPreviews(lastBubble, fullText);
+                addPhotoPreview(lastBubble, fullText);
             }
 
             history.push({
                 role: 'assistant',
                 content: fullText
-                .replace(
-                    /\[SHOW_[A-Z_]+\][\s\S]*?\[\/SHOW_[A-Z_]+\]/gi,
-                    ''
-                )
-                .replace(
-                    /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi,
-                    ''
-                )
-                .trim()
+                    .replace(/\[SHOW_[A-Z_]+\][\s\S]*?\[\/SHOW_[A-Z_]+\]/gi, '')
+                    .replace(/\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi, '')
+                    .trim()
             });
-
 
         } catch (err) {
             setTyping(false);
