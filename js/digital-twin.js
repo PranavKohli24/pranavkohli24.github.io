@@ -1126,44 +1126,50 @@ function addLinkPreviews(bubble, text) {
         let sseBuffer = '';
         let fullText = '';
         let networkDone = false;
+        let networkError = null;   // NEW
         let reactionResponse = false;
 
         const networkTask = (async () => {
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
 
-                sseBuffer += decoder.decode(value, { stream: true });
-                const lines = sseBuffer.split('\n');
-                sseBuffer = lines.pop();
+                    sseBuffer += decoder.decode(value, { stream: true });
+                    const lines = sseBuffer.split('\n');
+                    sseBuffer = lines.pop();
 
-                for (const line of lines) {
-                    const trimmed = line.trim();
-                    if (!trimmed.startsWith('data:')) continue;
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (!trimmed.startsWith('data:')) continue;
 
-                    const jsonStr = trimmed.slice(5).trim();
-                    if (jsonStr === '[DONE]') continue;
+                        const jsonStr = trimmed.slice(5).trim();
+                        if (jsonStr === '[DONE]') continue;
 
-                    try {
-                        const parsed = JSON.parse(jsonStr);
-                        if (parsed.response) {
-                            fullText += parsed.response;
+                        try {
+                            const parsed = JSON.parse(jsonStr);
+                            if (parsed.response) {
+                                fullText += parsed.response;
 
-                            if (!reactionResponse && /^\s*\[REACTION\]/i.test(fullText)) {
-                                reactionResponse = true;
+                                if (!reactionResponse && /^\s*\[REACTION\]/i.test(fullText)) {
+                                    reactionResponse = true;
+                                }
                             }
+                        } catch (e) {
+                            // Ignore incomplete SSE chunks.
                         }
-                    } catch (e) {
-                        // Ignore incomplete SSE chunks.
                     }
                 }
+            } catch (err) {
+                networkError = err;   // NEW — capture instead of letting it float
+            } finally {
+                networkDone = true;   // NEW — always flips, success or failure
             }
-            networkDone = true;
         })();
 
         let bubbles = [];
-        let consumedRaw = 0;    // chars already finalized into earlier bubbles
-        let revealedInSeg = 0;  // chars revealed in the current bubble's segment
+        let consumedRaw = 0;
+        let revealedInSeg = 0;
 
         function newBubble(withQuote) {
             const bubble = appendEmptyBotBubble(withQuote ? replyQuoteText : null);
@@ -1187,9 +1193,7 @@ function addLinkPreviews(bubble, text) {
             if (!reactionResponse && revealedInSeg < remaining.length) {
                 revealedInSeg++;
                 const segment = remaining.slice(0, revealedInSeg);
-
                 const boundary = segment.match(/^([\s\S]*?)\n\n+([\s\S]*)$/);
-
 
                 if (
                     boundary &&
@@ -1197,7 +1201,6 @@ function addLinkPreviews(bubble, text) {
                     boundary[1].trim().length > 0 &&
                     visibleTarget.length < SPLIT_LENGTH_CEILING
                 ) {
-                    // Finish the current bubble at the boundary, start a fresh one.
                     const wasFollowing = wasFollowingBottom();
                     renderLinkedText(current.p, boundary[1].trim(), null);
                     if (current.cursor) current.cursor.remove();
@@ -1224,6 +1227,11 @@ function addLinkPreviews(bubble, text) {
         }
 
         await networkTask;
+
+        if (networkError) {
+            if (current.cursor) current.cursor.remove();
+            throw networkError;   // NEW — propagate so processQueue's catch fires
+        }
 
         if (current.cursor) current.cursor.remove();
 
