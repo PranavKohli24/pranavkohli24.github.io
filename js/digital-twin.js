@@ -1413,6 +1413,8 @@ function addLinkPreviews(bubble, text) {
                 chatSendBtn.disabled = true;
                 pendingQueue = [];
 
+                document.querySelector('.chat-suggestions-wrap')?.style.setProperty('display', 'none');
+
                 showShareChatCard();
 
                 return;
