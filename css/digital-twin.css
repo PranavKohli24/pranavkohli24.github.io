@@ -1279,7 +1279,7 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
 
-    -webkit-tap-highlight-color:  #bda3e8; /* light lavender tap flash instead of default blue */
+    -webkit-tap-highlight-color: #f3eefb /* light lavender tap flash instead of default blue */
 }
 
 .chat-voice-play {
