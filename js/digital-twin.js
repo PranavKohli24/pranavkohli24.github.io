@@ -1256,10 +1256,17 @@
             `${currentYear}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
 
-        const calendarUrl =
-            createCalendarUrl(date, time, duration);
+        const calendarUrl = createCalendarUrl(date, time, duration);
 
         if (!calendarUrl) return;
+
+        // Safety net: never render an invite for a time that's already
+        // passed, even if something upstream slips through.
+        const meetingStart = new Date(`${date}T${time}:00`);
+        if (!Number.isNaN(meetingStart.getTime()) && meetingStart.getTime() < Date.now()) {
+            console.warn('Refused to render a past-dated calendar invite:', date, time);
+            return;
+        }
 
         const card = document.createElement('a');
 
