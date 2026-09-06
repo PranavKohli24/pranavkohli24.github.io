@@ -514,12 +514,6 @@ function generateVoiceNoteAudio(voiceText) {
         bubble.appendChild(reaction);
     }
 
-
-    function getLastUserBubble() {
-        const bubbles = chatMessages.querySelectorAll('.chat-msg-user');
-        return bubbles[bubbles.length - 1] || null;
-    }
-
     function appendMessage(role, text, hideErrorImage = false) {
         const wasFollowing =
             role === 'user'
