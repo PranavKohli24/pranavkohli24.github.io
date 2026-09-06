@@ -741,18 +741,15 @@
                 event.error
             );
 
-            if (
-                event.error === 'not-allowed' ||
-                event.error === 'service-not-allowed' ||
-                event.error === 'audio-capture'
-            ) {
-                isListening = false;
-                userRequestedStop = true;
+            // Always reset the mic state after any recognition error.
+            // This is especially important when the permission popup is dismissed.
+            isListening = false;
+            userRequestedStop = true;
+            interimVoiceText = '';
 
-                chatSendBtn.classList.remove('listening');
-                setRecordingUI(false);
-                updateActionButton();
-            }
+            chatSendBtn.classList.remove('listening');
+            setRecordingUI(false);
+            updateActionButton();
         };
 
 
