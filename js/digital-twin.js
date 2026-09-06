@@ -2003,10 +2003,6 @@
         } finally {
             isSending = false;
 
-            if (!rateLimited) {
-                focusInputWithoutKeyboard();
-            }
-
             // Automatically continue with whatever the user typed
             // while this reply was streaming.
             if (pendingQueue.length > 0 && !rateLimited) {
