@@ -858,6 +858,19 @@
         sendMessage();
     }
 
+    function focusInputWithoutKeyboard() {
+        if (!chatInput) return;
+
+        // Focusing normally pops the mobile keyboard. Briefly marking the
+        // input readonly lets us focus (and place the cursor) without
+        // triggering it, then we hand control back immediately after.
+        chatInput.setAttribute('readonly', 'readonly');
+        chatInput.focus();
+
+        setTimeout(() => {
+            chatInput.removeAttribute('readonly');
+        }, 50);
+    }
 
     function delay(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
@@ -1989,6 +2002,10 @@
 
         } finally {
             isSending = false;
+
+            if (!rateLimited) {
+                focusInputWithoutKeyboard();
+            }
 
             // Automatically continue with whatever the user typed
             // while this reply was streaming.
