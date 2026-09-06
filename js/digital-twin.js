@@ -152,7 +152,7 @@
     }
 
 
- function addVoiceNoteToBubble(bubble, voiceText) {
+function addVoiceNoteToBubble(bubble, voiceText) {
     if (!bubble || !voiceText) return null;
 
     if (!('speechSynthesis' in window)) {
@@ -176,22 +176,20 @@
     progress.max = '100';
     progress.value = '0';
     progress.setAttribute('aria-label', 'Voice note progress');
-    const updateProgressVisual = () => {
-        progress.style.setProperty(
-            '--voice-progress',
-            `${progress.value}%`
-        );
+
+    const updateProgressVisual = (percent) => {
+        const clamped = Math.max(0, Math.min(100, percent));
+        progress.value = String(clamped);
+        progress.style.setProperty('--voice-progress', `${clamped}%`);
     };
 
-    updateProgressVisual();
+    updateProgressVisual(0);
 
-        const speechText = voiceText
+    const speechText = voiceText
         // Strip emoji and all their attaching modifiers — presentation
-        // selectors, ZWJ (used to combine emoji like family/couple emoji),
-        // skin-tone modifiers, keycap combining marks, and flag pairs.
-        // Missing any of these lets some TTS engines read the leftover
-        // code point's Unicode name aloud instead of silently skipping it
-        // (e.g. saying "smiley face" instead of just omitting it).
+        // selectors, ZWJ, skin-tone modifiers, keycap combining marks,
+        // and flag pairs — so TTS never reads a leftover code point's
+        // Unicode name aloud.
         .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '')
         .replace(/[\u{FE0F}\u{200D}\u{20E3}]/gu, '')
         .replace(/[\u{1F3FB}-\u{1F3FF}]/gu, '')
@@ -199,32 +197,86 @@
         .replace(/\s+/g, ' ')
         .trim();
 
-        const voices = cachedVoices.length
+    if (!speechText) return null;
+
+    const voices = cachedVoices.length
         ? cachedVoices
         : window.speechSynthesis.getVoices();
 
     const maleVoice = voices.find(
         voice =>
-            /male|man|david|mark|alex|daniel|james|george|guy/i.test(
-                voice.name
-            ) &&
+            /male|man|david|mark|alex|daniel|james|george|guy/i.test(voice.name) &&
             /^en-/i.test(voice.lang)
     );
 
-    const englishVoice = voices.find(
-        voice => /^en-/i.test(voice.lang)
-    );
-
+    const englishVoice = voices.find(voice => /^en-/i.test(voice.lang));
     const selectedVoice = maleVoice || englishVoice;
 
+    // ---------------------------------------------------------------
+    // Playback state. speechPosition is the single source of truth for
+    // "where we are" — both pausing and resuming just read/write it.
+    // ---------------------------------------------------------------
     let speechPosition = 0;
-    let voiceState = 'idle';
-    let progressTimer = null;
+    let voiceState = 'idle'; // 'idle' | 'playing' | 'paused'
     let utteranceId = 0;
-    let externallyInterrupted = false;
-    let pausedAtPosition = null;
+    let currentUtterance = null;
 
-    const createUtterance = (text, startIndex = 0) => {
+    // Smooth, self-correcting progress: interpolate with rAF using an
+    // estimated speaking rate, then recalibrate that estimate every time
+    // a real onboundary event arrives (browsers fire these inconsistently
+    // — some per word, some per sentence, some almost never).
+    let estimatedCharsPerSec = 14;
+    let anchorPosition = 0;
+    let anchorTime = 0;
+    let lastBoundaryTime = 0;
+    let lastBoundaryPosition = 0;
+    let rafHandle = null;
+
+    function stopVisualLoop() {
+        if (rafHandle !== null) {
+            cancelAnimationFrame(rafHandle);
+            rafHandle = null;
+        }
+    }
+
+    function visualTick() {
+        if (voiceState !== 'playing') {
+            rafHandle = null;
+            return;
+        }
+
+        const elapsedSec = (performance.now() - anchorTime) / 1000;
+        const estimate = anchorPosition + elapsedSec * estimatedCharsPerSec;
+
+        speechPosition = Math.min(estimate, speechText.length);
+        updateProgressVisual((speechPosition / speechText.length) * 100);
+
+        rafHandle = requestAnimationFrame(visualTick);
+    }
+
+    function startVisualLoop(fromPosition) {
+        stopVisualLoop();
+        anchorPosition = fromPosition;
+        anchorTime = performance.now();
+        lastBoundaryTime = anchorTime;
+        lastBoundaryPosition = fromPosition;
+        rafHandle = requestAnimationFrame(visualTick);
+    }
+
+    function setPlayingUI() {
+        playBtn.textContent = '❚❚';
+        playBtn.setAttribute('aria-label', 'Pause voice note');
+    }
+
+    function setPausedUI() {
+        playBtn.textContent = '▶';
+        playBtn.setAttribute(
+            'aria-label',
+            voiceState === 'idle' ? 'Play voice note' : 'Resume voice note'
+        );
+    }
+
+    function createUtterance(text) {
         const utterance = new SpeechSynthesisUtterance(text);
 
         if (selectedVoice) {
@@ -237,281 +289,188 @@
         utterance.rate = 1;
         utterance.pitch = 1;
 
-        utterance.onstart = () => {
-    if (utterance !== currentUtterance) return;
-
-    voiceState = 'playing';
-
-        playBtn.textContent = '❚❚';
-        playBtn.setAttribute(
-            'aria-label',
-            'Pause voice note'
-        );
-    };
-
-                utterance.onboundary = (event) => {
-    if (utterance !== currentUtterance) return;
-
-    if (typeof event.charIndex === 'number') {
-        speechPosition = startIndex + event.charIndex;
-
-        const percent =
-            speechText.length > 0
-                ? (speechPosition / speechText.length) * 100
-                : 0;
-
-        progress.value = Math.min(100, percent);
-        updateProgressVisual();
-    }
-};
-
-               utterance.onend = () => {
-    if (utterance !== currentUtterance) return;
-
-    voiceState = 'idle';
-
-    if (!externallyInterrupted) {
-        speechPosition = speechText.length;
-        progress.value = 100;
-        updateProgressVisual();
-    }
-
-    externallyInterrupted = false;
-
-    playBtn.textContent = '▶';
-    playBtn.setAttribute(
-        'aria-label',
-        'Play voice note'
-    );
-
-    clearInterval(progressTimer);
-    progressTimer = null;
-
-    if (activeVoiceNote === voiceWrap) {
-        activeVoiceNote = null;
-    }
-};
-
-
-               utterance.onerror = (error) => {
-    if (utterance !== currentUtterance) return;
-
-    console.warn('Speech synthesis error:', error);
-
-    voiceState = 'idle';
-    externallyInterrupted = false;
-
-    playBtn.textContent = '▶';
-
-    playBtn.setAttribute(
-        'aria-label',
-        'Play voice note'
-    );
-
-    clearInterval(progressTimer);
-    progressTimer = null;
-
-    if (activeVoiceNote === voiceWrap) {
-        activeVoiceNote = null;
-    }
-};
-
         return utterance;
-    };
-
-    let currentUtterance = createUtterance(speechText);
-
-        const startSpeech = (startIndex = speechPosition) => {
-    // Claim this call's id before anything else, so a later
-    // startSpeech() (e.g. another scrub) can invalidate this one
-    // even while it's mid-flight.
-    const id = ++utteranceId;
-
-    window.speechSynthesis.cancel();
-
-    const remainingText = speechText.slice(startIndex);
-
-    if (!remainingText.trim()) {
-        progress.value = 100;
-        updateProgressVisual();
-        speechPosition = speechText.length;
-
-        voiceState = 'idle';
-        playBtn.textContent = '▶';
-        playBtn.setAttribute(
-            'aria-label',
-            'Play voice note'
-        );
-
-        return;
     }
 
-    // Update the UI immediately so it feels responsive, even though
-    // the actual speak() call is deliberately delayed below.
-    voiceState = 'playing';
-    playBtn.textContent = '❚❚';
-    playBtn.setAttribute(
-        'aria-label',
-        'Pause voice note'
-    );
+    // Every "play" and every "resume" goes through here. We never call
+    // speechSynthesis.pause()/resume() — instead we always cancel and
+    // re-speak from the remembered offset. This is what makes play/pause
+    // reliable: we're not depending on browser pause/resume behavior,
+    // which is flaky across Chrome/Firefox/Safari.
+    function playFrom(startChar) {
+        const id = ++utteranceId;
 
-    // Chrome (and some other browsers) have a known race: calling
-    // speak() immediately after cancel() can silently drop the new
-    // utterance, or let the "cancelled" one keep playing, because
-    // cancel() hasn't actually taken effect on the underlying speech
-    // engine yet. A short delay lets the cancel complete first.
-    // The id check discards this call entirely if a newer
-    // startSpeech() has since superseded it (e.g. rapid re-scrubbing).
-    setTimeout(() => {
-        if (id !== utteranceId) return;
+        window.speechSynthesis.cancel();
 
-        currentUtterance = createUtterance(remainingText, startIndex);
-        currentUtterance._id = id;
+        const clampedStart = Math.max(0, Math.min(startChar, speechText.length));
+        const remainingText = speechText.slice(clampedStart);
 
-        window.speechSynthesis.speak(currentUtterance);
-    }, 60);
-};
-
-        playBtn.addEventListener('click', () => {
-    try {
-        // Stop another voice note before starting this one.
-        if (
-            activeVoiceNote &&
-            activeVoiceNote !== voiceWrap
-        ) {
-            if (activeVoiceNote._interruptedByOtherNote) {
-                activeVoiceNote._interruptedByOtherNote();
-            }
-
-            window.speechSynthesis.cancel();
-
-            activeVoiceNote._setIdle();
-        }
-
-        activeVoiceNote = voiceWrap;
-
-                if (voiceState === 'playing') {
-            window.speechSynthesis.pause();
-
-            // Remember exactly where we paused, so resume() can detect
-            // whether the slider moved since then.
-            pausedAtPosition = speechPosition;
-
-            // Update UI immediately.
-            voiceState = 'paused';
-            playBtn.textContent = '▶';
-            playBtn.setAttribute(
-                'aria-label',
-                'Resume voice note'
-            );
-
+        if (!remainingText.trim()) {
+            speechPosition = speechText.length;
+            updateProgressVisual(100);
+            voiceState = 'idle';
+            setPausedUI();
             return;
         }
 
-                if (voiceState === 'paused') {
-            // If the slider was scrubbed while paused, the browser's
-            // paused utterance is still sitting at the old position —
-            // resume() would ignore the scrub entirely. Detect that and
-            // start fresh from the new position instead of resuming.
-            if (
-                pausedAtPosition !== null &&
-                speechPosition !== pausedAtPosition
-            ) {
-                pausedAtPosition = null;
-                startSpeech(speechPosition);
+        voiceState = 'playing';
+        setPlayingUI();
+        startVisualLoop(clampedStart);
+
+        // Chrome has a known race where speak() right after cancel() can
+        // silently drop the utterance. A short delay lets cancel() settle.
+        setTimeout(() => {
+            if (id !== utteranceId) return;
+
+            const utterance = createUtterance(remainingText);
+            currentUtterance = utterance;
+
+            utterance.onboundary = (event) => {
+                if (utterance !== currentUtterance || voiceState !== 'playing') return;
+                if (typeof event.charIndex !== 'number') return;
+
+                const now = performance.now();
+                const newPosition = clampedStart + event.charIndex;
+
+                const dt = (now - lastBoundaryTime) / 1000;
+                const dPos = newPosition - lastBoundaryPosition;
+
+                if (dt > 0.05 && dPos > 0) {
+                    const observedRate = dPos / dt;
+                    estimatedCharsPerSec = Math.max(6, Math.min(30, observedRate));
+                }
+
+                lastBoundaryTime = now;
+                lastBoundaryPosition = newPosition;
+                anchorPosition = newPosition;
+                anchorTime = now;
+                speechPosition = newPosition;
+            };
+
+            utterance.onend = () => {
+                if (utterance !== currentUtterance) return;
+
+                stopVisualLoop();
+
+                // Only treat this as "finished" if we're still the active
+                // playing utterance — if we got here because pausePlayback()
+                // cancelled us, voiceState is already 'paused' and we leave
+                // the position alone.
+                if (voiceState === 'playing') {
+                    speechPosition = speechText.length;
+                    updateProgressVisual(100);
+                    voiceState = 'idle';
+                    setPausedUI();
+                }
+
+                if (activeVoiceNote === voiceWrap) {
+                    activeVoiceNote = null;
+                }
+            };
+
+            utterance.onerror = (error) => {
+                if (utterance !== currentUtterance) return;
+
+                console.warn('Speech synthesis error:', error);
+
+                stopVisualLoop();
+                voiceState = 'idle';
+                setPausedUI();
+
+                if (activeVoiceNote === voiceWrap) {
+                    activeVoiceNote = null;
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }, 60);
+    }
+
+    function pausePlayback() {
+        utteranceId++; // invalidate any in-flight callbacks from the old utterance
+        window.speechSynthesis.cancel();
+        stopVisualLoop();
+
+        voiceState = 'paused';
+        setPausedUI();
+    }
+
+    playBtn.addEventListener('click', () => {
+        try {
+            if (activeVoiceNote && activeVoiceNote !== voiceWrap) {
+                activeVoiceNote._pauseForOtherNote();
+            }
+
+            activeVoiceNote = voiceWrap;
+
+            if (voiceState === 'playing') {
+                pausePlayback();
                 return;
             }
 
-            window.speechSynthesis.resume();
+            if (speechPosition >= speechText.length) {
+                speechPosition = 0;
+                updateProgressVisual(0);
+            }
 
-            // Update UI immediately.
-            voiceState = 'playing';
-            playBtn.textContent = '❚❚';
-            playBtn.setAttribute(
-                'aria-label',
-                'Pause voice note'
-            );
-
-            return;
+            playFrom(speechPosition);
+        } catch (error) {
+            console.warn('Voice playback failed:', error);
         }
+    });
 
-        if (speechPosition >= speechText.length) {
-            speechPosition = 0;
-            progress.value = 0;
-            updateProgressVisual();
+    voiceWrap._pauseForOtherNote = () => {
+        if (voiceState === 'playing') {
+            pausePlayback();
         }
+    };
 
-        startSpeech(speechPosition);
+    // ---- Slider ----
+    // pointerdown covers mouse + touch drag start; the same "arm" check
+    // also runs on the first 'input' event so keyboard arrow-key scrubbing
+    // (which never fires pointerdown) is handled the same way.
+    let isDragging = false;
+    let resumeAfterDrag = false;
 
-    } catch (error) {
-        console.warn('Voice playback failed:', error);
+    function beginScrubIfNeeded() {
+        if (isDragging) return;
+
+        isDragging = true;
+        resumeAfterDrag = (voiceState === 'playing');
+
+        if (resumeAfterDrag) {
+            pausePlayback();
+        }
     }
-});
 
-voiceWrap._setIdle = () => {
-    voiceState = 'idle';
-    playBtn.textContent = '▶';
-    playBtn.setAttribute(
-        'aria-label',
-        'Play voice note'
-    );
-};
-
-voiceWrap._interruptedByOtherNote = () => {
-    externallyInterrupted = true;
-};
-
-                let isDragging = false;
-    let wasPlayingBeforeDrag = false;
+    progress.addEventListener('pointerdown', beginScrubIfNeeded);
 
     progress.addEventListener('input', () => {
-    // Mirrors the blog player's isDragging pattern: while actively
-    // dragging, only move the visual thumb and update the target
-    // position — never touch the speech engine mid-drag. Restarting
-    // speech synthesis on every tick (unlike audio.currentTime, which
-    // is instant) creates visible stutter and overlapping utterances.
-    if (!isDragging) {
-        isDragging = true;
-        wasPlayingBeforeDrag = (voiceState === 'playing');
+        beginScrubIfNeeded();
 
-        // Pause the engine immediately on drag start so it isn't still
-        // talking over your scrub — mirrors how a real <audio> element
-        // effectively "freezes" output while you hold the thumb.
-        if (wasPlayingBeforeDrag) {
-            window.speechSynthesis.pause();
+        const targetPosition = Math.round(
+            (Number(progress.value) / 100) * speechText.length
+        );
+
+        speechPosition = targetPosition;
+        updateProgressVisual(Number(progress.value));
+    });
+
+    const commitDrag = () => {
+        if (!isDragging) return;
+
+        isDragging = false;
+
+        if (resumeAfterDrag) {
+            playFrom(speechPosition);
         }
-    }
 
-    const targetPosition = Math.floor(
-        (Number(progress.value) / 100) * speechText.length
-    );
+        resumeAfterDrag = false;
+    };
 
-    speechPosition = targetPosition;
-
-    updateProgressVisual();
-});
-
-progress.addEventListener('change', () => {
-    // Fires once, when the user releases the slider — commit the seek.
-    isDragging = false;
-
-    if (voiceState === 'paused') {
-        // Deliberately leave pausedAtPosition untouched here — it must
-        // keep pointing at wherever the engine actually paused. That's
-        // what lets the playBtn click handler's mismatch check
-        // (speechPosition !== pausedAtPosition) detect "user scrubbed
-        // while paused" and correctly restart from the new spot instead
-        // of blindly resume()-ing from the stale internal position.
-        return;
-    }
-
-    if (wasPlayingBeforeDrag) {
-        startSpeech(speechPosition);
-    }
-
-    wasPlayingBeforeDrag = false;
-});
-
+    progress.addEventListener('change', commitDrag);
+    progress.addEventListener('pointerup', commitDrag);
+    progress.addEventListener('pointercancel', commitDrag);
 
     voiceWrap.appendChild(playBtn);
     voiceWrap.appendChild(progress);
