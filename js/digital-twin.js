@@ -105,7 +105,7 @@
         chatInput.style.overflowY = chatInput.scrollHeight > maxHeight ? 'auto' : 'hidden';
     }
 
-    const MAX_VOICE_CHARS = 140; // ~10s spoken at a natural pace
+    const MAX_VOICE_CHARS = 220; // ~10s spoken at a natural pace
 
     function parseVoice(text) {
         const match = text.match(
