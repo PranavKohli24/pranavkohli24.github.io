@@ -29,12 +29,15 @@
     // Messages the user sent while a previous reply was still streaming.
     // Processed strictly one at a time, in order.
     let pendingQueue = [];
+    let activeVoiceNote = null;
 
     // Voice state
     let recognition = null;
     let isListening = false;
     let userRequestedStop = false;
     let interimVoiceText = '';
+
+    let cachedVoices = [];
 
     const NEAR_BOTTOM_PX = 40;
 
@@ -101,6 +104,432 @@
         chatInput.style.height = newHeight + 'px';
         chatInput.style.overflowY = chatInput.scrollHeight > maxHeight ? 'auto' : 'hidden';
     }
+
+    const MAX_VOICE_CHARS = 140; // ~10s spoken at a natural pace
+
+    function parseVoice(text) {
+        const match = text.match(
+            /\[voice\]([\s\S]*?)\[\/voice\]/i
+        );
+
+        if (!match) return null;
+
+        let voiceText = match[1].trim();
+
+        if (!voiceText) return null;
+
+        if (voiceText.length > MAX_VOICE_CHARS) {
+            // Cut at the last full sentence within the cap, falling back
+            // to a hard slice if no sentence boundary is found.
+            const truncated = voiceText.slice(0, MAX_VOICE_CHARS);
+            const lastBoundary = Math.max(
+                truncated.lastIndexOf('. '),
+                truncated.lastIndexOf('! '),
+                truncated.lastIndexOf('? ')
+            );
+
+            voiceText = lastBoundary > 40
+                ? truncated.slice(0, lastBoundary + 1)
+                : truncated.trim();
+        }
+
+        return voiceText;
+    }
+
+    
+
+
+        function primeVoiceCache() {
+        if (!('speechSynthesis' in window)) return;
+
+        const load = () => {
+            const list = window.speechSynthesis.getVoices();
+            if (list.length) cachedVoices = list;
+        };
+
+        load();
+        window.speechSynthesis.addEventListener('voiceschanged', load);
+    }
+
+
+ function addVoiceNoteToBubble(bubble, voiceText) {
+    if (!bubble || !voiceText) return null;
+
+    if (!('speechSynthesis' in window)) {
+        console.warn('Browser speech synthesis is not supported.');
+        return null;
+    }
+
+    const voiceWrap = document.createElement('div');
+    voiceWrap.className = 'chat-voice-note';
+
+    const playBtn = document.createElement('button');
+    playBtn.type = 'button';
+    playBtn.className = 'chat-voice-play';
+    playBtn.setAttribute('aria-label', 'Play voice note');
+    playBtn.textContent = '▶';
+
+    const progress = document.createElement('input');
+    progress.type = 'range';
+    progress.className = 'chat-voice-progress';
+    progress.min = '0';
+    progress.max = '100';
+    progress.value = '0';
+    progress.setAttribute('aria-label', 'Voice note progress');
+    const updateProgressVisual = () => {
+        progress.style.setProperty(
+            '--voice-progress',
+            `${progress.value}%`
+        );
+    };
+
+    updateProgressVisual();
+
+        const speechText = voiceText
+        // Strip emoji and all their attaching modifiers — presentation
+        // selectors, ZWJ (used to combine emoji like family/couple emoji),
+        // skin-tone modifiers, keycap combining marks, and flag pairs.
+        // Missing any of these lets some TTS engines read the leftover
+        // code point's Unicode name aloud instead of silently skipping it
+        // (e.g. saying "smiley face" instead of just omitting it).
+        .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '')
+        .replace(/[\u{FE0F}\u{200D}\u{20E3}]/gu, '')
+        .replace(/[\u{1F3FB}-\u{1F3FF}]/gu, '')
+        .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+        const voices = cachedVoices.length
+        ? cachedVoices
+        : window.speechSynthesis.getVoices();
+
+    const maleVoice = voices.find(
+        voice =>
+            /male|man|david|mark|alex|daniel|james|george|guy/i.test(
+                voice.name
+            ) &&
+            /^en-/i.test(voice.lang)
+    );
+
+    const englishVoice = voices.find(
+        voice => /^en-/i.test(voice.lang)
+    );
+
+    const selectedVoice = maleVoice || englishVoice;
+
+    let speechPosition = 0;
+    let voiceState = 'idle';
+    let progressTimer = null;
+    let utteranceId = 0;
+    let externallyInterrupted = false;
+    let pausedAtPosition = null;
+
+    const createUtterance = (text, startIndex = 0) => {
+        const utterance = new SpeechSynthesisUtterance(text);
+
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+            utterance.lang = selectedVoice.lang;
+        } else {
+            utterance.lang = 'en-US';
+        }
+
+        utterance.rate = 1;
+        utterance.pitch = 1;
+
+        utterance.onstart = () => {
+    if (utterance !== currentUtterance) return;
+
+    voiceState = 'playing';
+
+        playBtn.textContent = '❚❚';
+        playBtn.setAttribute(
+            'aria-label',
+            'Pause voice note'
+        );
+    };
+
+                utterance.onboundary = (event) => {
+    if (utterance !== currentUtterance) return;
+
+    if (typeof event.charIndex === 'number') {
+        speechPosition = startIndex + event.charIndex;
+
+        const percent =
+            speechText.length > 0
+                ? (speechPosition / speechText.length) * 100
+                : 0;
+
+        progress.value = Math.min(100, percent);
+        updateProgressVisual();
+    }
+};
+
+               utterance.onend = () => {
+    if (utterance !== currentUtterance) return;
+
+    voiceState = 'idle';
+
+    if (!externallyInterrupted) {
+        speechPosition = speechText.length;
+        progress.value = 100;
+        updateProgressVisual();
+    }
+
+    externallyInterrupted = false;
+
+    playBtn.textContent = '▶';
+    playBtn.setAttribute(
+        'aria-label',
+        'Play voice note'
+    );
+
+    clearInterval(progressTimer);
+    progressTimer = null;
+
+    if (activeVoiceNote === voiceWrap) {
+        activeVoiceNote = null;
+    }
+};
+
+
+               utterance.onerror = (error) => {
+    if (utterance !== currentUtterance) return;
+
+    console.warn('Speech synthesis error:', error);
+
+    voiceState = 'idle';
+    externallyInterrupted = false;
+
+    playBtn.textContent = '▶';
+
+    playBtn.setAttribute(
+        'aria-label',
+        'Play voice note'
+    );
+
+    clearInterval(progressTimer);
+    progressTimer = null;
+
+    if (activeVoiceNote === voiceWrap) {
+        activeVoiceNote = null;
+    }
+};
+
+        return utterance;
+    };
+
+    let currentUtterance = createUtterance(speechText);
+
+        const startSpeech = (startIndex = speechPosition) => {
+    // Claim this call's id before anything else, so a later
+    // startSpeech() (e.g. another scrub) can invalidate this one
+    // even while it's mid-flight.
+    const id = ++utteranceId;
+
+    window.speechSynthesis.cancel();
+
+    const remainingText = speechText.slice(startIndex);
+
+    if (!remainingText.trim()) {
+        progress.value = 100;
+        updateProgressVisual();
+        speechPosition = speechText.length;
+
+        voiceState = 'idle';
+        playBtn.textContent = '▶';
+        playBtn.setAttribute(
+            'aria-label',
+            'Play voice note'
+        );
+
+        return;
+    }
+
+    // Update the UI immediately so it feels responsive, even though
+    // the actual speak() call is deliberately delayed below.
+    voiceState = 'playing';
+    playBtn.textContent = '❚❚';
+    playBtn.setAttribute(
+        'aria-label',
+        'Pause voice note'
+    );
+
+    // Chrome (and some other browsers) have a known race: calling
+    // speak() immediately after cancel() can silently drop the new
+    // utterance, or let the "cancelled" one keep playing, because
+    // cancel() hasn't actually taken effect on the underlying speech
+    // engine yet. A short delay lets the cancel complete first.
+    // The id check discards this call entirely if a newer
+    // startSpeech() has since superseded it (e.g. rapid re-scrubbing).
+    setTimeout(() => {
+        if (id !== utteranceId) return;
+
+        currentUtterance = createUtterance(remainingText, startIndex);
+        currentUtterance._id = id;
+
+        window.speechSynthesis.speak(currentUtterance);
+    }, 60);
+};
+
+        playBtn.addEventListener('click', () => {
+    try {
+        // Stop another voice note before starting this one.
+        if (
+            activeVoiceNote &&
+            activeVoiceNote !== voiceWrap
+        ) {
+            if (activeVoiceNote._interruptedByOtherNote) {
+                activeVoiceNote._interruptedByOtherNote();
+            }
+
+            window.speechSynthesis.cancel();
+
+            activeVoiceNote._setIdle();
+        }
+
+        activeVoiceNote = voiceWrap;
+
+                if (voiceState === 'playing') {
+            window.speechSynthesis.pause();
+
+            // Remember exactly where we paused, so resume() can detect
+            // whether the slider moved since then.
+            pausedAtPosition = speechPosition;
+
+            // Update UI immediately.
+            voiceState = 'paused';
+            playBtn.textContent = '▶';
+            playBtn.setAttribute(
+                'aria-label',
+                'Resume voice note'
+            );
+
+            return;
+        }
+
+                if (voiceState === 'paused') {
+            // If the slider was scrubbed while paused, the browser's
+            // paused utterance is still sitting at the old position —
+            // resume() would ignore the scrub entirely. Detect that and
+            // start fresh from the new position instead of resuming.
+            if (
+                pausedAtPosition !== null &&
+                speechPosition !== pausedAtPosition
+            ) {
+                pausedAtPosition = null;
+                startSpeech(speechPosition);
+                return;
+            }
+
+            window.speechSynthesis.resume();
+
+            // Update UI immediately.
+            voiceState = 'playing';
+            playBtn.textContent = '❚❚';
+            playBtn.setAttribute(
+                'aria-label',
+                'Pause voice note'
+            );
+
+            return;
+        }
+
+        if (speechPosition >= speechText.length) {
+            speechPosition = 0;
+            progress.value = 0;
+            updateProgressVisual();
+        }
+
+        startSpeech(speechPosition);
+
+    } catch (error) {
+        console.warn('Voice playback failed:', error);
+    }
+});
+
+voiceWrap._setIdle = () => {
+    voiceState = 'idle';
+    playBtn.textContent = '▶';
+    playBtn.setAttribute(
+        'aria-label',
+        'Play voice note'
+    );
+};
+
+voiceWrap._interruptedByOtherNote = () => {
+    externallyInterrupted = true;
+};
+
+                let isDragging = false;
+    let wasPlayingBeforeDrag = false;
+
+    progress.addEventListener('input', () => {
+    // Mirrors the blog player's isDragging pattern: while actively
+    // dragging, only move the visual thumb and update the target
+    // position — never touch the speech engine mid-drag. Restarting
+    // speech synthesis on every tick (unlike audio.currentTime, which
+    // is instant) creates visible stutter and overlapping utterances.
+    if (!isDragging) {
+        isDragging = true;
+        wasPlayingBeforeDrag = (voiceState === 'playing');
+
+        // Pause the engine immediately on drag start so it isn't still
+        // talking over your scrub — mirrors how a real <audio> element
+        // effectively "freezes" output while you hold the thumb.
+        if (wasPlayingBeforeDrag) {
+            window.speechSynthesis.pause();
+        }
+    }
+
+    const targetPosition = Math.floor(
+        (Number(progress.value) / 100) * speechText.length
+    );
+
+    speechPosition = targetPosition;
+
+    updateProgressVisual();
+});
+
+progress.addEventListener('change', () => {
+    // Fires once, when the user releases the slider — commit the seek.
+    isDragging = false;
+
+    if (voiceState === 'paused') {
+        // Deliberately leave pausedAtPosition untouched here — it must
+        // keep pointing at wherever the engine actually paused. That's
+        // what lets the playBtn click handler's mismatch check
+        // (speechPosition !== pausedAtPosition) detect "user scrubbed
+        // while paused" and correctly restart from the new spot instead
+        // of blindly resume()-ing from the stale internal position.
+        return;
+    }
+
+    if (wasPlayingBeforeDrag) {
+        startSpeech(speechPosition);
+    }
+
+    wasPlayingBeforeDrag = false;
+});
+
+
+    voiceWrap.appendChild(playBtn);
+    voiceWrap.appendChild(progress);
+
+    bubble.appendChild(voiceWrap);
+
+    applyScrollFollow(wasFollowingBottom());
+
+    return {
+        utterance: currentUtterance,
+        playBtn,
+        progress
+    };
+}
+
+function generateVoiceNoteAudio(voiceText) {
+    return Promise.resolve(voiceText);
+}
 
     function parseReaction(text) {
         const match = text.match(
@@ -1072,11 +1501,15 @@ function addLinkPreviews(bubble, text) {
         /\[REACTION\][\s\S]*?\[\/REACTION\]/gi,
         ''
     );
+    visible = visible.replace(
+        /\[voice\][\s\S]*?\[\/voice\]/gi,
+        ''
+    );
 
     // If a complete internal command has started but has no closing tag yet,
     // hide everything from that command onward.
     const openCommandIndex = visible.search(
-        /\[(?:SHOW_[A-Z_]+|CALENDAR_EVENT|REACTION)\]/i
+        /\[(?:SHOW_[A-Z_]+|CALENDAR_EVENT|REACTION|voice)\]/i
     );
 
     if (openCommandIndex !== -1) {
@@ -1092,7 +1525,8 @@ function addLinkPreviews(bubble, text) {
     const internalStarts = [
         '[SHOW_',
         '[CALENDAR_EVENT]',
-        '[REACTION]'
+        '[REACTION]',
+        '[voice]'
     ];
 
     for (const marker of internalStarts) {
@@ -1233,9 +1667,17 @@ function addLinkPreviews(bubble, text) {
             throw networkError;   // NEW — propagate so processQueue's catch fires
         }
 
-        if (current.cursor) current.cursor.remove();
+        const hasVoice = !!parseVoice(fullText);
 
-        return { fullText, lastBubble: current.bubble };
+        if (current.cursor && !hasVoice) {
+            current.cursor.remove();
+        }
+
+        return {
+            fullText,
+            lastBubble: current.bubble,
+            cursor: current.cursor
+        };
     }
 
 
@@ -1433,7 +1875,7 @@ function addLinkPreviews(bubble, text) {
 
             setTyping(false);
 
-            const { fullText, lastBubble } =
+            const { fullText, lastBubble, cursor } =
                 await streamMultiBubbleReply(res, showQuote ? text : null);
 
             const remaining =
@@ -1450,18 +1892,63 @@ function addLinkPreviews(bubble, text) {
             const reaction = parseReaction(fullText);
             const visibleText = getVisibleResponseText(fullText);
 
+             const voiceText = parseVoice(fullText);
+
+            if (voiceText) {
+    try {
+        const resolvedVoiceText = await generateVoiceNoteAudio(voiceText);
+        const voiceNote = addVoiceNoteToBubble(lastBubble, resolvedVoiceText);
+
+        if (cursor) {
+            cursor.remove();
+        }
+
+        if (!voiceNote) {
+            const p = lastBubble.querySelector('p');
+            if (p) {
+                p.textContent = resolvedVoiceText;
+            } else {
+                const fallbackP = document.createElement('p');
+                fallbackP.textContent = resolvedVoiceText;
+                lastBubble.appendChild(fallbackP);
+            }
+        }
+    } catch (error) {
+        console.error('Voice note generation failed:', error);
+
+        if (cursor) {
+            cursor.remove();
+        }
+
+        const p = lastBubble.querySelector('p');
+        if (p) {
+            p.textContent = voiceText;
+        } else {
+            const fallbackP = document.createElement('p');
+            fallbackP.textContent = voiceText;
+            lastBubble.appendChild(fallbackP);
+        }
+    }
+}
             const hasPhotoCommand = /\[SHOW_PHOTO\]\s*id\s*=\s*[a-z0-9-]+\s*\[\/SHOW_PHOTO\]/i.test(fullText);
             const hasCalendarCommand = /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/i.test(fullText);
 
             if (reaction) {
                 lastBubble.remove();
                 addReactionToBubble(userBubble, reaction);
-            } else if (!visibleText.trim() && !hasPhotoCommand && !hasCalendarCommand) {
+            } else if (
+                !visibleText.trim() &&
+                !hasPhotoCommand &&
+                !hasCalendarCommand &&
+                !voiceText
+            ) {
                 lastBubble.remove();
                 addReactionToBubble(userBubble, '👀');
             } else {
-                addLinkPreviews(lastBubble, fullText);
-                addPhotoPreview(lastBubble, fullText);
+                if (!voiceText) {
+                    addLinkPreviews(lastBubble, fullText);
+                    addPhotoPreview(lastBubble, fullText);
+                }
             }
 
             history.push({
@@ -1469,6 +1956,7 @@ function addLinkPreviews(bubble, text) {
                 content: fullText
                     .replace(/\[SHOW_[A-Z_]+\][\s\S]*?\[\/SHOW_[A-Z_]+\]/gi, '')
                     .replace(/\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi, '')
+                    .replace(/\[voice\][\s\S]*?\[\/voice\]/gi, '')
                     .trim()
             });
 
@@ -1642,6 +2130,7 @@ function addLinkPreviews(bubble, text) {
 
         sessionId = getOrCreateSessionId();
 
+        primeVoiceCache();
         setupSpeechRecognition();
         attachListeners();
 
