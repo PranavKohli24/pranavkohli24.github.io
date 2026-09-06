@@ -1647,8 +1647,13 @@
         await networkTask;
 
         if (networkError) {
-            if (current.cursor) current.cursor.remove();
-            throw networkError;   // NEW — propagate so processQueue's catch fires
+            const hasContent = current.p && current.p.textContent.trim().length > 0;
+            if (!hasContent) {
+                current.bubble.remove();
+            } else if (current.cursor) {
+                current.cursor.remove();
+            }
+            throw networkError;
         }
 
         // Fallback only: normally the loop above already swapped the
