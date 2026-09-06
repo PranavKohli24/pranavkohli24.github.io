@@ -1562,6 +1562,7 @@ function addLinkPreviews(bubble, text) {
         let networkDone = false;
         let networkError = null;   // NEW
         let reactionResponse = false;
+        let voiceDetected = false;
 
         const networkTask = (async () => {
             try {
@@ -1580,7 +1581,7 @@ function addLinkPreviews(bubble, text) {
                         const jsonStr = trimmed.slice(5).trim();
                         if (jsonStr === '[DONE]') continue;
 
-                        try {
+                                                try {
                             const parsed = JSON.parse(jsonStr);
                             if (parsed.response) {
                                 fullText += parsed.response;
@@ -1588,10 +1589,15 @@ function addLinkPreviews(bubble, text) {
                                 if (!reactionResponse && /^\s*\[REACTION\]/i.test(fullText)) {
                                     reactionResponse = true;
                                 }
+
+                                if (!voiceDetected && /\[voice\]/i.test(fullText)) {
+                                    voiceDetected = true;
+                                }
                             }
                         } catch (e) {
                             // Ignore incomplete SSE chunks.
                         }
+
                     }
                 }
             } catch (err) {
@@ -1618,7 +1624,19 @@ function addLinkPreviews(bubble, text) {
 
         let current = newBubble(true);
 
-        while (true) {
+               while (true) {
+            // Swap the blinking cursor for the pulsing "speaking..."
+            // indicator the moment [voice] is detected in the raw
+            // stream — don't wait for the whole block to finish
+            // streaming in, since none of its content is visible text.
+            if (voiceDetected && current.cursor) {
+                const indicator = document.createElement('span');
+                indicator.className = 'voice-preparing';
+                indicator.textContent = 'speaking...';
+                current.cursor.replaceWith(indicator);
+                current.cursor = null;
+            }
+
             const visibleTarget = getVisibleResponseText(fullText);
             const remaining = visibleTarget.slice(consumedRaw);
 
@@ -1667,10 +1685,20 @@ function addLinkPreviews(bubble, text) {
             throw networkError;   // NEW — propagate so processQueue's catch fires
         }
 
-        const hasVoice = !!parseVoice(fullText);
-
-        if (current.cursor && !hasVoice) {
-            current.cursor.remove();
+                       // Fallback only: normally the loop above already swapped the
+        // cursor the instant [voice] was detected. This only fires if
+        // the entire response streamed in within a single tick, before
+        // the loop got a chance to check voiceDetected.
+        if (current.cursor) {
+            if (voiceDetected) {
+                const indicator = document.createElement('span');
+                indicator.className = 'voice-preparing';
+                indicator.textContent = 'speaking...';
+                current.cursor.replaceWith(indicator);
+                current.cursor = null;
+            } else {
+                current.cursor.remove();
+            }
         }
 
         return {
@@ -1894,13 +1922,19 @@ function addLinkPreviews(bubble, text) {
 
              const voiceText = parseVoice(fullText);
 
-            if (voiceText) {
+                       if (voiceText) {
+    // Look this up fresh from the DOM rather than relying on the
+    // `cursor` reference — that pointed at the original blinking
+    // cursor node, which was already replaced with this indicator
+    // at the end of streamMultiBubbleReply.
+    const speakingIndicator = lastBubble.querySelector('.voice-preparing');
+
     try {
         const resolvedVoiceText = await generateVoiceNoteAudio(voiceText);
         const voiceNote = addVoiceNoteToBubble(lastBubble, resolvedVoiceText);
 
-        if (cursor) {
-            cursor.remove();
+        if (speakingIndicator) {
+            speakingIndicator.remove();
         }
 
         if (!voiceNote) {
@@ -1916,8 +1950,8 @@ function addLinkPreviews(bubble, text) {
     } catch (error) {
         console.error('Voice note generation failed:', error);
 
-        if (cursor) {
-            cursor.remove();
+        if (speakingIndicator) {
+            speakingIndicator.remove();
         }
 
         const p = lastBubble.querySelector('p');

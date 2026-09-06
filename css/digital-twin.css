@@ -1366,3 +1366,22 @@
     cursor: pointer;
 }
 
+/* Voice note preparation indicator — shown in place of the blinking
+   cursor while a voice note's audio is being prepared. */
+.voice-preparing {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--secondary-text-color);
+    opacity: 0.4;
+    animation: voicePreparingPulse 1.3s ease-in-out infinite;
+}
+
+@keyframes voicePreparingPulse {
+    0%, 100% {
+        opacity: 0.35;
+    }
+    50% {
+        opacity: 0.9;
+    }
+}
