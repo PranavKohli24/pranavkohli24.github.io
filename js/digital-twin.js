@@ -38,6 +38,7 @@
     let interimVoiceText = '';
 
     let cachedVoices = [];
+    let fastForwardStream = false;
 
     const NEAR_BOTTOM_PX = 40;
 
@@ -1603,7 +1604,12 @@
             if (networkDone && revealedInSeg >= remaining.length) break;
 
             if (!reactionResponse && revealedInSeg < remaining.length) {
-                revealedInSeg++;
+                if (fastForwardStream) {
+                    revealedInSeg = remaining.length;
+                    fastForwardStream = false;
+                } else {
+                    revealedInSeg++;
+                }
                 const segment = remaining.slice(0, revealedInSeg);
                 const boundary = segment.match(/^([\s\S]*?)\n\n+([\s\S]*)$/);
 
@@ -2135,6 +2141,12 @@
         primeVoiceCache();
         setupSpeechRecognition();
         attachListeners();
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && isSending) {
+                fastForwardStream = true;
+            }
+        });
 
         renderSuggestions();
         updateActionButton();
