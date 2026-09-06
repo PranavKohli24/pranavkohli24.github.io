@@ -114,7 +114,13 @@
 
         if (!match) return null;
 
-        let voiceText = match[1].trim();
+        let voiceText = match[1]
+        .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '')
+        .replace(/[\u{FE0F}\u{200D}\u{20E3}]/gu, '')
+        .replace(/[\u{1F3FB}-\u{1F3FF}]/gu, '')
+        .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, '')
+        .replace(/\s+/g, ' ')
+        .trim();
 
         if (!voiceText) return null;
 
