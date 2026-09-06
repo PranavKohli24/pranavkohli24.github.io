@@ -2003,8 +2003,12 @@
         } finally {
             isSending = false;
 
-            // Automatically continue with whatever the user typed
-            // while this reply was streaming.
+            // If the user is currently typing/focused in the input,
+            // don't touch it or the keyboard.
+            if (!rateLimited && document.activeElement !== chatInput) {
+                focusInputWithoutKeyboard();
+            }
+
             if (pendingQueue.length > 0 && !rateLimited) {
                 processQueue();
             }
