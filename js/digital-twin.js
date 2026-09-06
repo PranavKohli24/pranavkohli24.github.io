@@ -115,12 +115,12 @@
         if (!match) return null;
 
         let voiceText = match[1]
-        .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '')
-        .replace(/[\u{FE0F}\u{200D}\u{20E3}]/gu, '')
-        .replace(/[\u{1F3FB}-\u{1F3FF}]/gu, '')
-        .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, '')
-        .replace(/\s+/g, ' ')
-        .trim();
+            .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '')
+            .replace(/[\u{FE0F}\u{200D}\u{20E3}]/gu, '')
+            .replace(/[\u{1F3FB}-\u{1F3FF}]/gu, '')
+            .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, '')
+            .replace(/\s+/g, ' ')
+            .trim();
 
         if (!voiceText) return null;
 
@@ -142,10 +142,10 @@
         return voiceText;
     }
 
-    
 
 
-        function primeVoiceCache() {
+
+    function primeVoiceCache() {
         if (!('speechSynthesis' in window)) return;
 
         const load = () => {
@@ -158,343 +158,343 @@
     }
 
 
-function addVoiceNoteToBubble(bubble, voiceText) {
-    if (!bubble || !voiceText) return null;
+    function addVoiceNoteToBubble(bubble, voiceText) {
+        if (!bubble || !voiceText) return null;
 
-    if (!('speechSynthesis' in window)) {
-        console.warn('Browser speech synthesis is not supported.');
-        return null;
-    }
-
-    const voiceWrap = document.createElement('div');
-    voiceWrap.className = 'chat-voice-note';
-
-    const playBtn = document.createElement('button');
-    playBtn.type = 'button';
-    playBtn.className = 'chat-voice-play';
-    playBtn.setAttribute('aria-label', 'Play voice note');
-    playBtn.textContent = '▶';
-
-    const progress = document.createElement('input');
-    progress.type = 'range';
-    progress.className = 'chat-voice-progress';
-    progress.min = '0';
-    progress.max = '100';
-    progress.value = '0';
-    progress.setAttribute('aria-label', 'Voice note progress');
-
-    const updateProgressVisual = (percent) => {
-        const clamped = Math.max(0, Math.min(100, percent));
-        progress.value = String(clamped);
-        progress.style.setProperty('--voice-progress', `${clamped}%`);
-    };
-
-    updateProgressVisual(0);
-
-    const speechText = voiceText
-        // Strip emoji and all their attaching modifiers — presentation
-        // selectors, ZWJ, skin-tone modifiers, keycap combining marks,
-        // and flag pairs — so TTS never reads a leftover code point's
-        // Unicode name aloud.
-        .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '')
-        .replace(/[\u{FE0F}\u{200D}\u{20E3}]/gu, '')
-        .replace(/[\u{1F3FB}-\u{1F3FF}]/gu, '')
-        .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-    if (!speechText) return null;
-
-    const voices = cachedVoices.length
-        ? cachedVoices
-        : window.speechSynthesis.getVoices();
-
-    const maleVoice = voices.find(
-        voice =>
-            /male|man|david|mark|alex|daniel|james|george|guy/i.test(voice.name) &&
-            /^en-/i.test(voice.lang)
-    );
-
-    const englishVoice = voices.find(voice => /^en-/i.test(voice.lang));
-    const selectedVoice = maleVoice || englishVoice;
-
-    // ---------------------------------------------------------------
-    // Playback state. speechPosition is the single source of truth for
-    // "where we are" — both pausing and resuming just read/write it.
-    // ---------------------------------------------------------------
-    let speechPosition = 0;
-    let voiceState = 'idle'; // 'idle' | 'playing' | 'paused'
-    let utteranceId = 0;
-    let currentUtterance = null;
-
-    // Smooth, self-correcting progress: interpolate with rAF using an
-    // estimated speaking rate, then recalibrate that estimate every time
-    // a real onboundary event arrives (browsers fire these inconsistently
-    // — some per word, some per sentence, some almost never).
-    let estimatedCharsPerSec = 14;
-    let anchorPosition = 0;
-    let anchorTime = 0;
-    let lastBoundaryTime = 0;
-    let lastBoundaryPosition = 0;
-    let rafHandle = null;
-
-    function stopVisualLoop() {
-        if (rafHandle !== null) {
-            cancelAnimationFrame(rafHandle);
-            rafHandle = null;
-        }
-    }
-
-    function visualTick() {
-        if (voiceState !== 'playing') {
-            rafHandle = null;
-            return;
+        if (!('speechSynthesis' in window)) {
+            console.warn('Browser speech synthesis is not supported.');
+            return null;
         }
 
-        const elapsedSec = (performance.now() - anchorTime) / 1000;
-        const estimate = anchorPosition + elapsedSec * estimatedCharsPerSec;
+        const voiceWrap = document.createElement('div');
+        voiceWrap.className = 'chat-voice-note';
 
-        speechPosition = Math.min(estimate, speechText.length);
-        updateProgressVisual((speechPosition / speechText.length) * 100);
-
-        rafHandle = requestAnimationFrame(visualTick);
-    }
-
-    function startVisualLoop(fromPosition) {
-        stopVisualLoop();
-        anchorPosition = fromPosition;
-        anchorTime = performance.now();
-        lastBoundaryTime = anchorTime;
-        lastBoundaryPosition = fromPosition;
-        rafHandle = requestAnimationFrame(visualTick);
-    }
-
-    function setPlayingUI() {
-        playBtn.textContent = '❚❚';
-        playBtn.setAttribute('aria-label', 'Pause voice note');
-    }
-
-    function setPausedUI() {
+        const playBtn = document.createElement('button');
+        playBtn.type = 'button';
+        playBtn.className = 'chat-voice-play';
+        playBtn.setAttribute('aria-label', 'Play voice note');
         playBtn.textContent = '▶';
-        playBtn.setAttribute(
-            'aria-label',
-            voiceState === 'idle' ? 'Play voice note' : 'Resume voice note'
+
+        const progress = document.createElement('input');
+        progress.type = 'range';
+        progress.className = 'chat-voice-progress';
+        progress.min = '0';
+        progress.max = '100';
+        progress.value = '0';
+        progress.setAttribute('aria-label', 'Voice note progress');
+
+        const updateProgressVisual = (percent) => {
+            const clamped = Math.max(0, Math.min(100, percent));
+            progress.value = String(clamped);
+            progress.style.setProperty('--voice-progress', `${clamped}%`);
+        };
+
+        updateProgressVisual(0);
+
+        const speechText = voiceText
+            // Strip emoji and all their attaching modifiers — presentation
+            // selectors, ZWJ, skin-tone modifiers, keycap combining marks,
+            // and flag pairs — so TTS never reads a leftover code point's
+            // Unicode name aloud.
+            .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '')
+            .replace(/[\u{FE0F}\u{200D}\u{20E3}]/gu, '')
+            .replace(/[\u{1F3FB}-\u{1F3FF}]/gu, '')
+            .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        if (!speechText) return null;
+
+        const voices = cachedVoices.length
+            ? cachedVoices
+            : window.speechSynthesis.getVoices();
+
+        const maleVoice = voices.find(
+            voice =>
+                /male|man|david|mark|alex|daniel|james|george|guy/i.test(voice.name) &&
+                /^en-/i.test(voice.lang)
         );
-    }
 
-    function createUtterance(text) {
-        const utterance = new SpeechSynthesisUtterance(text);
+        const englishVoice = voices.find(voice => /^en-/i.test(voice.lang));
+        const selectedVoice = maleVoice || englishVoice;
 
-        if (selectedVoice) {
-            utterance.voice = selectedVoice;
-            utterance.lang = selectedVoice.lang;
-        } else {
-            utterance.lang = 'en-US';
-        }
+        // ---------------------------------------------------------------
+        // Playback state. speechPosition is the single source of truth for
+        // "where we are" — both pausing and resuming just read/write it.
+        // ---------------------------------------------------------------
+        let speechPosition = 0;
+        let voiceState = 'idle'; // 'idle' | 'playing' | 'paused'
+        let utteranceId = 0;
+        let currentUtterance = null;
 
-        utterance.rate = 1;
-        utterance.pitch = 1;
+        // Smooth, self-correcting progress: interpolate with rAF using an
+        // estimated speaking rate, then recalibrate that estimate every time
+        // a real onboundary event arrives (browsers fire these inconsistently
+        // — some per word, some per sentence, some almost never).
+        let estimatedCharsPerSec = 14;
+        let anchorPosition = 0;
+        let anchorTime = 0;
+        let lastBoundaryTime = 0;
+        let lastBoundaryPosition = 0;
+        let rafHandle = null;
 
-        return utterance;
-    }
-
-    // Every "play" and every "resume" goes through here. We never call
-    // speechSynthesis.pause()/resume() — instead we always cancel and
-    // re-speak from the remembered offset. This is what makes play/pause
-    // reliable: we're not depending on browser pause/resume behavior,
-    // which is flaky across Chrome/Firefox/Safari.
-    function playFrom(startChar) {
-        const id = ++utteranceId;
-
-        window.speechSynthesis.cancel();
-
-        const clampedStart = Math.max(0, Math.min(startChar, speechText.length));
-        const remainingText = speechText.slice(clampedStart);
-
-        if (!remainingText.trim()) {
-            speechPosition = speechText.length;
-            updateProgressVisual(100);
-            voiceState = 'idle';
-            setPausedUI();
-            return;
-        }
-
-        voiceState = 'playing';
-        setPlayingUI();
-        startVisualLoop(clampedStart);
-
-        // Chrome has a known race where speak() right after cancel() can
-        // silently drop the utterance. A short delay lets cancel() settle.
-        setTimeout(() => {
-            if (id !== utteranceId) return;
-
-            const utterance = createUtterance(remainingText);
-            currentUtterance = utterance;
-
-            utterance.onboundary = (event) => {
-                if (utterance !== currentUtterance || voiceState !== 'playing') return;
-                if (typeof event.charIndex !== 'number') return;
-
-                const now = performance.now();
-                const newPosition = clampedStart + event.charIndex;
-
-                const dt = (now - lastBoundaryTime) / 1000;
-                const dPos = newPosition - lastBoundaryPosition;
-
-                if (dt > 0.05 && dPos > 0) {
-                    const observedRate = dPos / dt;
-                    estimatedCharsPerSec = Math.max(6, Math.min(30, observedRate));
-                }
-
-                lastBoundaryTime = now;
-                lastBoundaryPosition = newPosition;
-                anchorPosition = newPosition;
-                anchorTime = now;
-                speechPosition = newPosition;
-            };
-
-            utterance.onend = () => {
-                if (utterance !== currentUtterance) return;
-
-                stopVisualLoop();
-
-                // Only treat this as "finished" if we're still the active
-                // playing utterance — if we got here because pausePlayback()
-                // cancelled us, voiceState is already 'paused' and we leave
-                // the position alone.
-                if (voiceState === 'playing') {
-                    speechPosition = speechText.length;
-                    updateProgressVisual(100);
-                    voiceState = 'idle';
-                    setPausedUI();
-                }
-
-                if (activeVoiceNote === voiceWrap) {
-                    activeVoiceNote = null;
-                }
-            };
-
-            utterance.onerror = (error) => {
-                if (utterance !== currentUtterance) return;
-
-                console.warn('Speech synthesis error:', error);
-
-                stopVisualLoop();
-                voiceState = 'idle';
-                setPausedUI();
-
-                if (activeVoiceNote === voiceWrap) {
-                    activeVoiceNote = null;
-                }
-            };
-
-            window.speechSynthesis.speak(utterance);
-        }, 60);
-    }
-
-    function pausePlayback() {
-        utteranceId++; // invalidate any in-flight callbacks from the old utterance
-        window.speechSynthesis.cancel();
-        stopVisualLoop();
-
-        voiceState = 'paused';
-        setPausedUI();
-    }
-
-    playBtn.addEventListener('click', () => {
-        try {
-            if (activeVoiceNote && activeVoiceNote !== voiceWrap) {
-                activeVoiceNote._pauseForOtherNote();
+        function stopVisualLoop() {
+            if (rafHandle !== null) {
+                cancelAnimationFrame(rafHandle);
+                rafHandle = null;
             }
+        }
 
-            activeVoiceNote = voiceWrap;
-
-            if (voiceState === 'playing') {
-                pausePlayback();
+        function visualTick() {
+            if (voiceState !== 'playing') {
+                rafHandle = null;
                 return;
             }
 
-            if (speechPosition >= speechText.length) {
-                speechPosition = 0;
-                updateProgressVisual(0);
+            const elapsedSec = (performance.now() - anchorTime) / 1000;
+            const estimate = anchorPosition + elapsedSec * estimatedCharsPerSec;
+
+            speechPosition = Math.min(estimate, speechText.length);
+            updateProgressVisual((speechPosition / speechText.length) * 100);
+
+            rafHandle = requestAnimationFrame(visualTick);
+        }
+
+        function startVisualLoop(fromPosition) {
+            stopVisualLoop();
+            anchorPosition = fromPosition;
+            anchorTime = performance.now();
+            lastBoundaryTime = anchorTime;
+            lastBoundaryPosition = fromPosition;
+            rafHandle = requestAnimationFrame(visualTick);
+        }
+
+        function setPlayingUI() {
+            playBtn.textContent = '❚❚';
+            playBtn.setAttribute('aria-label', 'Pause voice note');
+        }
+
+        function setPausedUI() {
+            playBtn.textContent = '▶';
+            playBtn.setAttribute(
+                'aria-label',
+                voiceState === 'idle' ? 'Play voice note' : 'Resume voice note'
+            );
+        }
+
+        function createUtterance(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+                utterance.lang = selectedVoice.lang;
+            } else {
+                utterance.lang = 'en-US';
             }
 
-            playFrom(speechPosition);
-        } catch (error) {
-            console.warn('Voice playback failed:', error);
+            utterance.rate = 1;
+            utterance.pitch = 1;
+
+            return utterance;
         }
-    });
 
-    voiceWrap._pauseForOtherNote = () => {
-        if (voiceState === 'playing') {
-            pausePlayback();
+        // Every "play" and every "resume" goes through here. We never call
+        // speechSynthesis.pause()/resume() — instead we always cancel and
+        // re-speak from the remembered offset. This is what makes play/pause
+        // reliable: we're not depending on browser pause/resume behavior,
+        // which is flaky across Chrome/Firefox/Safari.
+        function playFrom(startChar) {
+            const id = ++utteranceId;
+
+            window.speechSynthesis.cancel();
+
+            const clampedStart = Math.max(0, Math.min(startChar, speechText.length));
+            const remainingText = speechText.slice(clampedStart);
+
+            if (!remainingText.trim()) {
+                speechPosition = speechText.length;
+                updateProgressVisual(100);
+                voiceState = 'idle';
+                setPausedUI();
+                return;
+            }
+
+            voiceState = 'playing';
+            setPlayingUI();
+            startVisualLoop(clampedStart);
+
+            // Chrome has a known race where speak() right after cancel() can
+            // silently drop the utterance. A short delay lets cancel() settle.
+            setTimeout(() => {
+                if (id !== utteranceId) return;
+
+                const utterance = createUtterance(remainingText);
+                currentUtterance = utterance;
+
+                utterance.onboundary = (event) => {
+                    if (utterance !== currentUtterance || voiceState !== 'playing') return;
+                    if (typeof event.charIndex !== 'number') return;
+
+                    const now = performance.now();
+                    const newPosition = clampedStart + event.charIndex;
+
+                    const dt = (now - lastBoundaryTime) / 1000;
+                    const dPos = newPosition - lastBoundaryPosition;
+
+                    if (dt > 0.05 && dPos > 0) {
+                        const observedRate = dPos / dt;
+                        estimatedCharsPerSec = Math.max(6, Math.min(30, observedRate));
+                    }
+
+                    lastBoundaryTime = now;
+                    lastBoundaryPosition = newPosition;
+                    anchorPosition = newPosition;
+                    anchorTime = now;
+                    speechPosition = newPosition;
+                };
+
+                utterance.onend = () => {
+                    if (utterance !== currentUtterance) return;
+
+                    stopVisualLoop();
+
+                    // Only treat this as "finished" if we're still the active
+                    // playing utterance — if we got here because pausePlayback()
+                    // cancelled us, voiceState is already 'paused' and we leave
+                    // the position alone.
+                    if (voiceState === 'playing') {
+                        speechPosition = speechText.length;
+                        updateProgressVisual(100);
+                        voiceState = 'idle';
+                        setPausedUI();
+                    }
+
+                    if (activeVoiceNote === voiceWrap) {
+                        activeVoiceNote = null;
+                    }
+                };
+
+                utterance.onerror = (error) => {
+                    if (utterance !== currentUtterance) return;
+
+                    console.warn('Speech synthesis error:', error);
+
+                    stopVisualLoop();
+                    voiceState = 'idle';
+                    setPausedUI();
+
+                    if (activeVoiceNote === voiceWrap) {
+                        activeVoiceNote = null;
+                    }
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }, 60);
         }
-    };
 
-    // ---- Slider ----
-    // pointerdown covers mouse + touch drag start; the same "arm" check
-    // also runs on the first 'input' event so keyboard arrow-key scrubbing
-    // (which never fires pointerdown) is handled the same way.
-    let isDragging = false;
-    let resumeAfterDrag = false;
+        function pausePlayback() {
+            utteranceId++; // invalidate any in-flight callbacks from the old utterance
+            window.speechSynthesis.cancel();
+            stopVisualLoop();
 
-    function beginScrubIfNeeded() {
-        if (isDragging) return;
-
-        isDragging = true;
-        resumeAfterDrag = (voiceState === 'playing');
-
-        if (resumeAfterDrag) {
-            pausePlayback();
+            voiceState = 'paused';
+            setPausedUI();
         }
+
+        playBtn.addEventListener('click', () => {
+            try {
+                if (activeVoiceNote && activeVoiceNote !== voiceWrap) {
+                    activeVoiceNote._pauseForOtherNote();
+                }
+
+                activeVoiceNote = voiceWrap;
+
+                if (voiceState === 'playing') {
+                    pausePlayback();
+                    return;
+                }
+
+                if (speechPosition >= speechText.length) {
+                    speechPosition = 0;
+                    updateProgressVisual(0);
+                }
+
+                playFrom(speechPosition);
+            } catch (error) {
+                console.warn('Voice playback failed:', error);
+            }
+        });
+
+        voiceWrap._pauseForOtherNote = () => {
+            if (voiceState === 'playing') {
+                pausePlayback();
+            }
+        };
+
+        // ---- Slider ----
+        // pointerdown covers mouse + touch drag start; the same "arm" check
+        // also runs on the first 'input' event so keyboard arrow-key scrubbing
+        // (which never fires pointerdown) is handled the same way.
+        let isDragging = false;
+        let resumeAfterDrag = false;
+
+        function beginScrubIfNeeded() {
+            if (isDragging) return;
+
+            isDragging = true;
+            resumeAfterDrag = (voiceState === 'playing');
+
+            if (resumeAfterDrag) {
+                pausePlayback();
+            }
+        }
+
+        progress.addEventListener('pointerdown', beginScrubIfNeeded);
+
+        progress.addEventListener('input', () => {
+            beginScrubIfNeeded();
+
+            const targetPosition = Math.round(
+                (Number(progress.value) / 100) * speechText.length
+            );
+
+            speechPosition = targetPosition;
+            updateProgressVisual(Number(progress.value));
+        });
+
+        const commitDrag = () => {
+            if (!isDragging) return;
+
+            isDragging = false;
+
+            if (resumeAfterDrag) {
+                playFrom(speechPosition);
+            }
+
+            resumeAfterDrag = false;
+        };
+
+        progress.addEventListener('change', commitDrag);
+        progress.addEventListener('pointerup', commitDrag);
+        progress.addEventListener('pointercancel', commitDrag);
+
+        voiceWrap.appendChild(playBtn);
+        voiceWrap.appendChild(progress);
+
+        bubble.appendChild(voiceWrap);
+
+        applyScrollFollow(wasFollowingBottom());
+
+        return {
+            utterance: currentUtterance,
+            playBtn,
+            progress
+        };
     }
 
-    progress.addEventListener('pointerdown', beginScrubIfNeeded);
-
-    progress.addEventListener('input', () => {
-        beginScrubIfNeeded();
-
-        const targetPosition = Math.round(
-            (Number(progress.value) / 100) * speechText.length
-        );
-
-        speechPosition = targetPosition;
-        updateProgressVisual(Number(progress.value));
-    });
-
-    const commitDrag = () => {
-        if (!isDragging) return;
-
-        isDragging = false;
-
-        if (resumeAfterDrag) {
-            playFrom(speechPosition);
-        }
-
-        resumeAfterDrag = false;
-    };
-
-    progress.addEventListener('change', commitDrag);
-    progress.addEventListener('pointerup', commitDrag);
-    progress.addEventListener('pointercancel', commitDrag);
-
-    voiceWrap.appendChild(playBtn);
-    voiceWrap.appendChild(progress);
-
-    bubble.appendChild(voiceWrap);
-
-    applyScrollFollow(wasFollowingBottom());
-
-    return {
-        utterance: currentUtterance,
-        playBtn,
-        progress
-    };
-}
-
-function generateVoiceNoteAudio(voiceText) {
-    return Promise.resolve(voiceText);
-}
+    function generateVoiceNoteAudio(voiceText) {
+        return Promise.resolve(voiceText);
+    }
 
     function parseReaction(text) {
         const match = text.match(
@@ -519,6 +519,7 @@ function generateVoiceNoteAudio(voiceText) {
 
         bubble.appendChild(reaction);
     }
+
 
     function appendMessage(role, text, hideErrorImage = false) {
         const wasFollowing =
@@ -862,579 +863,581 @@ function generateVoiceNoteAudio(voiceText) {
     }
 
     const digitalTwinPhotos = {
-    childhood: {
-        image: '/src/images/memories/pranav_kid.jpeg',
-        title: 'Pranav as a kid',
-        caption: 'A little throwback to younger Pranav.'
-    },
+        childhood: {
+            image: '/src/images/memories/pranav_kid.jpeg',
+            title: 'Pranav as a kid',
+            caption: 'A little throwback to younger Pranav.'
+        },
 
-    'first-hackathon': {
-        image: '/src/images/memories/pranav_hackathon.jpeg',
-        title: 'First hackathon win',
-        caption: 'Pranav winning his first hackathon.'
-    },
+        'first-hackathon': {
+            image: '/src/images/memories/pranav_hackathon.jpeg',
+            title: 'First hackathon win',
+            caption: 'Pranav winning his first hackathon.'
+        },
 
-    spain: {
-        image: '/src/images/memories/pranav_spain.jpeg',
-        title: 'Spain',
-        caption: 'A memory from my trip to spain.'
-    },
+        spain: {
+            image: '/src/images/memories/pranav_spain.jpeg',
+            title: 'Spain',
+            caption: 'A memory from my trip to spain.'
+        },
 
-    'first-cricket-match': {
-        image: '/src/images/memories/pranav_cricket.jpeg',
-        title: 'First cricket match',
-        caption: 'The first time Pranav watched a cricket match in a stadium.'
-    },
+        'first-cricket-match': {
+            image: '/src/images/memories/pranav_cricket.jpeg',
+            title: 'First cricket match',
+            caption: 'The first time Pranav watched a cricket match in a stadium.'
+        },
 
-    'poshmark-move': {
-        image: '/src/images/memories/pranav_poshmark.jpeg',
-        title: 'Moving out for Poshmark',
-        caption: 'Pranav moving out of state to chennai for his job at Poshmark.'
-    },
+        'poshmark-move': {
+            image: '/src/images/memories/pranav_poshmark.jpeg',
+            title: 'Moving out for Poshmark',
+            caption: 'Pranav moving out of state to chennai for his job at Poshmark.'
+        },
 
-    dog: {
-        image: '/src/images/memories/pranav_dog.jpeg',
-        title: "Pranav's dog",
-        caption: 'Pranav with his dog.'
-    }
-};
+        dog: {
+            image: '/src/images/memories/pranav_dog.jpeg',
+            title: "Pranav's dog",
+            caption: 'Pranav with his dog.'
+        }
+    };
 
 
     function renderLinkedText(element, text, cursor) {
-    
-    const marker = '[CALENDAR_EVENT]';
-const photoMarker = '[SHOW_PHOTO]';
 
-let markerIndex = text.search(/\[CALENDAR_EVENT\]/i);
-let photoMarkerIndex = text.search(/\[SHOW_PHOTO\]/i);
+        const marker = '[CALENDAR_EVENT]';
+        const photoMarker = '[SHOW_PHOTO]';
 
-if (
-    photoMarkerIndex !== -1 &&
-    (markerIndex === -1 || photoMarkerIndex < markerIndex)
-) {
-    markerIndex = photoMarkerIndex;
-}
-    // The response streams character-by-character, so hide even a
-    // partially typed CALENDAR_EVENT marker before it becomes visible.
-   if (markerIndex === -1) {
-    for (let i = 1; i < marker.length; i++) {
-        const suffix = text.slice(-i);
+        let markerIndex = text.search(/\[CALENDAR_EVENT\]/i);
+        let photoMarkerIndex = text.search(/\[SHOW_PHOTO\]/i);
 
         if (
-            suffix.toLowerCase() ===
-            marker.slice(0, i).toLowerCase()
+            photoMarkerIndex !== -1 &&
+            (markerIndex === -1 || photoMarkerIndex < markerIndex)
         ) {
-            markerIndex = text.length - i;
-            break;
+            markerIndex = photoMarkerIndex;
+        }
+
+        // The response streams character-by-character, so hide even a
+        // partially typed CALENDAR_EVENT marker before it becomes visible.
+        if (markerIndex === -1) {
+            for (let i = 1; i < marker.length; i++) {
+                const suffix = text.slice(-i);
+
+                if (
+                    suffix.toLowerCase() ===
+                    marker.slice(0, i).toLowerCase()
+                ) {
+                    markerIndex = text.length - i;
+                    break;
+                }
+            }
+
+            // Also hide a partially streamed [SHOW_PHOTO] marker
+            if (markerIndex === -1) {
+                for (let i = 1; i < photoMarker.length; i++) {
+                    const suffix = text.slice(-i);
+
+                    if (
+                        suffix.toLowerCase() ===
+                        photoMarker.slice(0, i).toLowerCase()
+                    ) {
+                        markerIndex = text.length - i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        const visibleText = (
+            markerIndex === -1
+                ? text
+                : text.slice(0, markerIndex)
+        ).trim();
+
+        element.innerHTML = visibleText.replace(
+            /(https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g,
+            (match) => {
+                if (match.includes('@')) {
+                    return `<a href="mailto:${match}?subject=${encodeURIComponent('Hello Pranav Kohli')}">✉ ${match}</a>`;
+                }
+
+                if (
+                    match === '+918860271737' ||
+                    match === '8860271737'
+                ) {
+                    return `<a href="tel:+918860271737" style="font-weight: 600;">${match}</a>`;
+                }
+
+                const href = match.startsWith('http')
+                    ? match
+                    : `https://${match}`;
+
+                return `<a href="${href}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+            }
+        );
+
+        if (cursor) {
+            element.appendChild(cursor);
         }
     }
 
-    // Also hide a partially streamed [SHOW_PHOTO] marker
-    if (markerIndex === -1) {
-        for (let i = 1; i < photoMarker.length; i++) {
-            const suffix = text.slice(-i);
+    function addPhotoPreview(bubble, text) {
+        // Only accept the exact internal photo command.
+        // The ID itself must also exist in our local registry.
+        const match = text.match(
+            /\[SHOW_PHOTO\]\s*id\s*=\s*([a-z0-9-]+)\s*\[\/SHOW_PHOTO\]/i
+        );
 
-            if (
-                suffix.toLowerCase() ===
-                photoMarker.slice(0, i).toLowerCase()
-            ) {
-                markerIndex = text.length - i;
-                break;
-            }
-        }
-    }
-}
+        if (!match) return;
 
-    const visibleText = (
-        markerIndex === -1
-            ? text
-            : text.slice(0, markerIndex)
-    ).trim();
+        const photoId = match[1].trim().toLowerCase();
+        const photo = digitalTwinPhotos[photoId];
 
-    element.innerHTML = visibleText.replace(
-        /(https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g,
-        (match) => {
-            if (match.includes('@')) {
-                return `<a href="mailto:${match}?subject=${encodeURIComponent('Hello Pranav Kohli')}">✉ ${match}</a>`;
-            }
+        // Never render an unknown photo ID.
+        if (!photo) return;
 
-            if (
-                match === '+918860271737' ||
-                match === '8860271737'
-            ) {
-                return `<a href="tel:+918860271737" style="font-weight: 600;">${match}</a>`;
-            }
+        // Only one photo can be rendered per AI response.
+        if (bubble.querySelector('.digital-twin-photo')) return;
 
-            const href = match.startsWith('http')
-                ? match
-                : `https://${match}`;
+        const card = document.createElement('div');
+        card.className = 'digital-twin-photo';
 
-            return `<a href="${href}" target="_blank" rel="noopener noreferrer">${match}</a>`;
-        }
-    );
+        const image = document.createElement('img');
+        image.src = photo.image;
+        image.alt = photo.title;
+        image.className = 'digital-twin-photo-image';
 
-    if (cursor) {
-        element.appendChild(cursor);
-    }
-}
+        const info = document.createElement('div');
+        info.className = 'digital-twin-photo-info';
 
-function addPhotoPreview(bubble, text) {
-    // Only accept the exact internal photo command.
-    // The ID itself must also exist in our local registry.
-    const match = text.match(
-        /\[SHOW_PHOTO\]\s*id\s*=\s*([a-z0-9-]+)\s*\[\/SHOW_PHOTO\]/i
-    );
+        const title = document.createElement('div');
+        title.className = 'digital-twin-photo-title';
+        title.textContent = photo.title;
 
-    if (!match) return;
+        const caption = document.createElement('div');
+        caption.className = 'digital-twin-photo-caption';
+        caption.textContent = photo.caption;
 
-    const photoId = match[1].trim().toLowerCase();
-    const photo = digitalTwinPhotos[photoId];
+        info.appendChild(title);
+        info.appendChild(caption);
 
-    // Never render an unknown photo ID.
-    if (!photo) return;
+        card.appendChild(image);
+        card.appendChild(info);
+        bubble.appendChild(card);
 
-    // Only one photo can be rendered per AI response.
-    if (bubble.querySelector('.digital-twin-photo')) return;
-
-    const card = document.createElement('div');
-    card.className = 'digital-twin-photo';
-
-    const image = document.createElement('img');
-    image.src = photo.image;
-    image.alt = photo.title;
-    image.className = 'digital-twin-photo-image';
-
-    const info = document.createElement('div');
-    info.className = 'digital-twin-photo-info';
-
-    const title = document.createElement('div');
-    title.className = 'digital-twin-photo-title';
-    title.textContent = photo.title;
-
-    const caption = document.createElement('div');
-    caption.className = 'digital-twin-photo-caption';
-    caption.textContent = photo.caption;
-
-    info.appendChild(title);
-    info.appendChild(caption);
-
-    card.appendChild(image);
-    card.appendChild(info);
-    bubble.appendChild(card);
-
-    const revealImage = () => {
-        requestAnimationFrame(() => {
-            image.classList.add('loaded');
-        });
-    };
-
-    if (image.complete) {
-        revealImage();
-    } else {
-        image.addEventListener('load', revealImage, { once: true });
-    }
-
-    // If the file does not exist, remove the empty card.
-    image.addEventListener('error', () => {
-        card.remove();
-    }, { once: true });
-}
-
-
-
-const suggestionQuestions = [
-    "mention some of pranav's skills",
-    "schedule a meet with pranav",
-    "Tell me about Pranav",
-    "Tell me pranav hobbies",
-    "What technologies does Pranav use?",
-    "say hello",
-    "What is Pranav working on?",
-    "Can you show me Pranav's resume?",
-    "How can I reach to Pranav?",
-    "How is pranav as a person?",
-    "Tell me about Pranav's projects",
-    "Show me a picture of pranav with his dog"
-];
-
-let recentlyUsedSuggestions = [];
-const MAX_RECENT_SUGGESTIONS = 3;
-
-function updateSuggestionScrollHint() {
-    const container = document.getElementById('chatSuggestions');
-    if (!container) return;
-
-    const reachedEnd =
-        container.scrollLeft + container.clientWidth >=
-        container.scrollWidth - 2;
-
-    const reachedStart = container.scrollLeft <= 2;
-
-    container.parentElement.classList.toggle('scrolled-end', reachedEnd);
-    container.parentElement.classList.toggle('scrolled-start', !reachedStart);
-}
-
-function renderSuggestions() {
-    const container = document.getElementById('chatSuggestions');
-    if (!container) return;
-
-    const shuffled = suggestionQuestions
-        .filter(question => !recentlyUsedSuggestions.includes(question))
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3);
-
-    container.innerHTML = shuffled.map(question => `
-        <button class="chat-suggestion" type="button">
-            ✧ ${question}
-        </button>
-    `).join('');
-
-    container.querySelectorAll('.chat-suggestion').forEach(button => {
-    button.addEventListener('click', () => {
-        const question = button.textContent.replace('✧ ', '').trim();
-
-        const start = button.getBoundingClientRect();
-        const end = chatMessages.getBoundingClientRect();
-
-        const flyingBubble = button.cloneNode(true);
-
-        flyingBubble.style.position = 'fixed';
-        flyingBubble.style.left = `${start.left}px`;
-        flyingBubble.style.top = `${start.top}px`;
-        flyingBubble.style.width = `${start.width}px`;
-        flyingBubble.style.zIndex = '9999';
-        flyingBubble.style.margin = '0';
-        flyingBubble.style.pointerEvents = 'none';
-        flyingBubble.style.animation = 'none';
-
-        document.body.appendChild(flyingBubble);
-
-        button.style.visibility = 'hidden';
-
-        requestAnimationFrame(() => {
-            flyingBubble.style.transition =
-                'left 0.55s cubic-bezier(0.4, 0, 0.2, 1), ' +
-                'top 0.55s cubic-bezier(0.4, 0, 0.2, 1), ' +
-                'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)';
-
-            flyingBubble.style.left =
-                `${end.right - start.width}px`;
-
-            flyingBubble.style.top =
-                `${end.bottom - 55}px`;
-
-            flyingBubble.style.transform = 'scale(0.92)';
-        });
-
-        setTimeout(() => {
-            flyingBubble.remove();
-
-            recentlyUsedSuggestions.push(question);
-
-            if (recentlyUsedSuggestions.length > MAX_RECENT_SUGGESTIONS) {
-                recentlyUsedSuggestions.shift();
-            }
-
-            // Get the other 2 currently visible suggestions
-            const existingQuestions = Array.from(
-                container.querySelectorAll('.chat-suggestion')
-            )
-                .filter(existingButton => existingButton !== button)
-                .map(existingButton =>
-                    existingButton.textContent.replace('✧ ', '').trim()
-                );
-
-            // Pick a replacement that isn't among the other 2
-            // and isn't the suggestion that was clicked
-            const availableQuestions = suggestionQuestions.filter(
-                suggestion =>
-                    suggestion !== question &&
-                    !existingQuestions.includes(suggestion)
-            );
-
-            const newQuestion =
-                availableQuestions[
-                    Math.floor(Math.random() * availableQuestions.length)
-                ];
-
-            // Replace only the clicked pill
-            button.textContent = `✧ ${newQuestion}`;
-            button.style.visibility = '';
-
-            // Send the originally clicked suggestion
-            chatInput.value = question;
-            updateActionButton();
-            autoResizeInput();
-            sendMessage();
-        }, 550);
-
-
-    });
-});
-requestAnimationFrame(updateSuggestionScrollHint);
-
-}
-
-
-function createCalendarUrl(
-    date,
-    time,
-    duration = 30,
-    title = 'Meeting with Pranav Kohli'
-) {
-    const start = new Date(`${date}T${time}:00`);
-    if (Number.isNaN(start.getTime())) return null;
-
-    const end = new Date(
-        start.getTime() + duration * 60 * 1000
-    );
-
-    const formatCalendarDate = (d) => {
-        const pad = (n) => String(n).padStart(2, '0');
-
-        return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
-    };
-
-    const params = new URLSearchParams({
-        action: 'TEMPLATE',
-        text: title,
-        dates: `${formatCalendarDate(start)}/${formatCalendarDate(end)}`,
-        details: 'Meeting with Pranav Kohli',
-        add: 'hey@pranavkohli.me'
-    });
-
-    return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
-
-function addCalendarPreview(bubble, text) {
-    const match = text.match(
-        /\[CALENDAR_EVENT\]([\s\S]*?)\[\/CALENDAR_EVENT\]/i
-    );
-
-    if (!match) return;
-
-    const block = match[1];
-
-    let date =
-        block.match(
-            /\bdate\s*=\s*(\d{4}-\d{2}-\d{2})/i
-        )?.[1];
-
-    const time =
-        block.match(
-            /\btime\s*=\s*(\d{2}:\d{2})/i
-        )?.[1];
-
-    const duration = parseInt(
-        block.match(/\bduration\s*=\s*(\d+)/i)?.[1] || '30',
-        10
-    );
-
-    if (!date || !time) return;
-
-
-    // ---------------------------------------------
-    // FRONTEND DATE SAFETY
-    // Ignore the year generated by the AI.
-    // Always use the current year in Asia/Kolkata.
-    // ---------------------------------------------
-
-    const [, month, day] = date.split('-').map(Number);
-
-    const currentYear = Number(
-        new Intl.DateTimeFormat('en-IN', {
-            timeZone: 'Asia/Kolkata',
-            year: 'numeric'
-        }).format(new Date())
-    );
-
-    // Rebuild the date using the actual current year.
-    date =
-        `${currentYear}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
-
-    const calendarUrl =
-        createCalendarUrl(date, time, duration);
-
-    if (!calendarUrl) return;
-
-    const card = document.createElement('a');
-
-    card.href = calendarUrl;
-    card.target = '_blank';
-    card.rel = 'noopener noreferrer';
-    card.className = 'link-preview';
-
-    card.innerHTML = `
-        <img
-            src="/src/images/calendar_preview.png"
-            alt=""
-            class="link-preview-image"
-        >
-
-        <div class="link-preview-content">
-
-            <div class="link-preview-title">
-                Schedule a meet with Pranav
-            </div>
-
-            <div class="link-preview-description">
-                Add meeting to calendar
-            </div>
-
-            <div class="link-preview-domain">
-                calendar.google.com
-            </div>
-
-        </div>
-    `;
-
-    bubble.appendChild(card);
-
-    const previewImage =
-        card.querySelector('.link-preview-image');
-
-    if (previewImage) {
-
-        if (previewImage.complete) {
-
-            previewImage.classList.add('loaded');
-
-        } else {
-
-            previewImage.addEventListener('load', () => {
-                previewImage.classList.add('loaded');
+        const revealImage = () => {
+            requestAnimationFrame(() => {
+                image.classList.add('loaded');
             });
+        };
 
+        if (image.complete) {
+            revealImage();
+        } else {
+            image.addEventListener('load', revealImage, { once: true });
         }
 
+        // If the file does not exist, remove the empty card.
+        image.addEventListener('error', () => {
+            card.remove();
+        }, { once: true });
     }
-}
-function addLinkPreviews(bubble, text) {
-    addCalendarPreview(bubble, text);
 
-    const urls = text.match(
-        /https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/pranavkohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}/gi
-    ) || [];
 
-    const normalizedUrls = urls.map(url => {
-        url = url.replace(/[),.!?]+$/, '');
 
-        if (url.includes('@')) {
-            return url;
-        }
-
-        return url.startsWith('http')
-            ? url
-            : `https://${url}`;
-    });
-
-    const previews = [
-        {
-            match: 'https://github.com/PranavKohli24',
-            title: 'GitHub',
-            description: 'PranavKohli24',
-            image: '/src/images/github_preview.png',
-            domain: 'github.com'
-        },
-        {
-            match: 'https://linkedin.com/in/pranavkohli24',
-            title: 'LinkedIn',
-            description: 'Pranav Kohli',
-            image: '/src/images/linkedin_preview.png',
-            domain: 'linkedin.com'
-        },
-        {
-            match: 'https://drive.google.com/file/d/1sRL-trbYmkjwWxeYPqwt3ZFYAyQ6vScG/view?usp=drive_link',
-            title: 'Pranav Kohli - Resume',
-            description: 'View my resume',
-            image: '/src/images/resume_preview.png',
-            domain: 'drive.google.com'
-        },
-        {
-            match: 'hey@pranavkohli.me',
-            title: 'Email Pranav',
-            description: 'Tap to send mail',
-            image: `/src/images/mail_preview${Math.floor(Math.random() * 2) + 1}.png`,
-            domain: 'hey@pranavkohli.me'
-        },
-        {
-            match: 'https://www.geeksforgeeks.org/profile/pranavkohli',
-            title: 'GeeksforGeeks',
-            description: 'Tap to view my DSA profile',
-            image: '/src/images/geeksforgeeks.png',
-            domain: 'geeksforgeeks.org'
-        },
-        {
-            match: 'https://codeforces.com/profile/pranavkohli',
-            title: 'Codeforces',
-            description: 'Tap to view my Competitive Programming profile',
-            image: '/src/images/codeforces.jpeg',
-            domain: 'codeforces.com'
-        },
-        {
-            match: 'https://sipwithpranav.app/',
-            title: 'Sip with Pranav',
-            description: 'Tap to view my mocktail shop app',
-            image: '/src/images/velvetpour.png',
-            domain: 'sipwithpranav.app'
-        },
-        {
-            match: 'https://rasoi-bazaar.vercel.app/',
-            title: 'Rasoi Bazaar',
-            description: 'Tap to cook a new dish today',
-            image: '/src/images/rasoibazaar.png',
-            domain: ''
-        },
-        {
-            match: 'https://www.facebook.com/codingcompetitions/hacker-cup/2025/certificate/2967516210101538',
-            title: 'Meta HackerCup',
-            description: 'AIR - 331, Global Rank - 1457',
-            image: '/src/images/meta_hackercup.png',
-            domain: ''
-        },
-        
+    const suggestionQuestions = [
+        "mention some of pranav's skills",
+        "schedule a meet with pranav",
+        "Tell me about Pranav",
+        "Tell me pranav hobbies",
+        "What technologies does Pranav use?",
+        "say hello",
+        "What is Pranav working on?",
+        "Can you show me Pranav's resume?",
+        "How can I reach to Pranav?",
+        "How is pranav as a person?",
+        "Tell me about Pranav's projects",
+        "Show me a picture of pranav with his dog"
     ];
 
-    previews.forEach(preview => {
-        if (!normalizedUrls.some(
-            url => url.toLowerCase() === preview.match.toLowerCase()
-        )) return;
+    let recentlyUsedSuggestions = [];
+    const MAX_RECENT_SUGGESTIONS = 3;
+
+    function updateSuggestionScrollHint() {
+        const container = document.getElementById('chatSuggestions');
+        if (!container) return;
+
+        const reachedEnd =
+            container.scrollLeft + container.clientWidth >=
+            container.scrollWidth - 2;
+
+        const reachedStart = container.scrollLeft <= 2;
+
+        container.parentElement.classList.toggle('scrolled-end', reachedEnd);
+        container.parentElement.classList.toggle('scrolled-start', !reachedStart);
+    }
+
+    function renderSuggestions() {
+        const container = document.getElementById('chatSuggestions');
+        if (!container) return;
+
+        const shuffled = suggestionQuestions
+            .filter(question => !recentlyUsedSuggestions.includes(question))
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3);
+
+        container.innerHTML = shuffled.map(question => `
+            <button class="chat-suggestion" type="button">
+                ✧ ${question}
+            </button>
+        `).join('');
+
+        container.querySelectorAll('.chat-suggestion').forEach(button => {
+            button.addEventListener('click', () => {
+                const question = button.textContent.replace('✧ ', '').trim();
+
+                const start = button.getBoundingClientRect();
+                const end = chatMessages.getBoundingClientRect();
+
+                const flyingBubble = button.cloneNode(true);
+
+                flyingBubble.style.position = 'fixed';
+                flyingBubble.style.left = `${start.left}px`;
+                flyingBubble.style.top = `${start.top}px`;
+                flyingBubble.style.width = `${start.width}px`;
+                flyingBubble.style.zIndex = '9999';
+                flyingBubble.style.margin = '0';
+                flyingBubble.style.pointerEvents = 'none';
+                flyingBubble.style.animation = 'none';
+
+                document.body.appendChild(flyingBubble);
+
+                button.style.visibility = 'hidden';
+
+                requestAnimationFrame(() => {
+                    flyingBubble.style.transition =
+                        'left 0.55s cubic-bezier(0.4, 0, 0.2, 1), ' +
+                        'top 0.55s cubic-bezier(0.4, 0, 0.2, 1), ' +
+                        'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)';
+
+                    flyingBubble.style.left =
+                        `${end.right - start.width}px`;
+
+                    flyingBubble.style.top =
+                        `${end.bottom - 55}px`;
+
+                    flyingBubble.style.transform = 'scale(0.92)';
+                });
+
+                setTimeout(() => {
+                    flyingBubble.remove();
+
+                    recentlyUsedSuggestions.push(question);
+
+                    if (recentlyUsedSuggestions.length > MAX_RECENT_SUGGESTIONS) {
+                        recentlyUsedSuggestions.shift();
+                    }
+
+                    // Get the other 2 currently visible suggestions
+                    const existingQuestions = Array.from(
+                        container.querySelectorAll('.chat-suggestion')
+                    )
+                        .filter(existingButton => existingButton !== button)
+                        .map(existingButton =>
+                            existingButton.textContent.replace('✧ ', '').trim()
+                        );
+
+                    // Pick a replacement that isn't among the other 2
+                    // and isn't the suggestion that was clicked
+                    const availableQuestions = suggestionQuestions.filter(
+                        suggestion =>
+                            suggestion !== question &&
+                            !existingQuestions.includes(suggestion)
+                    );
+
+                    const newQuestion =
+                        availableQuestions[
+                            Math.floor(Math.random() * availableQuestions.length)
+                        ];
+
+                    // Replace only the clicked pill
+                    button.textContent = `✧ ${newQuestion}`;
+                    button.style.visibility = '';
+
+                    // Send the originally clicked suggestion
+                    chatInput.value = question;
+                    updateActionButton();
+                    autoResizeInput();
+                    sendMessage();
+                }, 550);
+
+
+            });
+        });
+        requestAnimationFrame(updateSuggestionScrollHint);
+
+    }
+
+
+    function createCalendarUrl(
+        date,
+        time,
+        duration = 30,
+        title = 'Meeting with Pranav Kohli'
+    ) {
+        const start = new Date(`${date}T${time}:00`);
+        if (Number.isNaN(start.getTime())) return null;
+
+        const end = new Date(
+            start.getTime() + duration * 60 * 1000
+        );
+
+        const formatCalendarDate = (d) => {
+            const pad = (n) => String(n).padStart(2, '0');
+
+            return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+        };
+
+        const params = new URLSearchParams({
+            action: 'TEMPLATE',
+            text: title,
+            dates: `${formatCalendarDate(start)}/${formatCalendarDate(end)}`,
+            details: 'Meeting with Pranav Kohli',
+            add: 'hey@pranavkohli.me'
+        });
+
+        return `https://calendar.google.com/calendar/render?${params.toString()}`;
+    }
+
+    function addCalendarPreview(bubble, text) {
+        const match = text.match(
+            /\[CALENDAR_EVENT\]([\s\S]*?)\[\/CALENDAR_EVENT\]/i
+        );
+
+        if (!match) return;
+
+        const block = match[1];
+
+        let date =
+            block.match(
+                /\bdate\s*=\s*(\d{4}-\d{2}-\d{2})/i
+            )?.[1];
+
+        const time =
+            block.match(
+                /\btime\s*=\s*(\d{2}:\d{2})/i
+            )?.[1];
+
+        const duration = parseInt(
+            block.match(/\bduration\s*=\s*(\d+)/i)?.[1] || '30',
+            10
+        );
+
+        if (!date || !time) return;
+
+
+        // ---------------------------------------------
+        // FRONTEND DATE SAFETY
+        // Ignore the year generated by the AI.
+        // Always use the current year in Asia/Kolkata.
+        // ---------------------------------------------
+
+        const [, month, day] = date.split('-').map(Number);
+
+        const currentYear = Number(
+            new Intl.DateTimeFormat('en-IN', {
+                timeZone: 'Asia/Kolkata',
+                year: 'numeric'
+            }).format(new Date())
+        );
+
+        // Rebuild the date using the actual current year.
+        date =
+            `${currentYear}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+
+        const calendarUrl =
+            createCalendarUrl(date, time, duration);
+
+        if (!calendarUrl) return;
 
         const card = document.createElement('a');
 
-        if (preview.match.includes('@')) {
-            card.href = `mailto:${preview.match}?subject=${encodeURIComponent('Hello Pranav Kohli')}`;
-        } else {
-            card.href = preview.match;
-            card.target = '_blank';
-            card.rel = 'noopener noreferrer';
-        }
-
+        card.href = calendarUrl;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
         card.className = 'link-preview';
 
         card.innerHTML = `
             <img
-                src="${preview.image}"
+                src="/src/images/calendar_preview.png"
                 alt=""
                 class="link-preview-image"
             >
+
             <div class="link-preview-content">
-                <div class="link-preview-title">${preview.title}</div>
-                <div class="link-preview-description">${preview.description}</div>
-                <div class="link-preview-domain">${preview.domain}</div>
+
+                <div class="link-preview-title">
+                    Schedule a meet with Pranav
+                </div>
+
+                <div class="link-preview-description">
+                    Add meeting to calendar
+                </div>
+
+                <div class="link-preview-domain">
+                    calendar.google.com
+                </div>
+
             </div>
         `;
 
         bubble.appendChild(card);
 
-        const previewImage = card.querySelector('.link-preview-image');
+        const previewImage =
+            card.querySelector('.link-preview-image');
 
-        previewImage.addEventListener('load', () => {
-            previewImage.classList.add('loaded');
+        if (previewImage) {
+
+            if (previewImage.complete) {
+
+                previewImage.classList.add('loaded');
+
+            } else {
+
+                previewImage.addEventListener('load', () => {
+                    previewImage.classList.add('loaded');
+                });
+
+            }
+
+        }
+    }
+
+    function addLinkPreviews(bubble, text) {
+        addCalendarPreview(bubble, text);
+
+        const urls = text.match(
+            /https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/pranavkohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}/gi
+        ) || [];
+
+        const normalizedUrls = urls.map(url => {
+            url = url.replace(/[),.!?]+$/, '');
+
+            if (url.includes('@')) {
+                return url;
+            }
+
+            return url.startsWith('http')
+                ? url
+                : `https://${url}`;
         });
-    });
-}
+
+        const previews = [
+            {
+                match: 'https://github.com/PranavKohli24',
+                title: 'GitHub',
+                description: 'PranavKohli24',
+                image: '/src/images/github_preview.png',
+                domain: 'github.com'
+            },
+            {
+                match: 'https://linkedin.com/in/pranavkohli24',
+                title: 'LinkedIn',
+                description: 'Pranav Kohli',
+                image: '/src/images/linkedin_preview.png',
+                domain: 'linkedin.com'
+            },
+            {
+                match: 'https://drive.google.com/file/d/1sRL-trbYmkjwWxeYPqwt3ZFYAyQ6vScG/view?usp=drive_link',
+                title: 'Pranav Kohli - Resume',
+                description: 'View my resume',
+                image: '/src/images/resume_preview.png',
+                domain: 'drive.google.com'
+            },
+            {
+                match: 'hey@pranavkohli.me',
+                title: 'Email Pranav',
+                description: 'Tap to send mail',
+                image: `/src/images/mail_preview${Math.floor(Math.random() * 2) + 1}.png`,
+                domain: 'hey@pranavkohli.me'
+            },
+            {
+                match: 'https://www.geeksforgeeks.org/profile/pranavkohli',
+                title: 'GeeksforGeeks',
+                description: 'Tap to view my DSA profile',
+                image: '/src/images/geeksforgeeks.png',
+                domain: 'geeksforgeeks.org'
+            },
+            {
+                match: 'https://codeforces.com/profile/pranavkohli',
+                title: 'Codeforces',
+                description: 'Tap to view my Competitive Programming profile',
+                image: '/src/images/codeforces.jpeg',
+                domain: 'codeforces.com'
+            },
+            {
+                match: 'https://sipwithpranav.app/',
+                title: 'Sip with Pranav',
+                description: 'Tap to view my mocktail shop app',
+                image: '/src/images/velvetpour.png',
+                domain: 'sipwithpranav.app'
+            },
+            {
+                match: 'https://rasoi-bazaar.vercel.app/',
+                title: 'Rasoi Bazaar',
+                description: 'Tap to cook a new dish today',
+                image: '/src/images/rasoibazaar.png',
+                domain: ''
+            },
+            {
+                match: 'https://www.facebook.com/codingcompetitions/hacker-cup/2025/certificate/2967516210101538',
+                title: 'Meta HackerCup',
+                description: 'AIR - 331, Global Rank - 1457',
+                image: '/src/images/meta_hackercup.png',
+                domain: ''
+            },
+            
+        ];
+
+        previews.forEach(preview => {
+            if (!normalizedUrls.some(
+                url => url.toLowerCase() === preview.match.toLowerCase()
+            )) return;
+
+            const card = document.createElement('a');
+
+            if (preview.match.includes('@')) {
+                card.href = `mailto:${preview.match}?subject=${encodeURIComponent('Hello Pranav Kohli')}`;
+            } else {
+                card.href = preview.match;
+                card.target = '_blank';
+                card.rel = 'noopener noreferrer';
+            }
+
+            card.className = 'link-preview';
+
+            card.innerHTML = `
+                <img
+                    src="${preview.image}"
+                    alt=""
+                    class="link-preview-image"
+                >
+                <div class="link-preview-content">
+                    <div class="link-preview-title">${preview.title}</div>
+                    <div class="link-preview-description">${preview.description}</div>
+                    <div class="link-preview-domain">${preview.domain}</div>
+                </div>
+            `;
+
+            bubble.appendChild(card);
+
+            const previewImage = card.querySelector('.link-preview-image');
+
+            previewImage.addEventListener('load', () => {
+                previewImage.classList.add('loaded');
+            });
+        });
+    }
 
     function cleanAIFormatting(text) {
         return text
@@ -1445,66 +1448,65 @@ function addLinkPreviews(bubble, text) {
     }
 
     function getVisibleResponseText(text) {
-    // Remove complete SHOW_* command blocks.
-    let visible = text.replace(
-        /\[SHOW_[A-Z_]+\][\s\S]*?\[\/SHOW_[A-Z_]+\]/gi,
-        ''
-    );
+        // Remove complete SHOW_* command blocks.
+        let visible = text.replace(
+            /\[SHOW_[A-Z_]+\][\s\S]*?\[\/SHOW_[A-Z_]+\]/gi,
+            ''
+        );
 
-    // Remove complete calendar command blocks.
-    visible = visible.replace(
-        /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi,
-        ''
-    );
-    visible = visible.replace(
-        /\[REACTION\][\s\S]*?\[\/REACTION\]/gi,
-        ''
-    );
-    visible = visible.replace(
-        /\[voice\][\s\S]*?\[\/voice\]/gi,
-        ''
-    );
+        // Remove complete calendar command blocks.
+        visible = visible.replace(
+            /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi,
+            ''
+        );
+        visible = visible.replace(
+            /\[REACTION\][\s\S]*?\[\/REACTION\]/gi,
+            ''
+        );
+        visible = visible.replace(
+            /\[voice\][\s\S]*?\[\/voice\]/gi,
+            ''
+        );
 
-    // If a complete internal command has started but has no closing tag yet,
-    // hide everything from that command onward.
-    const openCommandIndex = visible.search(
-        /\[(?:SHOW_[A-Z_]+|CALENDAR_EVENT|REACTION|voice)\]/i
-    );
+        // If a complete internal command has started but has no closing tag yet,
+        // hide everything from that command onward.
+        const openCommandIndex = visible.search(
+            /\[(?:SHOW_[A-Z_]+|CALENDAR_EVENT|REACTION|voice)\]/i
+        );
 
-    if (openCommandIndex !== -1) {
-        visible = visible.slice(0, openCommandIndex);
-    }
+        if (openCommandIndex !== -1) {
+            visible = visible.slice(0, openCommandIndex);
+        }
 
-    // Hide partially streamed commands such as:
-    // [S
-    // [SH
-    // [SHOW_
-    // [CAL
-    // [CALENDAR_E
-    const internalStarts = [
-        '[SHOW_',
-        '[CALENDAR_EVENT]',
-        '[REACTION]',
-        '[voice]'
-    ];
+        // Hide partially streamed commands such as:
+        // [S
+        // [SH
+        // [SHOW_
+        // [CAL
+        // [CALENDAR_E
+        const internalStarts = [
+            '[SHOW_',
+            '[CALENDAR_EVENT]',
+            '[REACTION]',
+            '[voice]'
+        ];
 
-    for (const marker of internalStarts) {
-        for (let i = marker.length - 1; i >= 1; i--) {
-            const suffix = visible.slice(-i);
+        for (const marker of internalStarts) {
+            for (let i = marker.length - 1; i >= 1; i--) {
+                const suffix = visible.slice(-i);
 
-            if (
-                suffix.toLowerCase() ===
-                marker.slice(0, i).toLowerCase()
-            ) {
-                visible = visible.slice(0, -i);
-                break;
+                if (
+                    suffix.toLowerCase() ===
+                    marker.slice(0, i).toLowerCase()
+                ) {
+                    visible = visible.slice(0, -i);
+                    break;
+                }
             }
         }
+
+        return cleanAIFormatting(visible).trimEnd();
     }
-
-    return cleanAIFormatting(visible).trimEnd();
-}
-
 
 
     const MAX_BUBBLES = 3;
@@ -1540,7 +1542,7 @@ function addLinkPreviews(bubble, text) {
                         const jsonStr = trimmed.slice(5).trim();
                         if (jsonStr === '[DONE]') continue;
 
-                                                try {
+                        try {
                             const parsed = JSON.parse(jsonStr);
                             if (parsed.response) {
                                 fullText += parsed.response;
@@ -1556,7 +1558,6 @@ function addLinkPreviews(bubble, text) {
                         } catch (e) {
                             // Ignore incomplete SSE chunks.
                         }
-
                     }
                 }
             } catch (err) {
@@ -1583,7 +1584,7 @@ function addLinkPreviews(bubble, text) {
 
         let current = newBubble(true);
 
-               while (true) {
+        while (true) {
             // Swap the blinking cursor for the pulsing "speaking..."
             // indicator the moment [voice] is detected in the raw
             // stream — don't wait for the whole block to finish
@@ -1644,7 +1645,7 @@ function addLinkPreviews(bubble, text) {
             throw networkError;   // NEW — propagate so processQueue's catch fires
         }
 
-                       // Fallback only: normally the loop above already swapped the
+        // Fallback only: normally the loop above already swapped the
         // cursor the instant [voice] was detected. This only fires if
         // the entire response streamed in within a single tick, before
         // the loop got a chance to check voiceDetected.
@@ -1879,50 +1880,51 @@ function addLinkPreviews(bubble, text) {
             const reaction = parseReaction(fullText);
             const visibleText = getVisibleResponseText(fullText);
 
-             const voiceText = parseVoice(fullText);
+            const voiceText = parseVoice(fullText);
 
-                       if (voiceText) {
-    // Look this up fresh from the DOM rather than relying on the
-    // `cursor` reference — that pointed at the original blinking
-    // cursor node, which was already replaced with this indicator
-    // at the end of streamMultiBubbleReply.
-    const speakingIndicator = lastBubble.querySelector('.voice-preparing');
+            if (voiceText) {
+                // Look this up fresh from the DOM rather than relying on the
+                // `cursor` reference — that pointed at the original blinking
+                // cursor node, which was already replaced with this indicator
+                // at the end of streamMultiBubbleReply.
+                const speakingIndicator = lastBubble.querySelector('.voice-preparing');
 
-    try {
-        const resolvedVoiceText = await generateVoiceNoteAudio(voiceText);
-        const voiceNote = addVoiceNoteToBubble(lastBubble, resolvedVoiceText);
+                try {
+                    const resolvedVoiceText = await generateVoiceNoteAudio(voiceText);
+                    const voiceNote = addVoiceNoteToBubble(lastBubble, resolvedVoiceText);
 
-        if (speakingIndicator) {
-            speakingIndicator.remove();
-        }
+                    if (speakingIndicator) {
+                        speakingIndicator.remove();
+                    }
 
-        if (!voiceNote) {
-            const p = lastBubble.querySelector('p');
-            if (p) {
-                p.textContent = resolvedVoiceText;
-            } else {
-                const fallbackP = document.createElement('p');
-                fallbackP.textContent = resolvedVoiceText;
-                lastBubble.appendChild(fallbackP);
+                    if (!voiceNote) {
+                        const p = lastBubble.querySelector('p');
+                        if (p) {
+                            p.textContent = resolvedVoiceText;
+                        } else {
+                            const fallbackP = document.createElement('p');
+                            fallbackP.textContent = resolvedVoiceText;
+                            lastBubble.appendChild(fallbackP);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Voice note generation failed:', error);
+
+                    if (speakingIndicator) {
+                        speakingIndicator.remove();
+                    }
+
+                    const p = lastBubble.querySelector('p');
+                    if (p) {
+                        p.textContent = voiceText;
+                    } else {
+                        const fallbackP = document.createElement('p');
+                        fallbackP.textContent = voiceText;
+                        lastBubble.appendChild(fallbackP);
+                    }
+                }
             }
-        }
-    } catch (error) {
-        console.error('Voice note generation failed:', error);
 
-        if (speakingIndicator) {
-            speakingIndicator.remove();
-        }
-
-        const p = lastBubble.querySelector('p');
-        if (p) {
-            p.textContent = voiceText;
-        } else {
-            const fallbackP = document.createElement('p');
-            fallbackP.textContent = voiceText;
-            lastBubble.appendChild(fallbackP);
-        }
-    }
-}
             const hasPhotoCommand = /\[SHOW_PHOTO\]\s*id\s*=\s*[a-z0-9-]+\s*\[\/SHOW_PHOTO\]/i.test(fullText);
             const hasCalendarCommand = /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/i.test(fullText);
 
@@ -2014,6 +2016,7 @@ function addLinkPreviews(bubble, text) {
 
         return true;
     }
+
 
     function attachListeners() {
 
@@ -2152,15 +2155,15 @@ function addLinkPreviews(bubble, text) {
         }
 
         setInterval(() => {
-    const suggestions = document.getElementById('chatSuggestions');
+            const suggestions = document.getElementById('chatSuggestions');
 
-    suggestions.classList.add('changing');
+            suggestions.classList.add('changing');
 
-    setTimeout(() => {
-            renderSuggestions();
-            suggestions.classList.remove('changing');
-        }, 350);
-    }, 15000);
+            setTimeout(() => {
+                renderSuggestions();
+                suggestions.classList.remove('changing');
+            }, 350);
+        }, 15000);
 
         initialized = true;
     }
