@@ -522,7 +522,7 @@
     }
 
 
-    function appendMessage(role, text, hideErrorImage = false) {
+    function appendMessage(role, text, hideErrorImage = false, invisible = false) {
         const wasFollowing =
             role === 'user'
                 ? true
@@ -565,6 +565,11 @@
 
 
         chatMessages.appendChild(bubble);
+
+        if (invisible) {
+            bubble.style.opacity = '0';
+            bubble.style.pointerEvents = 'none';
+        }
 
         applyScrollFollow(wasFollowing);
 
@@ -1104,10 +1109,16 @@
 
         container.querySelectorAll('.chat-suggestion').forEach(button => {
             button.addEventListener('click', () => {
-                const question = button.textContent.replace('✧ ', '').trim();
+                if (rateLimited) return;
 
+                const question = button.textContent.replace('✧ ', '').trim();
                 const start = button.getBoundingClientRect();
-                const end = chatMessages.getBoundingClientRect();
+
+                // Create the REAL bubble now, invisibly, so it takes its actual
+                // place in the layout (pushing other messages up, wrapping text,
+                // etc.) — then we measure exactly where it landed.
+                const userBubble = appendMessage('user', question, false, true);
+                const end = userBubble.getBoundingClientRect();
 
                 const flyingBubble = button.cloneNode(true);
 
@@ -1121,26 +1132,29 @@
                 flyingBubble.style.animation = 'none';
 
                 document.body.appendChild(flyingBubble);
-
                 button.style.visibility = 'hidden';
 
                 requestAnimationFrame(() => {
                     flyingBubble.style.transition =
                         'left 0.55s cubic-bezier(0.4, 0, 0.2, 1), ' +
                         'top 0.55s cubic-bezier(0.4, 0, 0.2, 1), ' +
+                        'width 0.55s cubic-bezier(0.4, 0, 0.2, 1), ' +
+                        'border-radius 0.55s cubic-bezier(0.4, 0, 0.2, 1), ' +
                         'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)';
 
-                    flyingBubble.style.left =
-                        `${end.right - start.width}px`;
-
-                    flyingBubble.style.top =
-                        `${end.bottom - 55}px`;
-
-                    flyingBubble.style.transform = 'scale(0.92)';
+                    // Fly to the REAL bubble's exact rect, matching its final size too.
+                    flyingBubble.style.left = `${end.left}px`;
+                    flyingBubble.style.top = `${end.top}px`;
+                    flyingBubble.style.width = `${end.width}px`;
+                    flyingBubble.style.transform = 'scale(1)';
                 });
 
                 setTimeout(() => {
                     flyingBubble.remove();
+
+                    // Reveal the real bubble now that the clone has "become" it.
+                    userBubble.style.opacity = '';
+                    userBubble.style.pointerEvents = '';
 
                     recentlyUsedSuggestions.push(question);
 
@@ -1148,7 +1162,6 @@
                         recentlyUsedSuggestions.shift();
                     }
 
-                    // Get the other 2 currently visible suggestions
                     const existingQuestions = Array.from(
                         container.querySelectorAll('.chat-suggestion')
                     )
@@ -1157,8 +1170,6 @@
                             existingButton.textContent.replace('✧ ', '').trim()
                         );
 
-                    // Pick a replacement that isn't among the other 2
-                    // and isn't the suggestion that was clicked
                     const availableQuestions = suggestionQuestions.filter(
                         suggestion =>
                             suggestion !== question &&
@@ -1170,18 +1181,19 @@
                             Math.floor(Math.random() * availableQuestions.length)
                         ];
 
-                    // Replace only the clicked pill
                     button.textContent = `✧ ${newQuestion}`;
                     button.style.visibility = '';
 
-                    // Send the originally clicked suggestion
-                    chatInput.value = question;
-                    updateActionButton();
-                    autoResizeInput();
-                    sendMessage();
+                    // Enqueue the already-created bubble directly, instead of
+                    // going through sendMessage() (which would create a second one).
+                    pendingQueue.push({
+                        text: question,
+                        userBubble,
+                        showQuote: isSending || pendingQueue.length > 0
+                    });
+
+                    processQueue();
                 }, 550);
-
-
             });
         });
         requestAnimationFrame(updateSuggestionScrollHint);
@@ -1727,11 +1739,66 @@
         setRecordingUI(false);
         chatSendBtn.classList.remove('listening');
 
-        const userBubble = appendMessage('user', text);
+        const inputRect = chatInput.getBoundingClientRect();
+
+        // Create the REAL bubble now, invisibly, so it takes its actual
+        // place in the layout — then measure exactly where it landed.
+        const userBubble = appendMessage('user', text, false, true);
+        const end = userBubble.getBoundingClientRect();
 
         chatInput.value = '';
         updateActionButton();
         autoResizeInput();
+
+        // Clone the REAL bubble — same size, same shape, same text, right
+        // from the start. No resizing or morphing, just a straight move.
+        const flyingBubble = userBubble.cloneNode(true);
+
+        // The clone inherited the invisible bubble's opacity:0 — make it
+        // fully visible, since THIS is the element that should be seen
+        // flying, not the real (still-hidden) bubble underneath.
+        flyingBubble.style.opacity = '1';
+        flyingBubble.style.pointerEvents = 'none';
+        flyingBubble.style.position = 'fixed';
+        flyingBubble.style.margin = '0';
+        flyingBubble.style.zIndex = '9999';
+
+        // Place it at its FINAL position/size right away...
+        flyingBubble.style.left = `${end.left}px`;
+        flyingBubble.style.top = `${end.top}px`;
+        flyingBubble.style.width = `${end.width}px`;
+
+        document.body.appendChild(flyingBubble);
+
+        // ...then visually pull it back to the input field's center using
+        // a transform. Transforms always animate reliably (GPU-composited),
+        // unlike left/top which can silently skip the transition.
+        const endCenterX = end.left + end.width / 2;
+        const endCenterY = end.top + end.height / 2;
+        const startCenterX = inputRect.left + inputRect.width / 2;
+        const startCenterY = inputRect.top + inputRect.height / 2;
+
+        const dx = startCenterX - endCenterX;
+        const dy = startCenterY - endCenterY;
+
+        flyingBubble.style.transform = `translate(${dx}px, ${dy}px)`;
+
+        // Force the browser to commit that starting transform as its own
+        // paint before we animate away from it.
+        void flyingBubble.getBoundingClientRect();
+
+        requestAnimationFrame(() => {
+            flyingBubble.style.transition =
+                'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
+            flyingBubble.style.transform = 'translate(0, 0)';
+        });
+
+        setTimeout(() => {
+            flyingBubble.remove();
+
+            userBubble.style.opacity = '';
+            userBubble.style.pointerEvents = '';
+        }, 550);
 
         pendingQueue.push({
             text,
