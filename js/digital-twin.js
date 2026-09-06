@@ -1949,9 +1949,15 @@
             history.push({
                 role: 'assistant',
                 content: fullText
-                    .replace(/\[SHOW_[A-Z_]+\][\s\S]*?\[\/SHOW_[A-Z_]+\]/gi, '')
+                    .replace(/\[SHOW_PHOTO\]\s*id\s*=\s*([a-z0-9-]+)\s*\[\/SHOW_PHOTO\]/gi, (match, id) => {
+                        const photo = digitalTwinPhotos[id.toLowerCase()];
+                        return photo ? `[shared a photo: ${photo.title}]` : '';
+                    })
+                    .replace(/\[voice\]([\s\S]*?)\[\/voice\]/gi, (match, spoken) => {
+                        const cleaned = spoken.replace(/\s+/g, ' ').trim();
+                        return cleaned ? `[said in a voice note: "${cleaned}"]` : '';
+                    })
                     .replace(/\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi, '')
-                    .replace(/\[voice\][\s\S]*?\[\/voice\]/gi, '')
                     .trim()
             });
 
