@@ -787,6 +787,8 @@
              */
             if (userRequestedStop) {
                 isListening = false;
+                interimVoiceText = '';
+
                 chatSendBtn.classList.remove('listening');
                 setRecordingUI(false);
                 updateActionButton();
@@ -833,7 +835,6 @@
 
         userRequestedStop = true;
         isListening = false;
-        interimVoiceText = '';
 
         try {
             recognition.stop();
@@ -864,7 +865,6 @@
 
         userRequestedStop = true;
         isListening = false;
-        interimVoiceText = '';
 
         try {
             if (recognition) {
