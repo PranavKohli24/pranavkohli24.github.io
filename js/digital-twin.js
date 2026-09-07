@@ -2162,13 +2162,9 @@
             () => {
                 if (rateLimited) return;
 
-                if (
-                    chatInput.value.trim()
-                ) {
+                if (chatInput.value.trim()) {
                     sendMessage();
-                } else if (!isSending) {
-                    // Don't start a fresh recording while the AI is
-                    // actively replying — keep that part serialized.
+                } else {
                     startVoiceRecording();
                 }
             }
