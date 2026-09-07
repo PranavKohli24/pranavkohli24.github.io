@@ -2046,11 +2046,11 @@
                 content: fullText
                     .replace(/\[SHOW_PHOTO\]\s*id\s*=\s*([a-z0-9-]+)\s*\[\/SHOW_PHOTO\]/gi, (match, id) => {
                         const photo = digitalTwinPhotos[id.toLowerCase()];
-                        return photo ? `[shared a photo: ${photo.title}]` : '';
+                        return photo ? `i shared a photo of: ${photo.title}` : '';
                     })
                     .replace(/\[voice\]([\s\S]*?)\[\/voice\]/gi, (match, spoken) => {
                         const cleaned = spoken.replace(/\s+/g, ' ').trim();
-                        return cleaned ? `[said in a voice note: "${cleaned}"]` : '';
+                        return cleaned ? `i said in a voice note: "${cleaned}"` : '';
                     })
                     .replace(/\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi, '')
                     .trim()
