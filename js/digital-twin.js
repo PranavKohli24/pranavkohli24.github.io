@@ -158,6 +158,27 @@
         window.speechSynthesis.addEventListener('voiceschanged', load);
     }
 
+    function makeTtsFriendly(text) {
+        const digitWords = {
+            '0': 'zero',
+            '1': 'one',
+            '2': 'two',
+            '3': 'three',
+            '4': 'four',
+            '5': 'five',
+            '6': 'six',
+            '7': 'seven',
+            '8': 'eight',
+            '9': 'nine'
+        };
+
+        return text.replace(/\+91\s*(\d{10})\b/g, (_, number) => {
+            return number
+                .split('')
+                .map(digit => digitWords[digit])
+                .join(' ');
+        });
+    }
 
     function addVoiceNoteToBubble(bubble, voiceText) {
         if (!bubble || !voiceText) return null;
@@ -192,7 +213,8 @@
 
         updateProgressVisual(0);
 
-        const speechText = voiceText
+        const speechText = makeTtsFriendly(
+            voiceText
             // Strip emoji and all their attaching modifiers — presentation
             // selectors, ZWJ, skin-tone modifiers, keycap combining marks,
             // and flag pairs — so TTS never reads a leftover code point's
@@ -202,7 +224,8 @@
             .replace(/[\u{1F3FB}-\u{1F3FF}]/gu, '')
             .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, '')
             .replace(/\s+/g, ' ')
-            .trim();
+            .trim()
+        )
 
         if (!speechText) return null;
 
