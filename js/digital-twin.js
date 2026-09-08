@@ -623,19 +623,14 @@
         if (role === 'error') {
             if (!hideErrorImage) {
                 const image = document.createElement('img');
-
                 image.alt = '';
                 image.className = 'chat-error-image chat-error-image-pending';
 
-                // Wire listeners before assigning src, so a cached/instant
-                // load can't fire before we're ready to react to it.
                 image.addEventListener('load', () => {
                     image.classList.remove('chat-error-image-pending');
                 }, { once: true });
 
                 image.addEventListener('error', () => {
-                    // Never let a broken/slow image reserve dead space —
-                    // just drop it and let the text take the full bubble.
                     image.remove();
                 }, { once: true });
 
@@ -645,15 +640,12 @@
             }
 
             const message = document.createElement('p');
-            message.textContent = text;
+            message.appendChild(buildLinkedFragment(text));
 
             bubble.appendChild(message);
         } else {
-
             const p = document.createElement('p');
-
             p.textContent = text;
-
             bubble.appendChild(p);
         }
 

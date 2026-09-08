@@ -393,10 +393,16 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
+.chat-msg-error a {
+    color: #0A66C2;
+    text-decoration: underline;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
 
 .chat-error-image {
-    width: 100px;
-    height: 100px;
+    width: 90px;
+    height: 90px;
     flex-shrink: 0;
     object-fit: contain;
     border-radius: 12px;
