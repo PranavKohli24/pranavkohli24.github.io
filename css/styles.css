@@ -35,6 +35,11 @@ body.no-scroll {
     overflow: hidden;
 }
 
+img {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
 /* Layout */
 .container {
     display: flex;
