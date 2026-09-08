@@ -42,13 +42,80 @@
 }
 
 .digital-twin-info-btn:hover {
-    opacity: 0.65;
+    opacity: 0.75;
 }
 
 .digital-twin-info-btn:active {
     transform: scale(0.92);
 }
 
+/* Tooltip on info button hover */
+.digital-twin-info-btn {
+    position: relative;
+}
+
+.digital-twin-info-btn::after {
+    content: "Click to see what Pranav's digital twin can do";
+
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+
+    width: max-content;
+    max-width: 220px;
+
+    padding: 0.4rem 0.65rem;
+    border-radius: 8px;
+
+    background: rgba(30, 30, 30, 0.9);
+    color: #fff;
+
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: normal;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    transform: translateY(-4px);
+    z-index: 10;
+}
+
+.digital-twin-info-btn::before {
+    content: "";
+
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 12px;
+
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+    border-bottom-color: rgba(30, 30, 30, 0.9);
+    border-top: 0;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    transform: translateY(-4px);
+    z-index: 10;
+}
+
+.digital-twin-info-btn:hover::after,
+.digital-twin-info-btn:hover::before {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (hover: none) {
+    .digital-twin-info-btn::after,
+    .digital-twin-info-btn::before {
+        display: none;
+    }
+}
 
 @media (min-width: 769px) {
 
