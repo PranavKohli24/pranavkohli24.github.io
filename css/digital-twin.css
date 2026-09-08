@@ -401,6 +401,9 @@
     object-fit: contain;
     border-radius: 12px;
 }
+.chat-error-image-pending {
+    display: none;
+}
 
 /* Typing */
 

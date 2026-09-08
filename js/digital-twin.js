@@ -624,9 +624,22 @@
             if (!hideErrorImage) {
                 const image = document.createElement('img');
 
-                image.src = '/src/images/error_image_twin.png';
                 image.alt = '';
-                image.className = 'chat-error-image';
+                image.className = 'chat-error-image chat-error-image-pending';
+
+                // Wire listeners before assigning src, so a cached/instant
+                // load can't fire before we're ready to react to it.
+                image.addEventListener('load', () => {
+                    image.classList.remove('chat-error-image-pending');
+                }, { once: true });
+
+                image.addEventListener('error', () => {
+                    // Never let a broken/slow image reserve dead space —
+                    // just drop it and let the text take the full bubble.
+                    image.remove();
+                }, { once: true });
+
+                image.src = '/src/images/error_image_twin.png';
 
                 bubble.appendChild(image);
             }
