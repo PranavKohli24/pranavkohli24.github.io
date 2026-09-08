@@ -940,6 +940,69 @@
     };
 
 
+    const LINK_PATTERN = /(https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g;
+
+    function buildLinkedFragment(text) {
+        const fragment = document.createDocumentFragment();
+        let lastIndex = 0;
+        let match;
+
+        LINK_PATTERN.lastIndex = 0;
+
+        while ((match = LINK_PATTERN.exec(text)) !== null) {
+            // Plain text before this match
+            if (match.index > lastIndex) {
+                fragment.appendChild(
+                    document.createTextNode(
+                        text.slice(lastIndex, match.index)
+                    )
+                );
+            }
+
+            const value = match[0];
+            const anchor = document.createElement('a');
+
+            if (value.includes('@')) {
+                anchor.href = `mailto:${value}?subject=${encodeURIComponent(
+                    'Hello Pranav Kohli'
+                )}`;
+
+                anchor.textContent = `✉ ${value}`;
+
+            } else if (
+                value === '+918860271737' ||
+                value === '8860271737'
+            ) {
+                anchor.href = 'tel:+918860271737';
+                anchor.style.fontWeight = '600';
+                anchor.textContent = value;
+
+            } else {
+                anchor.href = value.startsWith('http')
+                    ? value
+                    : `https://${value}`;
+
+                anchor.target = '_blank';
+                anchor.rel = 'noopener noreferrer';
+                anchor.textContent = value;
+            }
+
+            fragment.appendChild(anchor);
+            lastIndex = LINK_PATTERN.lastIndex;
+        }
+
+        // Remaining plain text after the last match
+        if (lastIndex < text.length) {
+            fragment.appendChild(
+                document.createTextNode(
+                    text.slice(lastIndex)
+                )
+            );
+        }
+
+        return fragment;
+    }
+
     function renderLinkedText(element, text, cursor) {
 
         const marker = '[CALENDAR_EVENT]';
@@ -992,26 +1055,10 @@
                 : text.slice(0, markerIndex)
         ).trim();
 
-        element.innerHTML = visibleText.replace(
-            /(https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g,
-            (match) => {
-                if (match.includes('@')) {
-                    return `<a href="mailto:${match}?subject=${encodeURIComponent('Hello Pranav Kohli')}">✉ ${match}</a>`;
-                }
+        element.textContent = '';
 
-                if (
-                    match === '+918860271737' ||
-                    match === '8860271737'
-                ) {
-                    return `<a href="tel:+918860271737" style="font-weight: 600;">${match}</a>`;
-                }
-
-                const href = match.startsWith('http')
-                    ? match
-                    : `https://${match}`;
-
-                return `<a href="${href}" target="_blank" rel="noopener noreferrer">${match}</a>`;
-            }
+        element.appendChild(
+            buildLinkedFragment(visibleText)
         );
 
         if (cursor) {
