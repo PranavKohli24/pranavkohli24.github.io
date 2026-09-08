@@ -542,17 +542,88 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.chat-send-btn:hover {
-    transform: scale(1.06);
-    box-shadow: 0 6px 18px rgba(99, 52, 216, 0.38);
-}
-
 .chat-send-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
 }
 
+/* Tooltip on mic hover */
+.chat-send-btn.mic-mode,
+.chat-send-btn.send-mode {
+    position: relative;
+}
+
+.chat-send-btn.mic-mode::after,
+.chat-send-btn.send-mode::after {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    right: 8px;
+
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+
+    background: rgba(30, 30, 30, 0.9);
+    color: #fff;
+
+    font-size: 0.68rem;
+    font-weight: 600; 
+    white-space: nowrap;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    transform: translateY(4px);
+    z-index: 10;
+}
+
+.chat-send-btn.mic-mode::after {
+    content: "Speak";
+}
+
+.chat-send-btn.send-mode::after {
+    content: "Send message";
+}
+
+.chat-send-btn.mic-mode::before,
+.chat-send-btn.send-mode::before {
+    content: "";
+
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 18px;
+
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+    border-top-color: rgba(30, 30, 30, 0.9);
+    border-bottom: 0;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    transform: translateY(4px);
+    z-index: 10;
+}
+
+.chat-send-btn.mic-mode:hover::after,
+.chat-send-btn.mic-mode:hover::before,
+.chat-send-btn.send-mode:hover::after,
+.chat-send-btn.send-mode:hover::before {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (hover: none) {
+    .chat-send-btn.mic-mode::after,
+    .chat-send-btn.mic-mode::before,
+    .chat-send-btn.send-mode::after,
+    .chat-send-btn.send-mode::before {
+        display: none;
+    }
+}
 
 /* Mic <-> send */
 
