@@ -21,6 +21,11 @@ function showSection() {
     const hash = window.location.hash || '#about';
     const sectionId = hash.substring(1);
 
+    if (!document.getElementById(sectionId)) {
+        window.location.hash = '#about';
+        return;
+    }
+
     document.querySelectorAll('nav a[href^="#"]').forEach(link => {
         link.classList.toggle(
             'active',
