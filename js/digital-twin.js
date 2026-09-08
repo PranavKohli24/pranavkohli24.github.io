@@ -537,6 +537,14 @@
         if (!section) return;
 
         const observer = new MutationObserver(() => {
+
+            // Focus the chat input whenever the Digital Twin section becomes active.
+            if (isDigitalTwinSectionActive() && chatInput) {
+                requestAnimationFrame(() => {
+                    focusInputWithoutKeyboard();
+                });
+            }
+
             if (
                 isListening &&
                 !isDigitalTwinSectionActive()
