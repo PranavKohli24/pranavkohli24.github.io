@@ -520,6 +520,53 @@
         return Promise.resolve(voiceText);
     }
 
+
+    function isDigitalTwinSectionActive() {
+        const section = document.getElementById('digital-twin');
+
+        return section &&
+            section.classList.contains('active');
+    }
+
+
+    function observeDigitalTwinSection() {
+        const section = document.getElementById('digital-twin');
+
+        if (!section) return;
+
+        const observer = new MutationObserver(() => {
+            if (
+                isListening &&
+                !isDigitalTwinSectionActive()
+            ) {
+                userRequestedStop = true;
+                isListening = false;
+                interimVoiceText = '';
+
+                try {
+                    recognition.abort();
+                } catch (error) {
+                    console.warn(
+                        'Could not abort speech recognition:',
+                        error
+                    );
+                }
+
+                chatSendBtn.classList.remove('listening');
+                setRecordingUI(false);
+                updateActionButton();
+            }
+        });
+
+        observer.observe(
+            section,
+            {
+                attributes: true,
+                attributeFilter: ['class']
+            }
+        );
+    }
+
     function parseReaction(text) {
         const match = text.match(
             /\[REACTION\]\s*([^\[\]\r\n]+?)\s*\[\/REACTION\]/u
@@ -2294,6 +2341,8 @@
         if (initialized) return;
 
         if (!bindElements()) return;
+
+        observeDigitalTwinSection();
 
         sessionId = getOrCreateSessionId();
 
