@@ -30,6 +30,7 @@
     // Processed strictly one at a time, in order.
     let pendingQueue = [];
     let activeVoiceNote = null;
+    let activeChatAbortController = null;
 
     // Voice state
     let recognition = null;
@@ -41,6 +42,7 @@
     let fastForwardStream = false;
 
     const NEAR_BOTTOM_PX = 40;
+    const STREAM_IDLE_TIMEOUT_MS = 30000;
 
     function isNearBottom() {
         return (
@@ -1668,15 +1670,38 @@
         let sseBuffer = '';
         let fullText = '';
         let networkDone = false;
-        let networkError = null;   // NEW
+        let networkError = null;
         let reactionResponse = false;
         let voiceDetected = false;
+
+        let idleTimer;
+
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+
+            idleTimer = setTimeout(() => {
+                networkError = new Error('STREAM_IDLE_TIMEOUT');
+
+                try {
+                    activeChatAbortController?.abort();
+                } catch {}
+
+                try {
+                    reader.cancel('stream idle timeout');
+                } catch {}
+            }, STREAM_IDLE_TIMEOUT_MS);
+        }
+
+        resetIdleTimer();
 
         const networkTask = (async () => {
             try {
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
+
+                    // Any actual network data means the stream is alive.
+                    resetIdleTimer();
 
                     sseBuffer += decoder.decode(value, { stream: true });
                     const lines = sseBuffer.split('\n');
@@ -1708,8 +1733,12 @@
                     }
                 }
             } catch (err) {
-                networkError = err;   // NEW — capture instead of letting it float
+
+                if (!networkError) {
+                    networkError = err;
+                }   
             } finally {
+                clearTimeout(idleTimer);
                 networkDone = true;   // NEW — always flips, success or failure
             }
         })();
@@ -2023,6 +2052,8 @@
         setTyping(true);
 
         try {
+            activeChatAbortController = new AbortController();
+
             const res = await fetch(WORKER_URL, {
                 method: 'POST',
                 headers: {
@@ -2031,7 +2062,8 @@
                 body: JSON.stringify({
                     sessionId,
                     messages: history
-                })
+                }),
+                signal: activeChatAbortController.signal
             });
 
             if (res.status === 429) {
@@ -2177,7 +2209,7 @@
             setTyping(false);
 
             document
-                .querySelectorAll('.message.bot')
+                .querySelectorAll('.chat-msg-bot')
                 .forEach(bubble => {
                     const p = bubble.querySelector('p');
                     const text = p?.textContent?.trim() || '';
@@ -2187,13 +2219,23 @@
                     }
                 });
 
-            appendMessage(
-                'error',
-                "Oops, looks like I couldn't reach Pranav! My bad :( In the meantime, please check your internet connection and try again."
-            );
+            if (err?.message === 'STREAM_IDLE_TIMEOUT') {
+                appendMessage(
+                    'error',
+                    "Looks like Pranav is sleeping right now !  please try again in a bit or mail him at: hey@pranavkohli.me"
+                );
+            } else if (err?.name === 'AbortError') {
+                // Ignore intentional aborts.
+            } else {
+                appendMessage(
+                    'error',
+                    "Oops, looks like I couldn't reach Pranav! My bad :( In the meantime, please check your internet connection and try again or reach him at mail: hey@pranavkohli.me"
+                );
+            }
 
         } finally {
             isSending = false;
+            activeChatAbortController = null;
 
             // If the user is currently typing/focused in the input,
             // don't touch it or the keyboard.
