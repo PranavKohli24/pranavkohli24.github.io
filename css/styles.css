@@ -191,7 +191,7 @@ main {
 /* Social Links */
 .socials {
     display: flex;
-    gap: 3.5rem;
+    gap: 5rem;
     align-items: center;
 }
 
@@ -790,7 +790,7 @@ main {
     }
     
     .socials {
-        gap: 3rem;
+        gap: 2rem;
         margin-left: 2rem;
         margin-top: 1.5rem;
         justify-content: flex-start;
