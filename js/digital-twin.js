@@ -2227,6 +2227,10 @@
                         return cleaned ? `i said in a voice note: "${cleaned}"` : '';
                     })
                     .replace(/\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi, '')
+                    .replace(/\[REACTION\]([\s\S]*?)\[\/REACTION\]/gi, (match, emoji) => {
+                        const cleaned = emoji.trim();
+                        return cleaned ? `i reacted with ${cleaned}` : '';
+                    })
                     .trim()
             });
 
