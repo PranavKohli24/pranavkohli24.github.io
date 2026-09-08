@@ -578,6 +578,18 @@ main {
     font-variant-numeric: tabular-nums;
 }
 
+.audio-speed-btn {
+    border: none;
+    background: none;
+    color: var(--secondary-text-color);
+    font: inherit;
+    font-size: 0.75rem;
+    padding: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 .initial-listen-text {
     font-size: 0.95rem;
     font-weight: 500;

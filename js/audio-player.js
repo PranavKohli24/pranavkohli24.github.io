@@ -37,13 +37,14 @@
         const pauseIcon = document.getElementById(`pauseIcon-${blogId}`);
         const audioTime = document.getElementById(`audioTime-${blogId}`);
         const seekSlider = document.getElementById(`seekSlider-${blogId}`);
+        const speedBtn = document.getElementById(`audioSpeedBtn-${blogId}`);
         const playerContainer = document.getElementById(`audioPlayerContainer-${blogId}`);
         const initialTimeLabel = document.getElementById(`initialTimeLabel-${blogId}`);
 
         // Verify all elements exist
-        if (!audio || !playBtn || !playIcon || !pauseIcon || !audioTime || 
-            !seekSlider || !playerContainer || !initialTimeLabel) {
-            return;
+        if (!audio || !playBtn || !playIcon || !pauseIcon || !audioTime ||  
+            !seekSlider || !speedBtn || !playerContainer || !initialTimeLabel) { 
+            return; 
         }
 
         let isDragging = false;
@@ -127,6 +128,15 @@
         }
 
         // Attach Event Listeners
+        const playbackSpeeds = [1, 1.25, 1.5, 1.75, 2];
+        let speedIndex = 0;
+
+        function handleSpeedChange() {
+            speedIndex = (speedIndex + 1) % playbackSpeeds.length;
+            const speed = playbackSpeeds[speedIndex];
+            audio.playbackRate = speed;
+            speedBtn.textContent = `${speed}x`;
+        }
         audio.addEventListener('loadedmetadata', handleMetadataLoaded);
         audio.addEventListener('timeupdate', updateDisplay);
         audio.addEventListener('ended', handleAudioEnded);
@@ -135,6 +145,8 @@
         
         seekSlider.addEventListener('input', handleSliderInput);
         seekSlider.addEventListener('change', handleSliderChange);
+
+        speedBtn.addEventListener('click', handleSpeedChange);
 
         // Store reference for cross-player communication
         if (!window.audioPlayers) {

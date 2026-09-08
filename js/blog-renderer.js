@@ -110,6 +110,7 @@
                     </div>
                     <input type="range" id="seekSlider-${blogId}" class="seek-slider" value="0" step="1">
                 </div>
+                <button class="audio-speed-btn" id="audioSpeedBtn-${blogId}" type="button">1x</button>
                 <audio id="blogAudio-${blogId}" src="${audioFile}" preload="metadata"></audio>
             </div>
         `;
