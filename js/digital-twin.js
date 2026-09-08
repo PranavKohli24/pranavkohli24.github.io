@@ -2049,13 +2049,10 @@
 
         const item = pendingQueue.shift();
         const { text, userBubble, showQuote } = item;
-        // Only add to the API-context history right before it's actually
-        // used, so a still-queued later message never confuses the model
-        // about what it's replying to.
-        history.push({
-            role: 'user',
-            content: text
-        });
+
+        // NOTE: user's message is no longer pushed into `history` here.
+        // It only gets committed once we know a real response is coming back —
+        // see the push right after we confirm res.ok && res.body below.
 
         isSending = true;
         setTyping(true);
@@ -2070,7 +2067,8 @@
                 },
                 body: JSON.stringify({
                     sessionId,
-                    messages: history
+                    // Send history + this new turn WITHOUT mutating `history` yet.
+                    messages: [...history, { role: 'user', content: text }]
                 }),
                 signal: activeChatAbortController.signal
             });
@@ -2114,6 +2112,13 @@
                 return;
             }
 
+            // We now have a real, streamable response — safe to commit the
+            // user's turn into history.
+            history.push({
+                role: 'user',
+                content: text
+            });
+
             setTyping(false);
 
             const { fullText, lastBubble, cursor } =
@@ -2136,10 +2141,6 @@
             const voiceText = parseVoice(fullText);
 
             if (voiceText) {
-                // Look this up fresh from the DOM rather than relying on the
-                // `cursor` reference — that pointed at the original blinking
-                // cursor node, which was already replaced with this indicator
-                // at the end of streamMultiBubbleReply.
                 const speakingIndicator = lastBubble.querySelector('.voice-preparing');
 
                 try {
@@ -2241,13 +2242,14 @@
                     "Oops, looks like I couldn't reach Pranav! My bad :( In the meantime, please check your internet connection and try again or reach him at mail: hey@pranavkohli.me"
                 );
             }
+            // No history.push happened for this turn in any failure case,
+            // so there's nothing to clean up — the failed message never
+            // entered the conversation record.
 
         } finally {
             isSending = false;
             activeChatAbortController = null;
 
-            // If the user is currently typing/focused in the input,
-            // don't touch it or the keyboard.
             if (!rateLimited && document.activeElement !== chatInput) {
                 focusInputWithoutKeyboard();
             }
