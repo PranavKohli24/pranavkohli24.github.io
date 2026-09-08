@@ -19,6 +19,7 @@
     let chatMessages, chatInput, chatSendBtn, chatTyping, chatRemaining, chatScrollBottomBtn;
     let chatMicIcon, chatSendIcon;
     let chatRecording, chatVoiceControls, chatVoiceSendBtn, chatVoiceStopBtn;
+    let chatInputRow;
 
     let history = [];
     let sessionId = null;
@@ -717,7 +718,7 @@
         chatRecording.classList.toggle('active', recording);
         chatVoiceControls.classList.toggle('active', recording);
 
-        chatInput.parentElement.classList.toggle(
+        chatInputRow.classList.toggle(
             'voice-active',
             recording
         );
@@ -2296,6 +2297,8 @@
 
         chatVoiceStopBtn =
             document.getElementById('chatVoiceStopBtn');
+
+        chatInputRow = chatInput.closest('.chat-input-row');
 
         return true;
     }
