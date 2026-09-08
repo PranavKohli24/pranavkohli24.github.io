@@ -2176,6 +2176,17 @@
         } catch (err) {
             setTyping(false);
 
+            document
+                .querySelectorAll('.message.bot')
+                .forEach(bubble => {
+                    const p = bubble.querySelector('p');
+                    const text = p?.textContent?.trim() || '';
+
+                    if (!text) {
+                        bubble.remove();
+                    }
+                });
+
             appendMessage(
                 'error',
                 "Oops, looks like I couldn't reach Pranav! My bad :( In the meantime, please check your internet connection and try again."
