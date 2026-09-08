@@ -655,7 +655,7 @@
 
 
     .digital-twin-info-header {
-        min-height: 76px;
+        min-height: 68px;
 
         padding:
             0 5px
@@ -683,8 +683,8 @@
         width: 90px;
         height: 90px;
 
-        right: -3px;
-        bottom: -2px;
+        right: 6px;
+        bottom: 4px;
     }
 
 
