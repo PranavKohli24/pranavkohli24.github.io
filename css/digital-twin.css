@@ -454,7 +454,7 @@
 
 /* Reserve space for the floating Send + Stop controls */
 .chat-input-row.voice-active {
-    padding-right: 64px;
+    padding-right: 60px;
     box-sizing: border-box;
 }
 
