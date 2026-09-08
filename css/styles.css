@@ -790,7 +790,7 @@ main {
     }
     
     .socials {
-        gap: 2rem;
+        gap: 2.4rem;
         margin-left: 1rem;
         margin-top: 1.5rem;
         justify-content: flex-start;
