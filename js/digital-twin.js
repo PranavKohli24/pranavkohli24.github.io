@@ -1683,6 +1683,22 @@
         let reactionResponse = false;
         let voiceDetected = false;
 
+        // Memoization cache for getVisibleResponseText — fullText only ever
+        // grows during a stream, so "same length" reliably means "same content".
+        // Reset per call since these are local to this function invocation.
+        let visibleTextCacheLen = -1;
+        let visibleTextCacheValue = '';
+
+        function getVisibleResponseTextCached(text) {
+            if (visibleTextCacheLen === text.length) {
+                return visibleTextCacheValue;
+            }
+            const value = getVisibleResponseText(text);
+            visibleTextCacheLen = text.length;
+            visibleTextCacheValue = value;
+            return value;
+        }
+
         let idleTimer;
 
         function resetIdleTimer() {
@@ -1745,7 +1761,7 @@
 
                 if (!networkError) {
                     networkError = err;
-                }   
+                }
             } finally {
                 clearTimeout(idleTimer);
                 networkDone = true;   // NEW — always flips, success or failure
@@ -1782,7 +1798,7 @@
                 current.cursor = null;
             }
 
-            const visibleTarget = getVisibleResponseText(fullText);
+            const visibleTarget = getVisibleResponseTextCached(fullText);
             const remaining = visibleTarget.slice(consumedRaw);
 
             if (networkDone && revealedInSeg >= remaining.length) break;
@@ -1862,7 +1878,6 @@
             cursor: current.cursor
         };
     }
-
 
     /* =========================================================
        Sending: enqueue immediately, process one at a time
