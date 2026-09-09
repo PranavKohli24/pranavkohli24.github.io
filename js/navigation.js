@@ -26,6 +26,12 @@ function showSection() {
     }
     const sectionId =
         window.location.pathname.replace(/^\/|\/$/g, '') || 'about';
+    
+    // /blog/1 -> blog1 (keeps blog section ids unchanged internally)
+    const blogMatch = sectionId.match(/^blog\/(\d+)$/);
+    if (blogMatch) {
+        sectionId = `blog${blogMatch[1]}`;
+    }
 
     if (!document.getElementById(sectionId)) {
         history.replaceState({}, '', '/');
