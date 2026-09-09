@@ -24,7 +24,7 @@ function showSection() {
         const legacyId = window.location.hash.slice(1);
         history.replaceState({}, '', `/${legacyId}`);
     }
-    const sectionId =
+    let sectionId =
         window.location.pathname.replace(/^\/|\/$/g, '') || 'about';
     
     // /blog/1 -> blog1 (keeps blog section ids unchanged internally)
