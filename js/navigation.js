@@ -20,6 +20,10 @@ function updateDOM(sectionId) {
 }
 
 function showSection() {
+    if (window.location.hash) {
+        const legacyId = window.location.hash.slice(1);
+        history.replaceState({}, '', `/${legacyId}`);
+    }
     const sectionId =
         window.location.pathname.replace(/^\/|\/$/g, '') || 'about';
 
@@ -51,20 +55,21 @@ function showSection() {
     });
 }
 
-document.querySelectorAll('nav a[href^="/"]').forEach(link => {
-    link.addEventListener('click', event => {
-        const targetPath = link.getAttribute('href');
+document.addEventListener('click', event => {
+    const link = event.target.closest('a[href^="/"]');
+    if (!link || link.target === '_blank') return;
 
-        if (window.location.pathname === targetPath) {
-            event.preventDefault();
-            return;
-        }
+    const targetPath = link.getAttribute('href');
 
+    if (window.location.pathname === targetPath) {
         event.preventDefault();
+        return;
+    }
 
-        history.pushState({}, '', targetPath);
-        showSection();
-    });
+    event.preventDefault();
+
+    history.pushState({}, '', targetPath);
+    showSection();
 });
 
 window.addEventListener('popstate', showSection);

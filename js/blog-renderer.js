@@ -35,7 +35,7 @@
 
         blogPosts.slice().reverse().forEach(post => {
             const blogItem = `
-                <a href="#${post.id}" class="blog-post-link" onmouseenter="new Image().src='${post.image}'" ontouchstart="new Image().src='${post.image}'">
+                <a href="/${post.id}" class="blog-post-link" onmouseenter="new Image().src='${post.image}'" ontouchstart="new Image().src='${post.image}'">
                     <div class="blog-post-item">
                         <h3 class="blog-post-title">${post.title}</h3>
                         <p class="blog-post-date">${post.date}</p>
@@ -65,7 +65,7 @@
             const blogSection = `
                 <section id="${post.id}" class="section">
                     <div class="blog-post-page">
-                        <a href="#blog" class="back-link">← Back to all Blogs</a>
+                        <a href="/blog" class="back-link">← Back to all Blogs</a>
                         <h1>${post.title}<span style="color: var(--highlight-color);">.</span></h1>
                         <p class="post-meta">${post.date}</p>
 
