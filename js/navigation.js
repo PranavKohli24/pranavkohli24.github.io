@@ -19,6 +19,25 @@ function updateDOM(sectionId) {
     }
 }
 
+// Short-URL aliases: URL segment -> actual section element id.
+// Add more here anytime you want to shorten a URL without renaming its id.
+const SECTION_ALIASES = {
+    twin: 'digital-twin'
+};
+
+// Reverse map: actual section id -> canonical (preferred) short URL.
+const CANONICAL_PATHS = {
+    'digital-twin': 'twin'
+};
+
+function resolveSectionId(id) {
+    return SECTION_ALIASES[id] || id;
+}
+
+function canonicalPathFor(id) {
+    return CANONICAL_PATHS[id] || id;
+}
+
 function showSection() {
     const isRootPath =
         window.location.pathname === '/' || window.location.pathname === '';
@@ -39,12 +58,15 @@ function showSection() {
         sectionId = `blog${blogMatch[1]}`;
     }
 
+    // Resolve short-URL aliases (e.g. /twin -> digital-twin)
+    sectionId = resolveSectionId(sectionId);
+
     if (!document.getElementById(sectionId)) {
         // Full path didn't resolve - check if the first segment is a valid section
-        const firstSegment = rawPath.split('/')[0];
-        
+        const firstSegment = resolveSectionId(rawPath.split('/')[0]);
+
         if (firstSegment && firstSegment !== sectionId && document.getElementById(firstSegment)) {
-            history.replaceState({}, '', `/${firstSegment}`);
+            history.replaceState({}, '', `/${canonicalPathFor(firstSegment)}`);
             updateDOM(firstSegment);
             return;
         }
@@ -57,7 +79,7 @@ function showSection() {
     document.querySelectorAll('nav a[href^="/"]').forEach(link => {
         link.classList.toggle(
             'active',
-            link.getAttribute('href') === `/${sectionId}`
+            link.getAttribute('href') === `/${canonicalPathFor(sectionId)}`
         );
     });
 
