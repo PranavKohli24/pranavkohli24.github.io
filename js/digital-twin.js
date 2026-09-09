@@ -2203,8 +2203,28 @@
             const hasCalendarCommand = /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/i.test(fullText);
 
             if (reaction) {
-                lastBubble.remove();
+                // Always stick the reaction onto the user's own message.
                 addReactionToBubble(userBubble, reaction);
+
+                // If there's real content beyond the reaction (text, a
+                // photo, a calendar invite, or a voice note), keep the bot
+                // bubble too — reaction + reply together, like a person
+                // reacting AND texting back. Only drop the bubble if the
+                // reaction really was the entire response.
+                const hasOtherContent =
+                    visibleText.trim() ||
+                    hasPhotoCommand ||
+                    hasCalendarCommand ||
+                    voiceText;
+
+                if (hasOtherContent) {
+                    if (!voiceText) {
+                        addLinkPreviews(lastBubble, fullText);
+                        addPhotoPreview(lastBubble, fullText);
+                    }
+                } else {
+                    lastBubble.remove();
+                }
             } else if (
                 !visibleText.trim() &&
                 !hasPhotoCommand &&
