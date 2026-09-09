@@ -34,6 +34,15 @@ function showSection() {
     }
 
     if (!document.getElementById(sectionId)) {
+        // Full path didn't resolve - check if the first segment is a valid section
+        const firstSegment = sectionId.split('/')[0];
+
+        if (firstSegment && firstSegment !== sectionId && document.getElementById(firstSegment)) {
+            history.replaceState({}, '', `/${firstSegment}`);
+            updateDOM(firstSegment);
+            return;
+        }
+
         history.replaceState({}, '', '/');
         updateDOM('about');
         return;
