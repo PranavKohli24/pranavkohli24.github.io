@@ -2248,8 +2248,8 @@
                         return photo ? `i shared a photo of: ${photo.title}` : '';
                     })
                     .replace(/\[voice\]([\s\S]*?)\[\/voice\]/gi, (match, spoken) => {
-                        const cleaned = spoken.replace(/\s+/g, ' ').trim();
-                        return cleaned ? `i said in a voice note: "${cleaned}"` : '';
+                        return spoken.replace(/\s+/g, ' ').trim();
+                        // return cleaned ? `i said in a voice note: "${cleaned}"` : '';
                     })
                     .replace(/\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/gi, '')
                     .replace(/\[REACTION\]([\s\S]*?)\[\/REACTION\]/gi, (match, emoji) => {
