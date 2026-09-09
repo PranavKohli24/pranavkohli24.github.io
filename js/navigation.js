@@ -20,23 +20,29 @@ function updateDOM(sectionId) {
 }
 
 function showSection() {
-    if (window.location.hash) {
+    const isRootPath =
+        window.location.pathname === '/' || window.location.pathname === '';
+
+    if (window.location.hash && isRootPath) {
         const legacyId = window.location.hash.slice(1);
         history.replaceState({}, '', `/${legacyId}`);
     }
-    let sectionId =
+
+    const rawPath =
         window.location.pathname.replace(/^\/|\/$/g, '') || 'about';
-    
+
+    let sectionId = rawPath;
+
     // /blog/1 -> blog1 (keeps blog section ids unchanged internally)
-    const blogMatch = sectionId.match(/^blog\/(\d+)$/);
+    const blogMatch = rawPath.match(/^blog\/(\d+)$/);
     if (blogMatch) {
         sectionId = `blog${blogMatch[1]}`;
     }
 
     if (!document.getElementById(sectionId)) {
         // Full path didn't resolve - check if the first segment is a valid section
-        const firstSegment = sectionId.split('/')[0];
-
+        const firstSegment = rawPath.split('/')[0];
+        
         if (firstSegment && firstSegment !== sectionId && document.getElementById(firstSegment)) {
             history.replaceState({}, '', `/${firstSegment}`);
             updateDOM(firstSegment);

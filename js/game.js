@@ -39,7 +39,7 @@
         profileImgLoaded = true;
     };
 
-    profileImg.src = 'Pranav.png';
+    profileImg.src = '/Pranav.png';
 
     let canvas, ctx;
 
