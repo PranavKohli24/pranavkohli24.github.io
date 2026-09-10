@@ -1539,11 +1539,11 @@
                 domain: 'codeforces.com'
             },
             {
-                match: 'https://sipwithpranav.app/',
+                match: 'https://sipbypranav.vercel.app/',
                 title: 'Sip with Pranav',
                 description: 'Tap to view my mocktail shop app',
                 image: '/src/images/velvetpour.png',
-                domain: 'sipwithpranav.app'
+                domain: ''
             },
             {
                 match: 'https://rasoi-bazaar.vercel.app/',
