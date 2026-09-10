@@ -305,3 +305,43 @@ body:has(#game.section.active) #liquid-glow {
         transform: scale(1);
     }
 }
+
+
+.pause-icon {
+    width: 8px;
+    height: 10px;
+    position: relative;
+    display: block;
+}
+
+.pause-icon::before,
+.pause-icon::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 2px;
+    height: 10px;
+    border-radius: 1px;
+    background: currentColor;
+}
+
+.pause-icon::before {
+    left: 0;
+}
+
+.pause-icon::after {
+    right: 0;
+}
+
+.pause-btn.is-resume .pause-icon {
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 7px solid currentColor;
+}
+
+.pause-btn.is-resume .pause-icon::before,
+.pause-btn.is-resume .pause-icon::after {
+    display: none;
+}

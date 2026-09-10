@@ -254,7 +254,7 @@
         canvasWrap.classList.add('is-paused');
         pauseOverlay.classList.add('active');
 
-        pauseBtn.textContent = '▶';
+        pauseBtn.classList.add('is-resume');
 
         pauseBtn.setAttribute(
             'aria-label',
@@ -282,7 +282,7 @@
         canvasWrap.classList.remove('is-paused');
         pauseOverlay.classList.remove('active');
 
-        pauseBtn.textContent = '⏸';
+        pauseBtn.classList.remove('is-resume');
 
         pauseBtn.setAttribute(
             'aria-label',
@@ -523,7 +523,7 @@
         // Show pause button only after game starts.
         gameHud.classList.add('game-started');
 
-        pauseBtn.textContent = '⏸';
+        pauseBtn.classList.remove('is-resume');
 
         pauseBtn.setAttribute(
             'aria-label',
@@ -551,7 +551,7 @@
         // Show pause button again.
         gameHud.classList.add('game-started');
 
-        pauseBtn.textContent = '⏸';
+        pauseBtn.classList.remove('is-resume');
 
         pauseBtn.setAttribute(
             'aria-label',
