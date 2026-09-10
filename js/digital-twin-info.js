@@ -85,6 +85,14 @@
             document.getElementById(
                 'digitalTwinInfoAvatar'
             );
+
+        if (avatarVideo) {
+            avatarVideo.addEventListener('pointerdown', (event) => {
+                event.stopPropagation();
+                avatarVideo.currentTime = 0;
+                avatarVideo.play().catch(() => {});
+            });
+        }
             
 
         if (
