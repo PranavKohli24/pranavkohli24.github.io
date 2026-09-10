@@ -20,6 +20,8 @@ const toggleMenu = () => {
     if (isActive) {
         history.pushState({ menuOpen: true }, '');
         menuHistoryActive = true;
+    } else {
+        menuHistoryActive = false;
     }
 };
 
