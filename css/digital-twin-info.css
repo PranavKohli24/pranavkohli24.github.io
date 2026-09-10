@@ -633,7 +633,7 @@
         opacity: 1;
 
         transition:
-            transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+            transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .digital-twin-info-overlay.active

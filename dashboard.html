@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Twin — Conversation Log</title>
+<style>
+    :root {
+        --bg: #0d0f12;
+        --panel: #15181d;
+        --panel-hover: #1b1f26;
+        --border: #262b33;
+        --text: #e7e9ec;
+        --text-dim: #8b929e;
+        --text-faint: #565d68;
+        --accent: #6334d8;
+        --accent-soft: rgba(99, 52, 216, 0.14);
+        --user-bubble: #2a2440;
+        --bot-bubble: #1b1f26;
+        --mono: 'SF Mono', 'Consolas', 'Menlo', monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .layout {
+        display: flex;
+        height: 100vh;
+    }
+
+    /* ---- Sidebar: session list ---- */
+
+    .sidebar {
+        width: 340px;
+        flex-shrink: 0;
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        background: var(--panel);
+    }
+
+    .sidebar-header {
+        padding: 1.1rem 1.1rem 0.9rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-header h1 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin: 0 0 0.15rem;
+        letter-spacing: -0.01em;
+    }
+
+    .sidebar-header p {
+        font-size: 0.76rem;
+        color: var(--text-faint);
+        margin: 0;
+    }
+
+    .auth-row {
+        padding: 0.85rem 1.1rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .auth-row input {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        padding: 0.5rem 0.65rem;
+        font-size: 0.8rem;
+        font-family: var(--mono);
+        outline: none;
+    }
+
+    .auth-row input:focus {
+        border-color: var(--accent);
+    }
+
+    .auth-row button {
+        background: var(--accent);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        padding: 0.5rem 0.65rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .auth-row button:hover {
+        opacity: 0.9;
+    }
+
+    .session-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.5rem;
+    }
+
+    .session-item {
+        padding: 0.7rem 0.8rem;
+        border-radius: 10px;
+        cursor: pointer;
+        margin-bottom: 0.2rem;
+        border: 1px solid transparent;
+    }
+
+    .session-item:hover {
+        background: var(--panel-hover);
+    }
+
+    .session-item.active {
+        background: var(--accent-soft);
+        border-color: rgba(99, 52, 216, 0.35);
+    }
+
+    .session-item .sid {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        color: var(--text-dim);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .session-item .meta {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.35rem;
+        font-size: 0.72rem;
+        color: var(--text-faint);
+    }
+
+    .session-item .count-badge {
+        background: rgba(255,255,255,0.06);
+        padding: 0.1rem 0.45rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .empty-state, .status-msg {
+        color: var(--text-faint);
+        font-size: 0.8rem;
+        padding: 1.5rem 1.1rem;
+        line-height: 1.5;
+    }
+
+    /* ---- Main: transcript ---- */
+
+    .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .main-header {
+        padding: 1.1rem 1.6rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+    }
+
+    .main-header .title {
+        font-family: var(--mono);
+        font-size: 0.82rem;
+        color: var(--text-dim);
+    }
+
+    .main-header .refresh-btn {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-dim);
+        border-radius: 7px;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
+        cursor: pointer;
+    }
+
+    .main-header .refresh-btn:hover {
+        border-color: var(--accent);
+        color: var(--text);
+    }
+
+    .transcript {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.6rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.1rem;
+    }
+
+    .turn {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        max-width: 640px;
+    }
+
+    .turn.user-turn {
+        align-self: flex-end;
+        align-items: flex-end;
+    }
+
+    .turn.bot-turn {
+        align-self: flex-start;
+        align-items: flex-start;
+    }
+
+    .bubble {
+        padding: 0.65rem 0.95rem;
+        border-radius: 14px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .user-turn .bubble {
+        background: var(--user-bubble);
+        border-bottom-right-radius: 4px;
+    }
+
+    .bot-turn .bubble {
+        background: var(--bot-bubble);
+        border: 1px solid var(--border);
+        border-bottom-left-radius: 4px;
+    }
+
+    .turn-meta {
+        font-size: 0.68rem;
+        color: var(--text-faint);
+        font-family: var(--mono);
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .source-tag {
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        padding: 0.05rem 0.4rem;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.06);
+        font-size: 0.62rem;
+    }
+
+    .source-tag.model { color: #8fb5ff; }
+    .source-tag.suggestion { color: #f5c563; }
+    .source-tag.resume { color: #7fd99a; }
+    .source-tag.availability { color: #f593c9; }
+    .source-tag.meeting { color: #d99a7f; }
+
+    .placeholder {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-faint);
+        font-size: 0.85rem;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>Conversation Log</h1>
+            <p>Pranav's Digital Twin</p>
+        </div>
+
+        <div class="auth-row">
+            <input id="workerUrl" type="text" placeholder="Worker URL (e.g. https://pranav-digital-twin.workers.dev)">
+            <input id="secret" type="password" placeholder="x-ingest-secret">
+            <button id="loadBtn">Load sessions</button>
+        </div>
+
+        <div class="session-list" id="sessionList">
+            <div class="empty-state">Enter your Worker URL and secret, then click "Load sessions".</div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="main-header">
+            <div class="title" id="mainTitle">No session selected</div>
+            <button class="refresh-btn" id="refreshBtn" style="display:none;">Refresh</button>
+        </div>
+        <div class="transcript" id="transcript">
+            <div class="placeholder">Pick a session on the left to see the full conversation.</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentSessionId = null;
+
+    function getConfig() {
+        return {
+            url: document.getElementById('workerUrl').value.trim().replace(/\/$/, ''),
+            secret: document.getElementById('secret').value.trim()
+        };
+    }
+
+    function formatTime(iso) {
+        const d = new Date(iso);
+        return d.toLocaleString(undefined, {
+            month: 'short', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+    }
+
+    async function loadSessions() {
+        const { url, secret } = getConfig();
+        const listEl = document.getElementById('sessionList');
+
+        if (!url || !secret) {
+            listEl.innerHTML = '<div class="empty-state">Enter both the Worker URL and the secret first.</div>';
+            return;
+        }
+
+        listEl.innerHTML = '<div class="status-msg">Loading sessions…</div>';
+
+        try {
+            const res = await fetch(`${url}/logs`, {
+                headers: { 'x-ingest-secret': secret }
+            });
+
+            if (!res.ok) {
+                listEl.innerHTML = `<div class="status-msg">Request failed (${res.status}). Check the URL and secret.</div>`;
+                return;
+            }
+
+            const sessions = await res.json();
+
+            if (!sessions.length) {
+                listEl.innerHTML = '<div class="empty-state">No conversations logged yet.</div>';
+                return;
+            }
+
+            listEl.innerHTML = '';
+
+            sessions.forEach(s => {
+                const item = document.createElement('div');
+                item.className = 'session-item';
+                item.dataset.sessionId = s.session_id;
+
+                item.innerHTML = `
+                    <div class="sid">${s.session_id}</div>
+                    <div class="meta">
+                        <span>${formatTime(s.last_message)}</span>
+                        <span class="count-badge">${s.message_count}</span>
+                    </div>
+                `;
+
+                item.addEventListener('click', () => selectSession(s.session_id));
+                listEl.appendChild(item);
+            });
+
+        } catch (err) {
+            listEl.innerHTML = `<div class="status-msg">Couldn't reach the Worker. ${err.message}</div>`;
+        }
+    }
+
+    async function selectSession(sessionId) {
+        currentSessionId = sessionId;
+
+        document.querySelectorAll('.session-item').forEach(el => {
+            el.classList.toggle('active', el.dataset.sessionId === sessionId);
+        });
+
+        document.getElementById('mainTitle').textContent = sessionId;
+        document.getElementById('refreshBtn').style.display = 'inline-block';
+
+        await loadTranscript(sessionId);
+    }
+
+    async function loadTranscript(sessionId) {
+        const { url, secret } = getConfig();
+        const transcriptEl = document.getElementById('transcript');
+
+        transcriptEl.innerHTML = '<div class="placeholder">Loading conversation…</div>';
+
+        try {
+            const res = await fetch(`${url}/logs?session=${encodeURIComponent(sessionId)}`, {
+                headers: { 'x-ingest-secret': secret }
+            });
+
+            if (!res.ok) {
+                transcriptEl.innerHTML = `<div class="placeholder">Request failed (${res.status}).</div>`;
+                return;
+            }
+
+            const turns = await res.json();
+
+            if (!turns.length) {
+                transcriptEl.innerHTML = '<div class="placeholder">No messages found for this session.</div>';
+                return;
+            }
+
+            transcriptEl.innerHTML = '';
+
+            turns.forEach(turn => {
+                const userBlock = document.createElement('div');
+                userBlock.className = 'turn user-turn';
+                userBlock.innerHTML = `
+                    <div class="bubble">${escapeHtml(turn.user_message)}</div>
+                    <div class="turn-meta">${formatTime(turn.timestamp)}</div>
+                `;
+                transcriptEl.appendChild(userBlock);
+
+                const botBlock = document.createElement('div');
+                botBlock.className = 'turn bot-turn';
+                botBlock.innerHTML = `
+                    <div class="bubble">${escapeHtml(turn.ai_message)}</div>
+                    <div class="turn-meta">
+                        <span class="source-tag ${turn.source}">${turn.source}</span>
+                    </div>
+                `;
+                transcriptEl.appendChild(botBlock);
+            });
+
+            transcriptEl.scrollTop = transcriptEl.scrollHeight;
+
+        } catch (err) {
+            transcriptEl.innerHTML = `<div class="placeholder">Couldn't load transcript. ${err.message}</div>`;
+        }
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str || '';
+        return div.innerHTML;
+    }
+
+    document.getElementById('loadBtn').addEventListener('click', loadSessions);
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+        if (currentSessionId) loadTranscript(currentSessionId);
+    });
+
+    // Allow Enter key in the secret field to trigger load
+    document.getElementById('secret').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') loadSessions();
+    });
+</script>
+
+</body>
+</html>
