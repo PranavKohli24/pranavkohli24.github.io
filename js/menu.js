@@ -41,7 +41,16 @@ window.addEventListener('popstate', () => {
 hamburgerButton.addEventListener('click', toggleMenu);
 
 // Overlay click to close
-overlay.addEventListener('click', toggleMenu);
+overlay.addEventListener('click', () => {
+    if (!navMenu.classList.contains('is-active')) return;
+
+    hamburgerButton.classList.remove('is-active');
+    navMenu.classList.remove('is-active');
+    body.classList.remove('no-scroll');
+    overlay.classList.remove('is-active');
+    hamburgerButton.setAttribute('aria-expanded', 'false');
+    menuHistoryActive = false;
+});
 
 // Close menu when nav links are clicked
 const allNavLinks = document.querySelectorAll('nav a');
