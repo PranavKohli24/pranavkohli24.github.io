@@ -127,6 +127,16 @@ body:has(#game.section.active) #liquid-glow {
     margin-top: 1.2rem;
 }
 
+.game-hint::after {
+    content: "Arrow keys / WASD to move";
+}
+
+@media (max-width: 768px) {
+    .game-hint::after {
+        content: "Swipe on the grid or tap the arrows to move";
+    }
+}
+
 /* D-pad controls */
 .game-dpad {
     display: none;
