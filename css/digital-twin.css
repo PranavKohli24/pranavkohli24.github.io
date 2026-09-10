@@ -99,6 +99,8 @@
     white-space: nowrap;
     cursor: pointer;
 
+    -webkit-tap-highlight-color: transparent;
+
     box-shadow:
         0 5px 18px rgba(31, 38, 135, 0.08),
         inset 0 0 0 1px rgba(255, 255, 255, 0.5);
