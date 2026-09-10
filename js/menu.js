@@ -9,11 +9,8 @@ const body = document.body;
 const overlay = document.querySelector('.overlay');
 
 let menuHistoryActive = false;
-let menuTransitioning = false;
 
 const toggleMenu = () => {
-    if (menuTransitioning) return;
-
     const isActive = hamburgerButton.classList.toggle('is-active');
     navMenu.classList.toggle('is-active');
     body.classList.toggle('no-scroll');
@@ -23,13 +20,7 @@ const toggleMenu = () => {
     if (isActive) {
         history.pushState({ menuOpen: true }, '');
         menuHistoryActive = true;
-    } else {
-        menuTransitioning = true;
-
-        setTimeout(() => {
-            menuTransitioning = false;
-        }, 800);
-}
+    }
 };
 
 window.addEventListener('popstate', () => {
