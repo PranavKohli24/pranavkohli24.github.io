@@ -388,6 +388,7 @@
     pointer-events: auto;
 
     user-select: none;
+    cursor: pointer;
 }
 
 /* =========================================================
