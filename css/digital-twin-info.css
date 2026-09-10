@@ -188,23 +188,29 @@
         0 18px 55px rgba(30, 20, 80, 0.22);
 
     /*
-     * JS sets top/right based on the ⓘ button.
+     * JS sets the exact ⓘ button position.
+     * The sheet reveals outward from that point.
      */
-    transform-origin: top right;
+    clip-path:
+    circle(
+        0px
+        at
+        var(--info-origin-x)
+        var(--info-origin-y)
+    );
 
-    transform: scale(0);
+    transform: scale(0.975);
     opacity: 0;
 
     transition:
-        transform 0.75s cubic-bezier(0.18, 0.89, 0.32, 1.08),
-        opacity 0.45s ease-out;
+        clip-path 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.25s ease;
 
-    will-change: transform, opacity;
+    will-change: clip-path, opacity;
 }
 
 .digital-twin-info-overlay.active
 .digital-twin-info-sheet {
-    transform: scale(1);
     opacity: 1;
 }
 
@@ -627,18 +633,15 @@
 
         border-radius: 27px 27px 0 0;
 
-        transform-origin: bottom center;
-
-        transform: translateY(100%);
-        opacity: 1;
+        opacity: 0;
 
         transition:
-            transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+            clip-path 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 0.25s ease;
     }
 
     .digital-twin-info-overlay.active
     .digital-twin-info-sheet {
-        transform: translateY(0);
         opacity: 1;
     }
 

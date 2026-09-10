@@ -113,178 +113,225 @@
            ================================================= */
         function open() {
 
-            /*
-            * Get the position of the ⓘ button.
-            */
-            const buttonRect =
-                infoButton.getBoundingClientRect();
+    /*
+     * Get the position of the ⓘ button.
+     */
+    const buttonRect =
+        infoButton.getBoundingClientRect();
 
 
-            /*
-            * Desktop:
-            * Keep the sheet positioned below the
-            * ⓘ button and aligned to its right edge.
-            */
-            if (window.innerWidth > 768) {
+    /*
+     * Desktop:
+     * Keep the sheet positioned below the
+     * ⓘ button and aligned to its right edge.
+     */
+    if (window.innerWidth > 768) {
 
-                const gap = 10;
+        const gap = 10;
 
-                sheet.style.top =
-                    `${buttonRect.bottom + gap}px`;
+        sheet.style.top =
+            `${buttonRect.bottom + gap}px`;
 
-                sheet.style.right =
-                    `${Math.max(
-                        16,
-                        window.innerWidth - buttonRect.right
-                    )}px`;
-
-            }
-
-
-            /*
-            * Mobile:
-            * The sheet is already positioned at the bottom
-            * by CSS.
-            *
-            * We temporarily make it visible so we can
-            * calculate where the ⓘ button sits relative
-            * to the sheet.
-            */
-            if (window.innerWidth <= 768) {
-
-                /*
-                * Temporarily make the sheet measurable.
-                * It remains visually hidden because
-                * scale is almost zero.
-                */
-                sheet.style.display =
-                    'block';
-
-                sheet.style.opacity =
-                    '0';
-
-                sheet.style.transform =
-                    'scale(0.01)';
+        sheet.style.right =
+            `${Math.max(
+                16,
+                window.innerWidth - buttonRect.right
+            )}px`;
+    }
 
 
-                const sheetRect =
-                    sheet.getBoundingClientRect();
+    /*
+     * Mobile:
+     * Temporarily make the sheet measurable.
+     */
+    /*
+ * Make the overlay render first so the sheet
+ * has real dimensions when measured.
+ *
+ * It is still visually invisible because
+ * opacity is kept at 0.
+ */
+overlay.classList.add('active');
+
+overlay.style.transition =
+    'none';
+
+overlay.style.opacity =
+    '0';
 
 
-                /*
-                * Calculate the ⓘ button's center relative
-                * to the sheet.
-                */
-                const originX =
-                    buttonRect.left +
-                    (buttonRect.width / 2) -
-                    sheetRect.left;
-
-                const originY =
-                    buttonRect.top +
-                    (buttonRect.height / 2) -
-                    sheetRect.top;
+/*
+ * Get the sheet's real position and dimensions.
+ */
+const sheetRect =
+    sheet.getBoundingClientRect();
 
 
-                /*
-                * Make the sheet grow from the ⓘ button.
-                */
-                sheet.style.transformOrigin =
-                    `${originX}px ${originY}px`;
-            }
+    /*
+     * Calculate the center of the ⓘ button
+     * relative to the sheet.
+     */
+    const originX =
+        buttonRect.left +
+        (buttonRect.width / 2) -
+        sheetRect.left;
+
+    const originY =
+        buttonRect.top +
+        (buttonRect.height / 2) -
+        sheetRect.top;
 
 
-            /*
-            * Prepare the opening animation.
-            */
+    /*
+     * Calculate a radius large enough to
+     * completely cover the sheet.
+     */
+    const radius =
+    Math.hypot(
+        Math.max(
+            Math.abs(originX),
+            Math.abs(sheetRect.width - originX)
+        ),
+        Math.max(
+            Math.abs(originY),
+            Math.abs(sheetRect.height - originY)
+        )
+    ) * 1.08;
+
+
+    /*
+     * Store the reveal origin and radius.
+     */
+    sheet.style.setProperty(
+        '--info-origin-x',
+        `${originX}px`
+    );
+
+    sheet.style.setProperty(
+        '--info-origin-y',
+        `${originY}px`
+    );
+
+    sheet.style.setProperty(
+        '--info-reveal-radius',
+        `${radius}px`
+    );
+
+
+    /*
+     * Start as a tiny circle centered
+     * exactly on the ⓘ button.
+     */
+    sheet.style.clipPath =
+        'circle(0px at ' +
+        'var(--info-origin-x) ' +
+        'var(--info-origin-y)' +
+        ')';
+
+    sheet.style.transform =
+        'scale(0.975)';
+
+    sheet.style.opacity =
+        '0';
+
+    sheet.style.transition =
+        'none';
+
+    overlay.style.transition =
+        'opacity 0.4s ease';
+
+    overlay.style.opacity =
+        '0';
+
+
+    /*
+     * Make the overlay visible.
+     */
+    infoButton.setAttribute(
+    'aria-expanded',
+    'true'
+);
+
+    overlay.setAttribute(
+        'aria-hidden',
+        'false'
+    );
+
+
+    /*
+     * Restart the avatar video.
+     */
+    if (avatarVideo) {
+
+        avatarVideo.currentTime = 0;
+
+        const playPromise =
+            avatarVideo.play();
+
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {
+                // Browser blocked playback.
+            });
+        }
+    }
+
+
+    /*
+     * Let the browser paint the starting
+     * state before beginning the animation.
+     */
+    requestAnimationFrame(() => {
+
+        requestAnimationFrame(() => {
+
             sheet.style.transition =
-                'none';
+                'clip-path 1s cubic-bezier(0.22, 1, 0.36, 1), ' +
+                'transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), ' +
+                'opacity 0.3s ease';
 
-            sheet.style.transform =
-                'scale(0.01)';
+            sheet.style.clipPath =
+    'circle(' +
+    'var(--info-reveal-radius)' +
+    ' at ' +
+    'var(--info-origin-x) ' +
+    'var(--info-origin-y)' +
+    ')';
 
-            overlay.style.transition =
-                'opacity 0.45s ease';
+sheet.style.transform =
+    'scale(1)';
+
+
+
+
+            sheet.style.opacity =
+                '1';
 
             overlay.style.opacity =
-                '0';
+                '1';
+
+        });
+
+    });
 
 
-            /*
-            * Make the overlay visible.
-            */
-            overlay.classList.add(
-                'active'
-            );
+    /*
+     * Add temporary browser history state.
+     *
+     * Back will close the info sheet first.
+     */
+    if (!infoHistoryActive) {
 
-            infoButton.setAttribute(
-                'aria-expanded',
-                'true'
-            );
+        history.pushState(
+            {
+                ...(history.state || {}),
+                digitalTwinInfo: true
+            },
+            ''
+        );
 
-            overlay.setAttribute(
-                'aria-hidden',
-                'false'
-            );
-
-            if (avatarVideo) {
-
-                avatarVideo.currentTime = 0;
-
-                const playPromise =
-                    avatarVideo.play();
-
-                if (playPromise !== undefined) {
-                    playPromise.catch(() => {
-                        // Browser blocked playback.
-                    });
-                }
-            }
-
-
-            /*
-            * Let the browser render the starting
-            * position before beginning the animation.
-            */
-            requestAnimationFrame(() => {
-
-                requestAnimationFrame(() => {
-
-                    sheet.style.transition =
-                        'transform 0.65s cubic-bezier(0.22, 1, 0.36, 1)';
-
-                    sheet.style.transform =
-                        'scale(1)';
-
-                    sheet.style.opacity =
-                        '1';
-
-                    overlay.style.opacity =
-                        '1';
-
-                });
-
-            });
-
-
-            /*
-            * Add temporary browser history state.
-            *
-            * Back will close the info sheet first.
-            */
-            if (!infoHistoryActive) {
-
-                history.pushState(
-                    {
-                        ...(history.state || {}),
-                        digitalTwinInfo: true
-                    },
-                    ''
-                );
-
-                infoHistoryActive = true;
-            }
-        }
+        infoHistoryActive = true;
+    }
+}
 
         /* =================================================
            CLOSE UI
@@ -292,24 +339,29 @@
 
         function closeUI() {
 
-            dragging = false;
-            didDrag = false;
-            startY = 0;
-            currentY = 0;
+    dragging = false;
+    didDrag = false;
+    startY = 0;
+    currentY = 0;
 
-            sheet.style.transform = '';
-            sheet.style.top = '';
-            sheet.style.right = '';
-            sheet.style.transition = '';
+    sheet.style.transform = '';
+    sheet.style.clipPath = '';
+    sheet.style.top = '';
+    sheet.style.right = '';
+    sheet.style.transition = '';
 
-            overlay.style.opacity = '';
-            overlay.style.transition = '';
+    sheet.style.removeProperty('--info-origin-x');
+    sheet.style.removeProperty('--info-origin-y');
+    sheet.style.removeProperty('--info-reveal-radius');
 
-            overlay.classList.remove('active');
+    overlay.style.opacity = '';
+    overlay.style.transition = '';
 
-            infoButton.setAttribute('aria-expanded', 'false');
-            overlay.setAttribute('aria-hidden', 'true');
-        }
+    overlay.classList.remove('active');
+
+    infoButton.setAttribute('aria-expanded', 'false');
+    overlay.setAttribute('aria-hidden', 'true');
+}
 
 
         /* =================================================
