@@ -284,6 +284,8 @@ main {
     
     /* Ensure this is set to prevent blurriness */
     will-change: transform, background;
+
+    -webkit-tap-highlight-color: transparent;
 }
 
 .contact-item:hover {
