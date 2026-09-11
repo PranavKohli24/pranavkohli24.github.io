@@ -86,11 +86,39 @@
                 'digitalTwinInfoAvatar'
             );
 
+        let replayAvatar = () => {};
+
         if (avatarVideo) {
+
+            let lastAvatarTrigger = 0;
+
+            replayAvatar = () => {
+
+                const now = performance.now();
+
+                if (now - lastAvatarTrigger < 250) {
+                    return;
+                }
+
+                lastAvatarTrigger = now;
+
+                avatarVideo.pause();
+                avatarVideo.currentTime = 0;
+
+                const playPromise = avatarVideo.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {});
+                }
+            };
+
             avatarVideo.addEventListener('pointerdown', (event) => {
                 event.stopPropagation();
-                avatarVideo.currentTime = 0;
-                avatarVideo.play().catch(() => {});
+            });
+
+            avatarVideo.addEventListener('click', (event) => {
+                event.stopPropagation();
+                replayAvatar();
             });
         }
             
@@ -269,21 +297,10 @@ const sheetRect =
     /*
      * Restart the avatar video.
      */
-    if (avatarVideo) {
-
-        avatarVideo.currentTime = 0;
-
-        const playPromise =
-            avatarVideo.play();
-
-        if (playPromise !== undefined) {
-            playPromise.catch(() => {
-                // Browser blocked playback.
-            });
-        }
-    }
-
-
+        /*
+     * Restart the avatar video.
+     */
+    replayAvatar();
     /*
      * Let the browser paint the starting
      * state before beginning the animation.

@@ -386,6 +386,8 @@
     mix-blend-mode: multiply;
 
     pointer-events: auto;
+    touch-action: manipulation;
+    z-index: 3;
 
     user-select: none;
     cursor: pointer;
