@@ -1227,6 +1227,24 @@
     let recentlyUsedSuggestions = [];
     const MAX_RECENT_SUGGESTIONS = 3;
 
+    // Total messages allowed per session (mirrors the backend's
+    // MAX_MESSAGES_PER_SESSION) and the point after which pills stop
+    // showing — by then the visitor already knows what the twin can do.
+    const MAX_MESSAGES_PER_SESSION = 20;
+    const SUGGESTIONS_HIDE_AFTER_MESSAGES = 10;
+    let suggestionsRotationInterval = null;
+
+    function hideSuggestionPills() {
+        const wrap = document.querySelector('.chat-suggestions-wrap');
+        if (wrap) wrap.style.display = 'none';
+
+        if (suggestionsRotationInterval !== null) {
+            clearInterval(suggestionsRotationInterval);
+            suggestionsRotationInterval = null;
+        }
+    }
+
+
     function updateSuggestionScrollHint() {
         const container = document.getElementById('chatSuggestions');
         if (!container) return;
@@ -2165,6 +2183,12 @@
                     n > 0
                         ? `${n} messages left in this conversation`
                         : "That's the last message for this conversation.";
+
+                const messagesUsed = MAX_MESSAGES_PER_SESSION - n;
+
+                if (messagesUsed >= SUGGESTIONS_HIDE_AFTER_MESSAGES) {
+                    hideSuggestionPills();
+                }
             }
 
             const reaction = parseReaction(fullText);
@@ -2493,7 +2517,7 @@
             }
         }
 
-        setInterval(() => {
+        suggestionsRotationInterval = setInterval(() => {
             const suggestions = document.getElementById('chatSuggestions');
 
             suggestions.classList.add('changing');
@@ -2505,6 +2529,7 @@
         }, 15000);
 
         initialized = true;
+
     }
 
 
