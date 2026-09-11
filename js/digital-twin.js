@@ -567,6 +567,22 @@
                 setRecordingUI(false);
                 updateActionButton();
             }
+
+            // Pause any currently-playing voice note when the section
+            // becomes inactive, so it doesn't keep talking in the background.
+            if (
+                activeVoiceNote &&
+                !isDigitalTwinSectionActive()
+            ) {
+                try {
+                    activeVoiceNote._pauseForOtherNote();
+                } catch (error) {
+                    console.warn(
+                        'Could not pause voice note:',
+                        error
+                    );
+                }
+            }
         });
 
         observer.observe(
@@ -1791,10 +1807,6 @@
         let current = newBubble(true);
 
         while (true) {
-            // Swap the blinking cursor for the pulsing "speaking..."
-            // indicator the moment [voice] is detected in the raw
-            // stream — don't wait for the whole block to finish
-            // streaming in, since none of its content is visible text.
             if (voiceDetected && current.cursor) {
                 const indicator = document.createElement('span');
                 indicator.className = 'voice-preparing';
@@ -1808,8 +1820,8 @@
 
             if (networkDone && revealedInSeg >= remaining.length) break;
 
-            if (!reactionResponse && revealedInSeg < remaining.length) {
-                if (fastForwardStream) {
+            if (revealedInSeg < remaining.length) {
+                if (fastForwardStream || reactionResponse) {
                     revealedInSeg = remaining.length;
                     fastForwardStream = false;
                 } else {
