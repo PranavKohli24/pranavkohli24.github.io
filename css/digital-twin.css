@@ -1000,7 +1000,7 @@
     }
 
     .digital-twin-icon {
-        height: 105px;
+        height: 100px;
     }
 
     #digital-twin .header {
@@ -1187,6 +1187,7 @@
 @media (max-width: 768px) {
 
     .chat-suggestion {
+        font-size: 0.5rem;
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
     }
