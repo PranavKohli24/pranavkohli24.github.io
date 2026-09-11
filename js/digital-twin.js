@@ -2179,12 +2179,21 @@
 
             if (remaining !== null) {
                 const n = parseInt(remaining, 10);
-                chatRemaining.textContent =
-                    n > 0
-                        ? `${n} messages left in this conversation`
-                        : "That's the last message for this conversation.";
-
                 const messagesUsed = MAX_MESSAGES_PER_SESSION - n;
+
+                // Stay silent for most of the conversation — a live
+                // countdown from message 1 reads as scarcity pressure.
+                // Only surface it once the pills also disappear, so the
+                // UI shifts from "onboarding mode" to "normal chat mode"
+                // as a single, coherent change instead of two.
+                chatRemaining.textContent =
+                    messagesUsed >= SUGGESTIONS_HIDE_AFTER_MESSAGES
+                        ? (
+                            n > 0
+                                ? `${n} messages left in this conversation`
+                                : "That's the last message for this conversation."
+                        )
+                        : '';
 
                 if (messagesUsed >= SUGGESTIONS_HIDE_AFTER_MESSAGES) {
                     hideSuggestionPills();
