@@ -64,7 +64,7 @@
     display: flex;
     gap: 0.8rem;
     overflow-x: auto;
-    padding: 0.1rem 0.2rem 1.3rem 0.8rem;
+    padding: 0.1rem 0.2rem 0.6rem 0.8rem;
     flex-shrink: 0;
     scrollbar-width: none;
     transition: opacity 0.35s ease, transform 0.35s ease;
@@ -799,9 +799,9 @@
 /* Remaining */
 
 .chat-remaining {
-    font-size: 0.78rem;
+    font-size: 0.58rem;
     color: var(--secondary-text-color);
-    opacity: 0.65;
+    opacity: 0.55;
     margin-top: 0.6rem;
     text-align: center;
     flex-shrink: 0;
@@ -1283,12 +1283,6 @@
 .chat-suggestions-wrap {
     position: relative;
     flex-shrink: 0;
-}
-
-.chat-suggestions {
-    overflow-x: auto;
-    padding: 0.1rem 0.2rem 1.3rem 0.8rem;
-    scrollbar-width: none;
 }
 
 .chat-suggestions-wrap::before {

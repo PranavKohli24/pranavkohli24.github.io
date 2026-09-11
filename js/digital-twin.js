@@ -2364,15 +2364,6 @@
 
     function attachListeners() {
 
-        document.querySelectorAll('.chat-suggestion').forEach((button) => {
-            button.addEventListener('click', () => {
-                chatInput.value = button.textContent.replace('✧ ', '').trim();
-                updateActionButton();
-                autoResizeInput();
-                sendMessage();
-            });
-        });
-
         chatSendBtn.addEventListener(
             'click',
             () => {
