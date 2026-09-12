@@ -1235,6 +1235,10 @@
 
     opacity: 0;
     transition: opacity 0.7s ease-in-out;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .digital-twin-photo-image.loaded {
