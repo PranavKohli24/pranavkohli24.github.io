@@ -687,6 +687,10 @@
         let top = clientY - pickerHeight - 14;
         if (top < margin) top = clientY + 14; // flip below if no room above
 
+        // Same safety clamp as `left` — don't let it run past the bottom edge either.
+        const viewportHeight = window.innerHeight;
+        top = Math.max(margin, Math.min(top, viewportHeight - pickerHeight - margin));
+
         picker.style.left = `${left}px`;
         picker.style.top = `${top}px`;
         picker.style.visibility = '';
