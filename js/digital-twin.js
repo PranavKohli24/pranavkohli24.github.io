@@ -704,7 +704,7 @@
             if (!bubble) return;
             if (e.pointerType === 'mouse' && e.button !== 0) return;
 
-            if (e.target.closest('.link-preview, .chat-voice-note, .digital-twin-photo, a')) {
+            if (e.target.closest('.link-preview, .chat-voice-note, .digital-twin-photo, .inline-copy-btn, a')) {
                 return;
             }
 
@@ -746,7 +746,7 @@
         chatMessages.addEventListener('contextmenu', (e) => {
             const bubble = e.target.closest('.chat-msg-bot');
             if (!bubble) return;
-            if (e.target.closest('.link-preview, .chat-voice-note, .digital-twin-photo, a')) return;
+            if (e.target.closest('.link-preview, .chat-voice-note, .digital-twin-photo, .inline-copy-btn, a')) return;
             if (bubble.querySelector('.stream-cursor, .voice-preparing')) return;
 
             e.preventDefault();
