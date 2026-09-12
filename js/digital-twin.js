@@ -2244,9 +2244,12 @@
                 }
             }
 
-            const hasPhotoCommand = /\[SHOW_PHOTO\]\s*id\s*=\s*[a-z0-9-]+\s*\[\/SHOW_PHOTO\]/i.test(fullText);
+            const photoIdMatch = fullText.match(/\[SHOW_PHOTO\]\s*id\s*=\s*([a-z0-9-]+)\s*\[\/SHOW_PHOTO\]/i);
+            const requestedInvalidPhoto = !!(photoIdMatch && !digitalTwinPhotos[photoIdMatch[1].toLowerCase()]);
+            const hasPhotoCommand = !!(photoIdMatch && digitalTwinPhotos[photoIdMatch[1].toLowerCase()]);
             const hasCalendarCommand = /\[CALENDAR_EVENT\][\s\S]*?\[\/CALENDAR_EVENT\]/i.test(fullText);
 
+            
             if (reaction) {
                 // Always stick the reaction onto the user's own message.
                 addReactionToBubble(userBubble, reaction);
@@ -2270,6 +2273,9 @@
                 } else {
                     lastBubble.remove();
                 }
+            }  else if (requestedInvalidPhoto && !visibleText.trim()) {
+                const p = lastBubble.querySelector('p');
+                if (p) p.textContent = "hmm, don't think I have that one saved, ask for something else 🙂";
             } else if (
                 !visibleText.trim() &&
                 !hasPhotoCommand &&
