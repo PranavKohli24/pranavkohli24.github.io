@@ -614,8 +614,12 @@
     let reactionPickerEl = null;
     let longPressTimer = null;
     let longPressStartPos = null;
+    let longPressTriggered = false;
     const LONG_PRESS_MS = 450;
     const LONG_PRESS_MOVE_TOLERANCE = 10;
+    const DOUBLE_TAP_MS = 300;
+    let lastTapTime = 0;
+    let lastTapBubble = null;
 
     function closeReactionPicker() {
         if (reactionPickerEl) {
@@ -721,6 +725,7 @@
             longPressStartPos = { x: e.clientX, y: e.clientY };
 
             longPressTimer = setTimeout(() => {
+                longPressTriggered = true;
                 navigator.vibrate?.(12);
                 showReactionPicker(bubble, e.clientX, e.clientY);
             }, LONG_PRESS_MS);
@@ -745,6 +750,40 @@
         chatMessages.addEventListener('pointerup', cancelLongPress);
         chatMessages.addEventListener('pointercancel', cancelLongPress);
         chatMessages.addEventListener('scroll', cancelLongPress);
+
+        // Double-tap (Instagram-style) also opens the picker
+        chatMessages.addEventListener('pointerup', (e) => {
+            if (longPressTriggered) {
+                longPressTriggered = false;
+                return;
+            }
+
+            const bubble = e.target.closest('.chat-msg-bot');
+            if (!bubble) return;
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+            if (e.target.closest('.link-preview, .chat-voice-note, .inline-copy-btn, a')) {
+                return;
+            }
+
+            if (bubble.querySelector('.stream-cursor, .voice-preparing')) {
+                return;
+            }
+
+            const now = Date.now();
+            const isSameBubble = bubble === lastTapBubble;
+            const isQuickEnough = now - lastTapTime < DOUBLE_TAP_MS;
+
+            if (isSameBubble && isQuickEnough) {
+                navigator.vibrate?.(12);
+                showReactionPicker(bubble, e.clientX, e.clientY);
+                lastTapTime = 0;
+                lastTapBubble = null;
+            } else {
+                lastTapTime = now;
+                lastTapBubble = bubble;
+            }
+        });
 
         // Desktop convenience: right-click also opens the picker
         chatMessages.addEventListener('contextmenu', (e) => {
