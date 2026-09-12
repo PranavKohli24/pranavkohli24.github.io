@@ -604,18 +604,141 @@
         return match[1].trim();
     }
 
+    const REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '🙏', '🔥'];
+    let reactionPickerEl = null;
+    let longPressTimer = null;
+    let longPressStartPos = null;
+    const LONG_PRESS_MS = 450;
+    const LONG_PRESS_MOVE_TOLERANCE = 10;
+
+    function closeReactionPicker() {
+        if (reactionPickerEl) {
+            reactionPickerEl.remove();
+            reactionPickerEl = null;
+        }
+        document.removeEventListener('pointerdown', handleOutsidePickerClick, true);
+    }
+
+    function handleOutsidePickerClick(e) {
+        if (reactionPickerEl && !reactionPickerEl.contains(e.target)) {
+            closeReactionPicker();
+        }
+    }
+
+    function showReactionPicker(bubble, clientX, clientY) {
+        closeReactionPicker();
+
+        const currentReaction = bubble.dataset.selectedReaction || '';
+
+        const picker = document.createElement('div');
+        picker.className = 'chat-reaction-picker';
+
+        REACTION_EMOJIS.forEach(emoji => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'chat-reaction-picker-btn';
+            btn.textContent = emoji;
+
+            if (emoji === currentReaction) {
+                btn.classList.add('selected');
+            }
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                addReactionToBubble(bubble, emoji);
+                closeReactionPicker();
+            });
+
+            picker.appendChild(btn);
+        });
+
+        document.body.appendChild(picker);
+        reactionPickerEl = picker;
+
+        const rect = picker.getBoundingClientRect();
+        const margin = 8;
+
+        let left = clientX - rect.width / 2;
+        left = Math.max(margin, Math.min(left, window.innerWidth - rect.width - margin));
+
+        let top = clientY - rect.height - 14;
+        if (top < margin) top = clientY + 14; // flip below if no room above
+
+        picker.style.left = `${left}px`;
+        picker.style.top = `${top}px`;
+
+        requestAnimationFrame(() => picker.classList.add('visible'));
+
+        setTimeout(() => {
+            document.addEventListener('pointerdown', handleOutsidePickerClick, true);
+        }, 0);
+    }
+
+    function attachReactionLongPress() {
+        chatMessages.addEventListener('pointerdown', (e) => {
+            const bubble = e.target.closest('.chat-msg-bot');
+            if (!bubble) return;
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+            longPressStartPos = { x: e.clientX, y: e.clientY };
+
+            longPressTimer = setTimeout(() => {
+                navigator.vibrate?.(12);
+                showReactionPicker(bubble, e.clientX, e.clientY);
+            }, LONG_PRESS_MS);
+        });
+
+        const cancelLongPress = () => {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        };
+
+        chatMessages.addEventListener('pointermove', (e) => {
+            if (!longPressTimer || !longPressStartPos) return;
+
+            const dx = e.clientX - longPressStartPos.x;
+            const dy = e.clientY - longPressStartPos.y;
+
+            if (Math.hypot(dx, dy) > LONG_PRESS_MOVE_TOLERANCE) {
+                cancelLongPress();
+            }
+        });
+
+        chatMessages.addEventListener('pointerup', cancelLongPress);
+        chatMessages.addEventListener('pointercancel', cancelLongPress);
+        chatMessages.addEventListener('scroll', cancelLongPress);
+
+        // Desktop convenience: right-click also opens the picker
+        chatMessages.addEventListener('contextmenu', (e) => {
+            const bubble = e.target.closest('.chat-msg-bot');
+            if (!bubble) return;
+
+            e.preventDefault();
+            showReactionPicker(bubble, e.clientX, e.clientY);
+        });
+    }
 
     function addReactionToBubble(bubble, emoji) {
         if (!bubble || !emoji) return;
 
-        // Prevent duplicate reactions
-        bubble.querySelector('.chat-reaction')?.remove();
+        const existing = bubble.querySelector('.chat-reaction');
+        const alreadySelected = existing && existing.dataset.emoji === emoji;
+
+        existing?.remove();
+
+        // Clicking the same emoji again just removes it (unselect).
+        if (alreadySelected) {
+            bubble.dataset.selectedReaction = '';
+            return;
+        }
 
         const reaction = document.createElement('span');
         reaction.className = 'chat-reaction';
         reaction.textContent = emoji;
+        reaction.dataset.emoji = emoji;
 
         bubble.appendChild(reaction);
+        bubble.dataset.selectedReaction = emoji;
     }
 
 
@@ -2547,6 +2670,7 @@
         primeVoiceCache();
         setupSpeechRecognition();
         attachListeners();
+        attachReactionLongPress();
 
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && isSending) {
