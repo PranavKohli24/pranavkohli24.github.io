@@ -1914,26 +1914,46 @@
         };
     }
 
+    let sharedAudioCtx = null;
+
     function playMessageSentSound() {
         try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            
+            if (!sharedAudioCtx) {
+                sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            // Browsers auto-suspend contexts sometimes (tab backgrounded, etc.)
+            if (sharedAudioCtx.state === 'suspended') {
+                sharedAudioCtx.resume();
+            }
+
+            const ctx = sharedAudioCtx;
+            const now = ctx.currentTime;
+
             const oscillator = ctx.createOscillator();
             const gainNode = ctx.createGain();
-            
+
             oscillator.connect(gainNode);
             gainNode.connect(ctx.destination);
-            
+
             oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(600, ctx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.12);
-            
-            gainNode.gain.setValueAtTime(0.6, ctx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-            
-            oscillator.start(ctx.currentTime);
-            oscillator.stop(ctx.currentTime + 0.15);
-            
+            oscillator.frequency.setValueAtTime(600, now);
+            oscillator.frequency.exponentialRampToValueAtTime(300, now + 0.12);
+
+            // tiny attack ramp (0 → 0.6) avoids the "click" pop at start
+            gainNode.gain.setValueAtTime(0.0001, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.6, now + 0.008);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+            oscillator.start(now);
+            oscillator.stop(now + 0.15);
+
+            // cleanup — don't let dead oscillators pile up
+            oscillator.onended = () => {
+                oscillator.disconnect();
+                gainNode.disconnect();
+            };
+
         } catch (e) {
             // silence if audio ctx fails
         }
