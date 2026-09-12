@@ -1180,7 +1180,35 @@
 
     const LINK_PATTERN = /(https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g;
 
-    function buildLinkedFragment(text) {
+    function createInlineCopyButton(textToCopy) {
+        const copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'inline-copy-btn';
+        copyBtn.setAttribute('aria-label', 'Copy');
+        copyBtn.textContent = '⧉';
+
+        copyBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                copyBtn.textContent = '✓';
+                copyBtn.classList.add('copied');
+
+                setTimeout(() => {
+                    copyBtn.textContent = '⧉';
+                    copyBtn.classList.remove('copied');
+                }, 1200);
+            } catch (error) {
+                console.warn('Copy failed:', error);
+            }
+        });
+
+        return copyBtn;
+    }
+
+    function buildLinkedFragment(text, includeCopyButtons = true) {
         const fragment = document.createDocumentFragment();
         let lastIndex = 0;
         let match;
@@ -1199,6 +1227,7 @@
 
             const value = match[0];
             const anchor = document.createElement('a');
+            let copyValue = value;
 
             if (value.includes('@')) {
                 anchor.href = `mailto:${value}?subject=${encodeURIComponent(
@@ -1206,6 +1235,7 @@
                 )}`;
 
                 anchor.textContent = `✉ ${value}`;
+                copyValue = value;
 
             } else if (
                 value === '+918860271737' ||
@@ -1214,6 +1244,7 @@
                 anchor.href = 'tel:+918860271737';
                 anchor.style.fontWeight = '600';
                 anchor.textContent = value;
+                copyValue = value;
 
             } else {
                 anchor.href = value.startsWith('http')
@@ -1223,9 +1254,17 @@
                 anchor.target = '_blank';
                 anchor.rel = 'noopener noreferrer';
                 anchor.textContent = value;
+                copyValue = anchor.href;
             }
 
             fragment.appendChild(anchor);
+
+            // Only attach the copy button once this link is fully streamed in —
+            // otherwise it visibly shifts position as characters keep arriving.
+            if (includeCopyButtons) {
+                fragment.appendChild(createInlineCopyButton(copyValue));
+            }
+
             lastIndex = LINK_PATTERN.lastIndex;
         }
 
@@ -1295,8 +1334,12 @@
 
         element.textContent = '';
 
+        // While a cursor is attached, this bubble/segment is still actively
+        // streaming — suppress copy buttons until it's finalized (cursor null).
+        const includeCopyButtons = !cursor;
+
         element.appendChild(
-            buildLinkedFragment(visibleText)
+            buildLinkedFragment(visibleText, includeCopyButtons)
         );
 
         if (cursor) {
@@ -2063,7 +2106,16 @@
                 current.cursor = null;
             } else {
                 current.cursor.remove();
+                current.cursor = null;
             }
+        }
+
+        // Final render pass: now that streaming is fully done, re-render this
+        // bubble's text with cursor=null so any links get their copy buttons.
+        if (current.p && !voiceDetected) {
+            const visibleTarget = getVisibleResponseTextCached(fullText);
+            const finalRemaining = visibleTarget.slice(consumedRaw);
+            renderLinkedText(current.p, finalRemaining, null);
         }
 
         return {
