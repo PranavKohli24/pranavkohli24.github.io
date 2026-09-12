@@ -207,6 +207,9 @@
 
     color: var(--text-color);
     border-bottom-left-radius: 4px;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    user-select: none;
 }
 
 .chat-msg-bot a {

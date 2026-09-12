@@ -652,20 +652,38 @@
             picker.appendChild(btn);
         });
 
+        // Start invisible but laid out, so offsetWidth/Height are correct
+        // before we do any positioning math.
+        picker.style.visibility = 'hidden';
         document.body.appendChild(picker);
         reactionPickerEl = picker;
 
-        const rect = picker.getBoundingClientRect();
-        const margin = 8;
+        const pickerWidth = picker.offsetWidth;
+        const pickerHeight = picker.offsetHeight;
+        const margin = 10;
+        const viewportWidth = window.innerWidth;
 
-        let left = clientX - rect.width / 2;
-        left = Math.max(margin, Math.min(left, window.innerWidth - rect.width - margin));
+        // Which half of the screen was pressed decides which edge we anchor to.
+        const pressedLeftHalf = clientX < viewportWidth / 2;
 
-        let top = clientY - rect.height - 14;
+        let left;
+        if (pressedLeftHalf) {
+            // Anchor picker's LEFT edge near the press point, growing rightward.
+            left = clientX - 20;
+        } else {
+            // Anchor picker's RIGHT edge near the press point, growing leftward.
+            left = clientX - pickerWidth + 20;
+        }
+
+        // Final safety clamp so it never touches the screen edges.
+        left = Math.max(margin, Math.min(left, viewportWidth - pickerWidth - margin));
+
+        let top = clientY - pickerHeight - 14;
         if (top < margin) top = clientY + 14; // flip below if no room above
 
         picker.style.left = `${left}px`;
         picker.style.top = `${top}px`;
+        picker.style.visibility = '';
 
         requestAnimationFrame(() => picker.classList.add('visible'));
 
