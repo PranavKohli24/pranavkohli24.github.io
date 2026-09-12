@@ -698,6 +698,16 @@
             if (!bubble) return;
             if (e.pointerType === 'mouse' && e.button !== 0) return;
 
+            if (e.target.closest('.link-preview, .chat-voice-note, .digital-twin-photo, a')) {
+                return;
+            }
+
+            // Don't allow reacting while this bubble is still streaming in
+            // (has an active blinking cursor or "speaking..." indicator).
+            if (bubble.querySelector('.stream-cursor, .voice-preparing')) {
+                return;
+            }
+
             longPressStartPos = { x: e.clientX, y: e.clientY };
 
             longPressTimer = setTimeout(() => {
@@ -730,6 +740,8 @@
         chatMessages.addEventListener('contextmenu', (e) => {
             const bubble = e.target.closest('.chat-msg-bot');
             if (!bubble) return;
+            if (e.target.closest('.link-preview, .chat-voice-note, .digital-twin-photo, a')) return;
+            if (bubble.querySelector('.stream-cursor, .voice-preparing')) return;
 
             e.preventDefault();
             showReactionPicker(bubble, e.clientX, e.clientY);
