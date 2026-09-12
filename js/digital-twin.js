@@ -583,6 +583,12 @@
                     );
                 }
             }
+
+            // Close the reaction picker too — it's a fixed-position overlay on
+            // document.body, so it survives section changes unless removed explicitly.
+            if (!isDigitalTwinSectionActive()) {
+                closeReactionPicker();
+            }
         });
 
         observer.observe(
@@ -2706,6 +2712,13 @@
             if (!document.hidden && isSending) {
                 fastForwardStream = true;
             }
+        });
+
+        // Close any open reaction picker on back/forward navigation or when
+        // the tab is hidden — it's a fixed overlay and won't clean itself up.
+        window.addEventListener('popstate', closeReactionPicker);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) closeReactionPicker();
         });
 
         renderSuggestions();
