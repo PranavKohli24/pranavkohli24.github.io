@@ -1221,7 +1221,7 @@
     };
 
 
-    const LINK_PATTERN = /(https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/g;
+    const LINK_PATTERN = /(https?:\/\/[^\s]+|linkedin\.com\/in\/pranavkohli24|github\.com\/PranavKohli24|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}|(?:\+91)?8860271737)/gi;
 
     function createInlineCopyButton(textToCopy) {
         const copyBtn = document.createElement('button');
