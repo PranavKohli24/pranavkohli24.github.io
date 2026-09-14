@@ -2462,13 +2462,6 @@
                 return;
             }
 
-            // We now have a real, streamable response — safe to commit the
-            // user's turn into history.
-            history.push({
-                role: 'user',
-                content: text
-            });
-
             setTyping(false);
 
             const { fullText, lastBubble, cursor } =
@@ -2590,6 +2583,11 @@
                     addPhotoPreview(lastBubble, fullText);
                 }
             }
+
+            history.push({
+                role: 'user',
+                content: text
+            });
 
             history.push({
                 role: 'assistant',
