@@ -1039,7 +1039,7 @@
             }
 
             interimVoiceText = interimText;
-            chatInput.value = currentText;
+            chatInput.value = currentText.slice(0, 200);
             autoResizeInput();
         };
 
