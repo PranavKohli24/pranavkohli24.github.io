@@ -2058,6 +2058,7 @@
 
         function newBubble(withQuote) {
             const bubble = appendEmptyBotBubble(withQuote ? replyQuoteText : null);
+            bubble.classList.add('chat-msg-pending');
             const entry = {
                 bubble,
                 p: bubble.querySelector('p'),
@@ -2160,6 +2161,8 @@
             const finalRemaining = visibleTarget.slice(consumedRaw);
             renderLinkedText(current.p, finalRemaining, null);
         }
+
+        bubbles.forEach(entry => entry.bubble.classList.remove('chat-msg-pending'));
 
         return {
             fullText,
@@ -2612,15 +2615,8 @@
             setTyping(false);
 
             document
-                .querySelectorAll('.chat-msg-bot')
-                .forEach(bubble => {
-                    const p = bubble.querySelector('p');
-                    const text = p?.textContent?.trim() || '';
-
-                    if (!text) {
-                        bubble.remove();
-                    }
-                });
+            .querySelectorAll('.chat-msg-bot.chat-msg-pending')
+            .forEach(bubble => bubble.remove());
 
             if (err?.message === 'STREAM_IDLE_TIMEOUT') {
                 appendMessage(
