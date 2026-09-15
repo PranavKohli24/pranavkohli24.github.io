@@ -1187,6 +1187,11 @@
                 'Could not start speech recognition:',
                 error
             );
+
+            // A synchronous throw here (as opposed to the async onerror
+            // path) means the browser refused to even attempt starting —
+            // in practice this is the blocked-permission case recurring.
+            showMicBlockedNotice();
         }
     }
 
