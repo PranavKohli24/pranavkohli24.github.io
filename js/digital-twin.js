@@ -35,6 +35,7 @@
 
     // Voice state
     let recognition = null;
+    let micPermissionStatus = null;
     let isListening = false;
     let userRequestedStop = false;
     let interimVoiceText = '';
@@ -1137,6 +1138,10 @@
             updateActionButton();
 
             if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                // Chrome keeps this instance poisoned after a denial — start()
+                // on the same object errors again even once the user allows the
+                // mic. Throw it away so the next click gets a clean recognizer.
+                rebuildRecognition();
                 showMicBlockedNotice();
             }
         };
@@ -1174,9 +1179,75 @@
     }
 
 
-    function startVoiceRecording() {
-        if (!recognition || isListening) return;
+    function rebuildRecognition() {
+        if (recognition) {
+            // Detach first so abort() can't re-enter onend and restart us.
+            recognition.onstart = null;
+            recognition.onresult = null;
+            recognition.onerror = null;
+            recognition.onend = null;
 
+            try {
+                recognition.abort();
+            } catch (error) {
+                console.warn('Could not abort stale recognition:', error);
+            }
+        }
+
+        recognition = null;
+        isListening = false;
+        userRequestedStop = false;
+        interimVoiceText = '';
+
+        setupSpeechRecognition();
+    }
+
+    async function watchMicPermission() {
+        if (!navigator.permissions?.query) return;
+
+        try {
+            micPermissionStatus = await navigator.permissions.query({ name: 'microphone' });
+        } catch (error) {
+            // Firefox/Safari don't support the 'microphone' descriptor —
+            // startVoiceRecording() falls back to a getUserMedia probe.
+            return;
+        }
+
+        micPermissionStatus.addEventListener('change', () => {
+            if (micPermissionStatus.state === 'granted') {
+                // User re-allowed from the address bar. No reload needed:
+                // drop the notice and swap in a fresh recognizer.
+                closeMicBlockedNotice();
+                rebuildRecognition();
+            }
+        });
+    }
+
+    async function startVoiceRecording() {
+        if (isListening) return;
+
+        // Live state, not a cached one — reflects address-bar changes instantly.
+        if (micPermissionStatus?.state === 'denied') {
+            showMicBlockedNotice();
+            return;
+        }
+
+        // No Permissions API for the mic (Safari): probe with getUserMedia,
+        // which always re-reads the current permission. Chrome skips this.
+        if (!micPermissionStatus && navigator.mediaDevices?.getUserMedia) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(track => track.stop());
+            } catch (error) {
+                showMicBlockedNotice();
+                return;
+            }
+        }
+
+        if (!recognition) setupSpeechRecognition();
+        if (!recognition) return;
+
+        closeMicBlockedNotice();
         userRequestedStop = false;
         interimVoiceText = '';
 
@@ -1188,9 +1259,7 @@
                 error
             );
 
-            // A synchronous throw here (as opposed to the async onerror
-            // path) means the browser refused to even attempt starting —
-            // in practice this is the blocked-permission case recurring.
+            rebuildRecognition();
             showMicBlockedNotice();
         }
     }
@@ -2879,6 +2948,7 @@
 
         primeVoiceCache();
         setupSpeechRecognition();
+        watchMicPermission();
         attachListeners();
         attachReactionLongPress();
 
