@@ -1014,6 +1014,30 @@
         }, 0);
     }
 
+    async function showMicBlockedNoticeIfDenied() {
+        // A dismissed prompt raises the same 'not-allowed' error as a real
+        // block, but leaves the permission at 'prompt' — the next mic click
+        // can still ask. Only warn when we're actually blocked.
+        if (!navigator.permissions?.query) {
+            // No Permissions API (Firefox/Safari): can't tell the two apart,
+            // so fall back to warning — better than a mic that silently does nothing.
+            showMicBlockedNotice();
+            return;
+        }
+
+        try {
+            // Re-query instead of reading micPermissionStatus — the cached
+            // object's state can lag a tick behind the recognition error.
+            const status = await navigator.permissions.query({ name: 'microphone' });
+
+            if (status.state === 'denied') {
+                showMicBlockedNotice();
+            }
+        } catch (error) {
+            showMicBlockedNotice();
+        }
+    }
+
     function setRecordingUI(recording) {
         chatRecording.classList.toggle('active', recording);
         chatVoiceControls.classList.toggle('active', recording);
@@ -1142,7 +1166,7 @@
                 // on the same object errors again even once the user allows the
                 // mic. Throw it away so the next click gets a clean recognizer.
                 rebuildRecognition();
-                showMicBlockedNotice();
+                showMicBlockedNoticeIfDenied();
             }
         };
 
@@ -1260,7 +1284,7 @@
             );
 
             rebuildRecognition();
-            showMicBlockedNotice();
+            showMicBlockedNoticeIfDenied();
         }
     }
 
