@@ -36,6 +36,7 @@
     // Voice state
     let recognition = null;
     let micPermissionStatus = null;
+    let micWasBlocked = false;
     let isListening = false;
     let userRequestedStop = false;
     let interimVoiceText = '';
@@ -1031,6 +1032,7 @@
             const status = await navigator.permissions.query({ name: 'microphone' });
 
             if (status.state === 'denied') {
+                micWasBlocked = true;
                 showMicBlockedNotice();
             }
         } catch (error) {
@@ -1238,11 +1240,24 @@
         }
 
         micPermissionStatus.addEventListener('change', () => {
-            if (micPermissionStatus.state === 'granted') {
-                // User re-allowed from the address bar. No reload needed:
-                // drop the notice and swap in a fresh recognizer.
-                closeMicBlockedNotice();
+            if (micPermissionStatus.state === 'denied') {
+                micWasBlocked = true;
+                return;
+            }
+
+            if (micPermissionStatus.state !== 'granted') return;
+
+            closeMicBlockedNotice();
+
+            // This event fires for the in-page prompt too, where recognition
+            // is already starting — rebuilding there would abort the session
+            // the user just allowed. Only swap in a fresh recognizer when
+            // recovering from an actual block (address-bar re-allow).
+            if (micWasBlocked && !isListening) {
+                micWasBlocked = false;
                 rebuildRecognition();
+            } else {
+                micWasBlocked = false;
             }
         });
     }
