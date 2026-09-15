@@ -38,6 +38,7 @@
     let isListening = false;
     let userRequestedStop = false;
     let interimVoiceText = '';
+    let micBlockedNoticeEl = null;
 
     let cachedVoices = [];
     let fastForwardStream = false;
@@ -588,6 +589,7 @@
             // document.body, so it survives section changes unless removed explicitly.
             if (!isDigitalTwinSectionActive()) {
                 closeReactionPicker();
+                closeMicBlockedNotice();
             }
         });
 
@@ -936,6 +938,80 @@
         );
     }
 
+    function closeMicBlockedNotice() {
+        if (!micBlockedNoticeEl) return;
+
+        micBlockedNoticeEl.classList.remove('visible');
+        document.removeEventListener('pointerdown', handleOutsideMicNoticeClick, true);
+
+        const el = micBlockedNoticeEl;
+        micBlockedNoticeEl = null;
+
+        setTimeout(() => el.remove(), 200);
+    }
+
+    function handleOutsideMicNoticeClick(e) {
+        if (micBlockedNoticeEl && !micBlockedNoticeEl.contains(e.target)) {
+            closeMicBlockedNotice();
+        }
+    }
+
+    function showMicBlockedNotice() {
+        if (micBlockedNoticeEl) return; // already showing
+
+        const notice = document.createElement('div');
+        notice.className = 'chat-mic-blocked-notice';
+
+        notice.innerHTML = `
+            <div class="chat-mic-blocked-title">Microphone access is blocked</div>
+            <div class="chat-mic-blocked-desc">To use dictation, select the site settings icon in your browser's address bar and allow the microphone.</div>
+            <button type="button" class="chat-mic-blocked-btn">Got it</button>
+        `;
+
+        // Start invisible but laid out, so offsetWidth/Height are correct
+        // before we position it relative to the mic button.
+        notice.style.visibility = 'hidden';
+        document.body.appendChild(notice);
+        micBlockedNoticeEl = notice;
+
+                const btnRect = chatSendBtn.getBoundingClientRect();
+        const noticeWidth = notice.offsetWidth;
+        const noticeHeight = notice.offsetHeight;
+        const margin = 10;
+
+        // Target the exact same point the "Speak" tooltip's arrow points to:
+        // that tooltip's arrow sits at right:18px from the button, with a
+        // 12px-wide triangle (6px border), so its tip center is 24px in
+        // from the button's right edge.
+        const arrowTargetX = btnRect.right - 18;
+
+        // Anchor the notice's RIGHT edge above the mic button.
+        let left = btnRect.right - noticeWidth;
+        left = Math.max(margin, Math.min(left, window.innerWidth - noticeWidth - margin));
+
+        const top = btnRect.top - noticeHeight - 10;
+
+        // Distance from the notice's right edge to the arrow tip, used to
+        // keep the arrow pointing at that exact spot even if `left` got clamped.
+        const arrowOffsetFromRight = Math.max(
+            20,
+            Math.min(noticeWidth - 20, (left + noticeWidth) - arrowTargetX)
+        );
+
+        notice.style.left = `${left}px`;
+        notice.style.top = `${top}px`;
+        notice.style.setProperty('--arrow-right', `${arrowOffsetFromRight}px`);
+        notice.style.visibility = '';
+
+        requestAnimationFrame(() => notice.classList.add('visible'));
+
+        notice.querySelector('.chat-mic-blocked-btn')
+            .addEventListener('click', closeMicBlockedNotice);
+
+        setTimeout(() => {
+            document.addEventListener('pointerdown', handleOutsideMicNoticeClick, true);
+        }, 0);
+    }
 
     function setRecordingUI(recording) {
         chatRecording.classList.toggle('active', recording);
@@ -1059,6 +1135,10 @@
             chatSendBtn.classList.remove('listening');
             setRecordingUI(false);
             updateActionButton();
+
+            if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                showMicBlockedNotice();
+            }
         };
 
 
