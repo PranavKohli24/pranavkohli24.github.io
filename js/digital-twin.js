@@ -2797,19 +2797,17 @@
         attachListeners();
         attachReactionLongPress();
 
+        // Close any open reaction picker on back/forward navigation — it's a
+        // fixed overlay and won't clean itself up otherwise.
+        window.addEventListener('popstate', closeReactionPicker);
+
         document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && isSending) {
+            if (document.hidden) {
+                closeReactionPicker();
+            } else if (isSending) {
                 fastForwardStream = true;
             }
         });
-
-        // Close any open reaction picker on back/forward navigation or when
-        // the tab is hidden — it's a fixed overlay and won't clean itself up.
-        window.addEventListener('popstate', closeReactionPicker);
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) closeReactionPicker();
-        });
-
         renderSuggestions();
         updateActionButton();
 
