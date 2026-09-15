@@ -1715,3 +1715,27 @@
 .chat-mic-blocked-btn:active {
     transform: scale(0.96);
 }
+
+@media (max-width: 768px) {
+    .chat-mic-blocked-notice {
+        width: min(80vw, 260px);
+        padding: 0.7rem 0.8rem;
+        border-radius: 12px;
+    }
+
+    .chat-mic-blocked-title {
+        font-size: 0.82rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .chat-mic-blocked-desc {
+        font-size: 0.72rem;
+        line-height: 1.35;
+    }
+
+    .chat-mic-blocked-btn {
+        margin-top: 0.6rem;
+        padding: 0.35rem 0.6rem;
+        font-size: 0.76rem;
+    }
+}
