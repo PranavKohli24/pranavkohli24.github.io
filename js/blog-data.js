@@ -182,7 +182,15 @@ const blogPosts = [
 
                 <p>
                     When I was building my
-                    <a href="/twin"><strong>Digital Twin</strong></a>,
+                    <a
+                        href="/twin"
+                        style="color: #7446A8;"
+                        onpointerdown="this.style.color='#A98BC7'"
+                        onpointerup="this.style.color='#7446A8'"
+                        onpointercancel="this.style.color='#7446A8'"
+                    >
+                        <strong>Digital Twin</strong>
+                    </a> ,
                     I started thinking less like an engineer and more like someone using a messaging app.
                 </p>
 
@@ -198,7 +206,15 @@ const blogPosts = [
 
                 <p>
                     And then came
-                    <a href="http://rasoi-bazaar.vercel.app/"><strong>Rasoi Bazaar</strong></a>.
+                    <a
+                        href="http://rasoi-bazaar.vercel.app/"
+                        style="color: #7446A8;"
+                        onpointerdown="this.style.color='#A98BC7'"
+                        onpointerup="this.style.color='#7446A8'"
+                        onpointercancel="this.style.color='#7446A8'"
+                    >
+                        <strong>Rasoi Bazaar</strong>
+                    </a>.
                 </p>
 
                 <p>
