@@ -76,10 +76,19 @@ function showSection() {
         return;
     }
 
+    const pathSegments = window.location.pathname
+        .replace(/^\/|\/$/g, '')
+        .split('/')
+        .filter(Boolean);
+
+    const basePath = pathSegments[0]
+        ? canonicalPathFor(resolveSectionId(pathSegments[0]))
+        : 'about';
+
     document.querySelectorAll('nav a[href^="/"]').forEach(link => {
         link.classList.toggle(
             'active',
-            link.getAttribute('href') === `/${canonicalPathFor(sectionId)}`
+            link.getAttribute('href') === `/${basePath}`
         );
     });
 
