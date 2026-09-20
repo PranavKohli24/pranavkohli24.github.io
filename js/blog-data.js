@@ -159,7 +159,7 @@ const blogPosts = [
     {
         id: 'blog3',
         title: 'Product Development is fun',
-        date: 'Aug 2026',
+        date: 'September 2026',
         image: '/src/images/digital_twin.png',
         imageAlt: '',
         audioFile: '/src/audio/blog3_audio.mp3',
