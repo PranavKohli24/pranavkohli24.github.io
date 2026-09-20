@@ -912,10 +912,12 @@ main {
     }
 
     .blog-post-page .post-content img {
-        width: 100%;
-        max-width: 100%;
+        width: auto;
+        max-width: 82%;
+        max-height: 180px;
+        height: auto;
         margin: 0 auto 1.5rem auto;
-        border-radius: 8px;
+        border-radius: 10px;
         float: none;
         display: block;
     }
