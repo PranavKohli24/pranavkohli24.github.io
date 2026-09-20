@@ -73,7 +73,7 @@
 
                         <div class="post-content">
                             <div class="noise-background">
-                                <img src="${post.image}" alt="${post.imageAlt}" onload="this.classList.add('loaded')">
+                                <img src="${post.image}" alt="${post.imageAlt}" onload="this.classList.add('loaded')" onerror="this.remove()">
                                 ${post.content}
                             </div>
                             <p style="margin-top: 3rem; color: var(--secondary-text-color);">~ Pranav Kohli</p>
