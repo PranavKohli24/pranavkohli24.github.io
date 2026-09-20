@@ -65,98 +65,206 @@ const blogPosts = [
             <p>Honestly, that's all I ever wanted.</p>
         `
     },
-        blog2 = {
-    id: 'blog2',
-    title: 'The 3 AM Breakthrough: Saving the Hackathon Demo',
-    date: 'December 2025',
-    image: '/src/images/blog2.jpeg',
-    imageAlt: 'Hackathon team working late night',
-    audioFile: '/src/audio/blog2_audio.mp3',
-    content: `
-            <p>It was a 24 hour hackathon</p>
-        <p>It was 3:47 AM. The submission deadline was at 8:00 AM sharp.</p>
+    {
+        id: 'blog2',
+        title: 'The 3 AM Breakthrough: Saving the Hackathon Demo',
+        date: 'December 2025',
+        image: '/src/images/blog2.jpeg',
+        imageAlt: 'Hackathon team working late night',
+        audioFile: '/src/audio/blog2_audio.mp3',
+        content: `
+                <p>It was a 24 hour hackathon</p>
+            <p>It was 3:47 AM. The submission deadline was at 8:00 AM sharp.</p>
 
-        <p>The rest of my team was asleep on beanbags behind me. I was the only one left awake, staring at a screen that was mocking me.</p>
+            <p>The rest of my team was asleep on beanbags behind me. I was the only one left awake, staring at a screen that was mocking me.</p>
 
-        <p>I'd been stuck on the same feature for six hours. The "killer feature" of our app: A live group chat. It sounded so simple. You type a message, and it appears on everyone else's screen instantly.</p>
+            <p>I'd been stuck on the same feature for six hours. The "killer feature" of our app: A live group chat. It sounded so simple. You type a message, and it appears on everyone else's screen instantly.</p>
 
-        <p>The problem? Every time I tested it, the app went crazy. I would type "Hello" once, but the screen would show it twice. Then four times. Then ten. Within seconds, the whole app would freeze.</p>
+            <p>The problem? Every time I tested it, the app went crazy. I would type "Hello" once, but the screen would show it twice. Then four times. Then ten. Within seconds, the whole app would freeze.</p>
 
-        <p><b>Hour 4: Confidence</b><br>
-        We had just finished the design. It looked great. I wrote the code to send messages back and forth. It worked perfectly on my own laptop. I felt invincible.</p>
+            <p><b>Hour 4: Confidence</b><br>
+            We had just finished the design. It looked great. I wrote the code to send messages back and forth. It worked perfectly on my own laptop. I felt invincible.</p>
 
-        <p>"We're going to win this," I told my teammate.</p>
+            <p>"We're going to win this," I told my teammate.</p>
 
-        <p><b>Hour 9: The Crash</b><br>
-        We put the website live for testing. Suddenly, chaos. Messages were duplicating endlessly. It was like walking into a room of echoes where everyone is shouting at once.</p>
+            <p><b>Hour 9: The Crash</b><br>
+            We put the website live for testing. Suddenly, chaos. Messages were duplicating endlessly. It was like walking into a room of echoes where everyone is shouting at once.</p>
 
-        <p>I rewrote the code three times. I checked the internet connection. I checked the server, debugged the code.</p>
+            <p>I rewrote the code three times. I checked the internet connection. I checked the server, debugged the code.</p>
 
-        <p>Nothing stopped the flood of duplicate messages.</p>
+            <p>Nothing stopped the flood of duplicate messages.</p>
 
-        <p><b>Hour 14: Breaking Point</b><br>
-        This was it. The "Hackathon Wall."</p>
+            <p><b>Hour 14: Breaking Point</b><br>
+            This was it. The "Hackathon Wall."</p>
 
-        <p>I was exhausted. My eyes were burning. I had consumed three energy drinks and a questionable amount of pizza. I knew the logic was right. But the result was wrong.</p>
+            <p>I was exhausted. My eyes were burning. I had consumed three energy drinks and a questionable amount of pizza. I knew the logic was right. But the result was wrong.</p>
 
-        <p>I considered scrapping the feature. "Maybe we just remove the chat," I thought. "Maybe we just pretend it's not finished."</p>
+            <p>I considered scrapping the feature. "Maybe we just remove the chat," I thought. "Maybe we just pretend it's not finished."</p>
 
-        <p>But I couldn't give up. Not this close to the finish line.</p>
+            <p>But I couldn't give up. Not this close to the finish line.</p>
 
-        <p>I stepped away from the laptop. Walked to the window. Looked at the empty city streets.</p>
+            <p>I stepped away from the laptop. Walked to the window. Looked at the empty city streets.</p>
 
-        <p>I stopped thinking about the code and started thinking about what I was actually telling the computer to do.</p>
+            <p>I stopped thinking about the code and started thinking about what I was actually telling the computer to do.</p>
 
-        <p>I realized I had made a fundamental mistake in how I was giving instructions.</p>
+            <p>I realized I had made a fundamental mistake in how I was giving instructions.</p>
 
-        <p>Imagine you hire a receptionist to listen for the phone. Every time the phone rings, they write down the message.</p>
+            <p>Imagine you hire a receptionist to listen for the phone. Every time the phone rings, they write down the message.</p>
 
-        <p>My mistake was that every time the screen refreshed, I was hiring a <i>new</i> receptionist. But I never told the <i>old</i> receptionist to go home.</p>
+            <p>My mistake was that every time the screen refreshed, I was hiring a <i>new</i> receptionist. But I never told the <i>old</i> receptionist to go home.</p>
 
-        <p>So, after ten minutes, I had 50 receptionists all listening to the same phone, all shouting the same message at the same time.</p>
+            <p>So, after ten minutes, I had 50 receptionists all listening to the same phone, all shouting the same message at the same time.</p>
 
-        <p>I rushed back to the keyboard. I didn't need to add more code. I needed to tell the "old receptionists" to leave.</p>
+            <p>I rushed back to the keyboard. I didn't need to add more code. I needed to tell the "old receptionists" to leave.</p>
 
-        <p>I needed a "cleanup" instruction.</p>
+            <p>I needed a "cleanup" instruction.</p>
 
-        <p>I wrote it out, roughly translating to:</p>
-        <code style="display: block; background: rgba(0,0,0,0.05); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
-        When the screen updates:<br>
-        1. Stop listening to the old messages.<br>
-        2. Start listening for new ones.
-        </code>
+            <p>I wrote it out, roughly translating to:</p>
+            <code style="display: block; background: rgba(0,0,0,0.05); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+            When the screen updates:<br>
+            1. Stop listening to the old messages.<br>
+            2. Start listening for new ones.
+            </code>
 
-        <p>Three lines of code. That's all it took to stop the chaos.</p>
+            <p>Three lines of code. That's all it took to stop the chaos.</p>
 
-        <p>I saved. I reloaded the page. I typed "Hello."</p>
+            <p>I saved. I reloaded the page. I typed "Hello."</p>
 
-        <p><b>"Hello" appeared exactly once.</b></p>
+            <p><b>"Hello" appeared exactly once.</b></p>
 
-        <p>That feeling… that's why we do hackathons.</p>
+            <p>That feeling… that's why we do hackathons.</p>
 
-        <p>It's not about the prizes. It's about that specific moment of clarity when the things work.</p>
+            <p>It's not about the prizes. It's about that specific moment of clarity when the things work.</p>
 
-        <p>You don't just fix a bug. You level up. Suddenly, a complex technical concept wasn't just a theory anymore. It was real. I understood <i>why</i> it mattered to be tidy with your code.</p>
+            <p>You don't just fix a bug. You level up. Suddenly, a complex technical concept wasn't just a theory anymore. It was real. I understood <i>why</i> it mattered to be tidy with your code.</p>
 
-        <p>I spent six hours on one problem. But in those six hours, I learned a lesson about attention to detail that no textbook could teach me.</p>
+            <p>I spent six hours on one problem. But in those six hours, I learned a lesson about attention to detail that no textbook could teach me.</p>
 
-        <p><b>The real lesson?</b></p>
+            <p><b>The real lesson?</b></p>
 
-        <p>Computers do exactly what you tell them to do - even if what you tell them to do is ridiculous.</p>
+            <p>Computers do exactly what you tell them to do - even if what you tell them to do is ridiculous.</p>
 
-        <p>In a hackathon, you can learn about frontend, backend, databases, optimisation, and pitching your ideas,, which is why I used to participate in as many hackathons I could</p>
-        <p>Those hours of panic? That's just the tuition fee for the knowledge you're about to gain.</p>
+            <p>In a hackathon, you can learn about frontend, backend, databases, optimisation, and pitching your ideas,, which is why I used to participate in as many hackathons I could</p>
+            <p>Those hours of panic? That's just the tuition fee for the knowledge you're about to gain.</p>
 
-        
-        <br/>
+            
+            <br/>
 
-        <p>But we pitched at 9 AM. The feature worked flawlessly. The judges loved the overall solution, <br/>and yes my team won the hackathon!</p>
+            <p>But we pitched at 9 AM. The feature worked flawlessly. The judges loved the overall solution, <br/>and yes my team won the hackathon!</p>
 
-        <p>And that euphoria of getting into the solutions. That's the thing I'm chasing.</p>
+            <p>And that euphoria of getting into the solutions. That's the thing I'm chasing.</p>
 
-       
-    `
-}
+        `
+    },
+    {
+        id: 'blog3',
+        title: 'Product Development is fun',
+        date: 'Aug 2026',
+        image: '/src/images/digital_twin.png',
+        imageAlt: '',
+        audioFile: '/src/audio/blog3_audio.mp3',
+        content: `
+            <article>
+                <h1>Why I Love Building Products</h1>
+
+                <p>
+                    <strong>The best part of building a product isn't writing the code.</strong>
+                </p>
+
+                <p>
+                    At least, that's what I've realised after building a few of them.
+                </p>
+
+                <p>
+                    Engineering might be what gets the product running, but there's so much more that goes into making something people actually enjoy using.
+                    And that's probably my favourite part of the whole process.
+                </p>
+
+                <p>
+                    When I was building my
+                    <a href="/twin"><strong>Digital Twin</strong></a>,
+                    I started thinking less like an engineer and more like someone using a messaging app.
+                </p>
+
+                <p>
+                    I had to understand how messaging apps actually work. How messages should appear. When something should happen.
+                    What feels natural. What feels annoying. Why one tiny interaction can make an experience feel great, while another can make it feel completely broken.
+                </p>
+
+                <p>
+                    Suddenly, I wasn't just thinking about APIs, models, or state management.
+                    I was thinking about <strong>how a conversation should feel.</strong>
+                </p>
+
+                <p>
+                    And then came
+                    <a href="http://rasoi-bazaar.vercel.app/"><strong>Rasoi Bazaar</strong></a>.
+                </p>
+
+                <p>
+                    Completely different product. Completely different world.
+                </p>
+
+                <p>
+                    Now I had to learn about food, kitchens, recipes, food-tech companies, and how people actually discover what they want to cook.
+                    I started looking at how these products structure their UX, where users get stuck, and how you can take something as simple as
+                    <em>“What should I cook today?”</em> and turn it into a really good experience.
+                </p>
+
+                <p>
+                    That's when something clicked for me.
+                </p>
+
+                <p>
+                    <strong>Every product gives you a new topic to obsess over.</strong>
+                </p>
+
+                <p>
+                    Build a messaging product, and you start learning about communication.
+                    Build a food product, and suddenly you're learning about food, kitchens, shopping, recipes, and consumer behaviour.
+                </p>
+
+                <p>
+                    The product forces you to leave your little engineering bubble.
+                </p>
+
+                <p>
+                    And I love that.
+                </p>
+
+                <p>
+                    I like understanding the world behind the product before deciding how the product should work.
+                    I like noticing the little things that make an experience confusing, slow, or unnecessarily complicated.
+                    And I really enjoy taking those moments and asking:
+                    <strong>“Can this just feel easier?”</strong>
+                </p>
+
+                <p>
+                    Because I don't want to build something that merely works.
+                </p>
+
+                <p>
+                    I want to build something where the user doesn't have to stop and think about how to use it.
+                    Where the next step feels obvious.
+                    Where the interactions feel natural.
+                    Where all the little details quietly do their job.
+                </p>
+
+                <p>
+                    Maybe that's what I enjoy most about product development.
+                </p>
+
+                <p>
+                    <strong>You build the product, but the product makes you learn the world around it.</strong>
+                </p>
+
+                <p>
+                    And every time I start building something new, I get to start learning all over again.
+                </p>
+                </article>
+
+        `
+    }
     
     /* 
      * To add a new blog post, copy the template below and fill in your details:
