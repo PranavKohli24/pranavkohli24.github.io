@@ -26,7 +26,7 @@
         // screen instead of the animated eyes. Leave '' for the plain robot.
         avatarSrc: '',
 
-        bestKey: 'escapeInterviewBestV3',
+        bestKey: 'escapeInterviewBestCoinsV1',
         muteKey: 'escapeInterviewMuted'
     };
 
@@ -379,7 +379,7 @@
         roundTitle = document.getElementById('roundTitle');
         flavorText = document.getElementById('flavorText');
         hudRound = document.getElementById('hudRound');
-        hudScore = document.getElementById('hudMoves');
+        hudScore = document.getElementById('hudCoins');
         hudTime = document.getElementById('hudTime');
         hudLives = document.getElementById('hudLives');
         hud = document.getElementById('gameHud');
@@ -430,7 +430,7 @@
 
     function syncHud() {
         setText(hudRound, String(roundIndex + 1), 'round');
-        setText(hudScore, Math.floor(score).toLocaleString(), 'score');
+        setText(hudScore, String(coinCount), 'coins');
         setText(hudTime, elapsed.toFixed(1) + 's', 'time');
         setText(
             hudLives,
@@ -448,12 +448,18 @@
     function showBest() {
         if (!bestScore) return;
         const value = Number(load(CONFIG.bestKey) || 0);
-        bestScore.textContent = value ? 'Best run: ' + value.toLocaleString() + ' pts' : '';
+        bestScore.textContent = value
+            ? 'Best run: ' + value.toLocaleString() + ' coins'
+            : '';
     }
 
     function saveBest() {
         const old = Number(load(CONFIG.bestKey) || 0);
-        if (Math.floor(score) > old) store(CONFIG.bestKey, String(Math.floor(score)));
+
+        if (coinCount > old) {
+            store(CONFIG.bestKey, String(coinCount));
+        }
+
         showBest();
     }
 
@@ -1135,8 +1141,15 @@
 
         finalStats.textContent = '';
         const line = document.createElement('div');
-        line.textContent = Math.floor(score).toLocaleString() + ' pts · ' +
-            coinCount + ' coins · ' + elapsed.toFixed(1) + 's';
+        if (won) {
+            line.textContent = 'Round 4/4 cleared · ' +
+                coinCount + ' coins · ' +
+                elapsed.toFixed(1) + 's';
+        } else {
+            line.textContent = 'Reached Round ' + (roundIndex + 1) + '/4 · ' +
+                coinCount + ' coins · ' +
+                elapsed.toFixed(1) + 's';
+        }
         finalStats.appendChild(line);
 
         if (unlocked.length) {
