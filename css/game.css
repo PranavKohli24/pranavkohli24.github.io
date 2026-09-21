@@ -498,26 +498,27 @@ body:has(#game.section.active) #liquid-glow {
 
     .game-hud {
         width: min(100%, 900px);
-        gap: 0.35rem;
+        gap: 0.6rem;
         margin-bottom: 0.65rem;
     }
 
     .game-hud > div {
         flex: 1;
         min-width: 0;
-        padding: 0.45rem 0.3rem;
+        padding: 0.45rem 0.25rem;
         border-radius: 10px;
         font-size: 0.72rem;
     }
 
     .game-hud .game-pause {
-        min-width: 0;
+        flex: 0 0 40px;
+        min-width: 40px;
     }
 
     .pause-btn {
-        width: 23px;
-        height: 23px;
-        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
     }
 
     .game-canvas-wrap {
@@ -559,6 +560,10 @@ body:has(#game.section.active) #liquid-glow {
 }
 
 @media (max-width: 390px) {
+    .game-hud > div {
+        font-size: 0.66rem;
+    }
+    
     .game-overlay h2 {
         font-size: 1.65rem;
     }

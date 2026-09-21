@@ -295,8 +295,13 @@
     /* ---------------------------------------------------------------------
        Audio (tiny synth, muted with M or the sound button)
        --------------------------------------------------------------------- */
+  
+
     let audio = null;
+    let master = null;
     let muted = false;
+
+    const VOL = 3.5; // sound effect loudness multiplier
 
     function ensureAudio() {
         if (audio) {
@@ -305,28 +310,76 @@
         }
         const C = window.AudioContext || window.webkitAudioContext;
         if (!C) return null;
-        try { audio = new C(); } catch (e) { audio = null; }
+        try {
+            audio = new C();
+            master = audio.createGain();
+            master.gain.value = 0.9;
+            const comp = audio.createDynamicsCompressor();
+            master.connect(comp);
+            comp.connect(audio.destination);
+        } catch (e) { audio = null; }
         return audio;
     }
 
     function tone(freq, dur, type, vol, to) {
         if (muted) return;
         const ac = ensureAudio();
-        if (!ac) return;
+        if (!ac || !master) return;
         const t0 = ac.currentTime;
+        const peak = Math.min(0.5, (vol || 0.03) * VOL);
         const osc = ac.createOscillator();
         const gain = ac.createGain();
         osc.type = type || 'sine';
         osc.frequency.setValueAtTime(freq, t0);
         if (to) osc.frequency.exponentialRampToValueAtTime(to, t0 + dur);
-        gain.gain.setValueAtTime(vol || 0.03, t0);
+        gain.gain.setValueAtTime(0.0001, t0);
+        gain.gain.linearRampToValueAtTime(peak, t0 + 0.006);
         gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
         osc.connect(gain);
-        gain.connect(ac.destination);
+        gain.connect(master);
         osc.start(t0);
         osc.stop(t0 + dur + 0.02);
     }
 
+    const ARP = [
+        [262, 330, 392, 330, 262, 330, 392, 523], // C
+        [220, 262, 330, 262, 220, 262, 330, 440], // Am
+        [175, 220, 262, 220, 175, 220, 262, 349], // F
+        [196, 247, 294, 247, 196, 247, 294, 392]  // G
+    ];
+    const BASS_NOTES = [131, 110, 87, 98];
+    let musicStep = 0;
+    let musicNext = 0;
+
+    function musicTone(freq, t0, dur, type, vol) {
+        const osc = audio.createOscillator();
+        const g = audio.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, t0);
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.linearRampToValueAtTime(vol, t0 + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        osc.connect(g);
+        g.connect(master);
+        osc.start(t0);
+        osc.stop(t0 + dur + 0.02);
+    }
+
+    // called every frame while playing; schedules notes slightly ahead
+    function musicTick() {
+        if (muted || !audio || !master) return;
+        const now = audio.currentTime;
+        if (musicNext < now) musicNext = now + 0.05;
+        const step = 0.24 - roundIndex * 0.015; // gets faster each round
+        while (musicNext < now + 0.3) {
+            const bar = Math.floor(musicStep / 8) % 4;
+            const i = musicStep % 8;
+            musicTone(ARP[bar][i], musicNext, 0.18, 'triangle', 0.04);
+            if (i % 4 === 0) musicTone(BASS_NOTES[bar], musicNext, 0.4, 'sine', 0.08);
+            musicStep++;
+            musicNext += step;
+        }
+    }
     const sfx = {
         jump() { tone(360, 0.14, 'square', 0.02, 640); },
         air() { tone(520, 0.14, 'square', 0.018, 900); },
@@ -923,8 +976,8 @@
 
     function smash(o) {
         o.dead = true;
-        score += 50 * multiplier();
-        floater('+' + 50 * multiplier(), o.x + o.w / 2, GY - 60, '#e0a53a');
+        addCoins(2);
+        floater('+2 coins', o.x + o.w / 2, GY - 60, '#e0a53a');
         burst(o.x + o.w / 2, GY - 24, 14, [HAZ, HAZ_DARK, '#fff'], 220, 0.6, 5, 500);
         shake = Math.max(shake, 4);
         sfx.smash();
@@ -955,21 +1008,26 @@
         }
     }
 
+    function addCoins(n) {
+        coinCount += n;
+        while (unlocked.length < CONFIG.skills.length &&
+            Math.floor(coinCount / CONFIG.coinsPerSkill) > unlocked.length) {
+            const skill = CONFIG.skills[unlocked.length];
+            unlocked.push(skill);
+            toast('Skill unlocked: ' + skill);
+        }
+    }
+
     function collectCoin(c) {
         const prev = multiplier();
         combo += 1;
-        coinCount += 1;
+        addCoins(1);
         const m = multiplier();
         score += 10 * m;
         sfx.coin(combo);
         burst(c.x, GY - c.h, 5, [GOLD, '#fff3b0'], 110, 0.35, 3, 200);
         if (m > prev) floater('x' + m + ' combo', PX + 10, GY - py - 70, '#e0a53a');
 
-        if (coinCount % CONFIG.coinsPerSkill === 0 && unlocked.length < CONFIG.skills.length) {
-            const skill = CONFIG.skills[unlocked.length];
-            unlocked.push(skill);
-            toast('Skill unlocked: ' + skill);
-        }
     }
 
     function collectPower(p) {
@@ -1083,8 +1141,8 @@
         roundStartDist = dist;
         doorSpawned = false;
         nextSpawn = dist + 260;
-        score += 250;
-        floater('+250', PX + 10, GY - 80, '#e0a53a');
+        addCoins(25);
+        floater('+25 coins', PX + 10, GY - 80, '#e0a53a');
         sfx.round();
         showBanner();
         updateText();
@@ -1111,7 +1169,7 @@
         } else {
             vy = 0;
             py = 0;
-            score += lives * 150;
+            addCoins(lives * 5);
             confetti();
             sfx.win();
         }
@@ -1162,6 +1220,8 @@
     function start() {
         ensureAudio();
 
+        musicStep = 0;
+        musicNext = 0;
         state = 'countdown';
         result = 'lose';
 
@@ -2176,6 +2236,8 @@
             if (state === 'playing' || state === 'countdown') pause();
             return;
         }
+
+        if (state === 'playing' || state === 'countdown') musicTick();
 
         if (state !== 'paused') {
             update(dt);
