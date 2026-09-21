@@ -42,6 +42,7 @@ const DIGITAL_TWIN_EYES = {
 
 const DIGITAL_TWIN_MAX_EYE_MOVE_X = 15;   // left-right range
 const DIGITAL_TWIN_MAX_EYE_MOVE_Y = 9;    // up-down range (smaller = more natural)
+const DIGITAL_TWIN_TYPING_LOOK_DOWN = 0.9; // how far down he looks while replying (0 to 1 of Y range)
 const DIGITAL_TWIN_IDLE_AFTER_MS = 4000;  // start wandering after this much quiet
 
 let digitalTwinLids = [];
@@ -956,6 +957,12 @@ let history = [];
         chatTyping.style.display = visible ? 'flex' : 'none';
 
         if (visible) {
+            const y = DIGITAL_TWIN_MAX_EYE_MOVE_Y * DIGITAL_TWIN_TYPING_LOOK_DOWN;
+            setDigitalTwinEyeOffset(digitalTwinLeftEye, 0, y);
+            setDigitalTwinEyeOffset(digitalTwinRightEye, 0, y);
+            digitalTwinLastGaze = { x: 0, y };
+            digitalTwinLastInteraction = Date.now();
+
             applyScrollFollow(wasFollowing);
         }
     }
@@ -3014,7 +3021,7 @@ function followReadingGaze(bubble, cursor) {
 
     // -0.8 (left) to +0.8 (right) of the horizontal range, slightly downward
     const x = (-0.8 + 1.6 * progress) * DIGITAL_TWIN_MAX_EYE_MOVE_X;
-    const y = DIGITAL_TWIN_MAX_EYE_MOVE_Y * 0.5;
+    const y = DIGITAL_TWIN_MAX_EYE_MOVE_Y * DIGITAL_TWIN_TYPING_LOOK_DOWN;
 
     setDigitalTwinEyeOffset(digitalTwinLeftEye, x, y);
     setDigitalTwinEyeOffset(digitalTwinRightEye, x, y);
