@@ -39,7 +39,7 @@ const DIGITAL_TWIN_EYES = {
         y: 568
     }
 };
-const DIGITAL_TWIN_MAX_EYE_MOVE = 11.5;
+const DIGITAL_TWIN_MAX_EYE_MOVE = 15;
 let digitalTwinEyeResetTimer = null;
 
 let history = [];
@@ -62,6 +62,7 @@ let history = [];
     let userRequestedStop = false;
     let interimVoiceText = '';
     let micBlockedNoticeEl = null;
+    let discardSpeechResults = false;
 
     let cachedVoices = [];
     let fastForwardStream = false;
@@ -262,8 +263,9 @@ let history = [];
 
         const maleVoice = voices.find(
             voice =>
-                /male|man|david|mark|alex|daniel|james|george|guy/i.test(voice.name) &&
-                /^en-/i.test(voice.lang)
+                /^en-/i.test(voice.lang) &&
+                !/female|woman|zira|samantha|susan|hazel/i.test(voice.name) &&
+                /\b(male|david|mark|alex|daniel|james|george|guy)\b/i.test(voice.name)
         );
 
         const englishVoice = voices.find(voice => /^en-/i.test(voice.lang));
@@ -357,6 +359,7 @@ let history = [];
         function playFrom(startChar) {
             const id = ++utteranceId;
 
+            currentUtterance = null;
             window.speechSynthesis.cancel();
 
             const clampedStart = Math.max(0, Math.min(startChar, speechText.length));
@@ -445,6 +448,7 @@ let history = [];
 
         function pausePlayback() {
             utteranceId++; // invalidate any in-flight callbacks from the old utterance
+            currentUtterance = null;
             window.speechSynthesis.cancel();
             stopVisualLoop();
 
@@ -1099,6 +1103,7 @@ let history = [];
         recognition.onstart = () => {
             isListening = true;
             userRequestedStop = false;
+            discardSpeechResults = false;
             interimVoiceText = '';
 
             chatSendBtn.classList.add('listening');
@@ -1107,6 +1112,7 @@ let history = [];
 
 
         recognition.onresult = (event) => {
+            if (discardSpeechResults) return;
             let finalText = '';
             let interimText = '';
 
@@ -1360,10 +1366,11 @@ let history = [];
 
         userRequestedStop = true;
         isListening = false;
+        discardSpeechResults = true;   
 
         try {
             if (recognition) {
-                recognition.stop();
+                recognition.abort();
             }
         } catch (error) {
             console.warn(
@@ -2446,9 +2453,10 @@ let history = [];
         if (isListening) {
             userRequestedStop = true;
             isListening = false;
+            discardSpeechResults = true;
 
             try {
-                recognition.stop();
+                recognition.abort();
             } catch (error) {
                 console.warn(
                     'Could not stop speech recognition:',
@@ -2863,11 +2871,11 @@ let history = [];
         }
     }
 
+    // Distance (in screen pixels) at which the pupil reaches full movement.
+// Closer taps = smaller movement. Farther taps = bigger movement.
+const DIGITAL_TWIN_EYE_FALLOFF_PX = 260;
 
-    function updateDigitalTwinEyes(clientX, clientY) {
-    if (digitalTwinEyeResetTimer) {
-    clearTimeout(digitalTwinEyeResetTimer);
-}
+function updateDigitalTwinEyes(clientX, clientY) {
     if (
         !digitalTwinAvatar ||
         !digitalTwinLeftEye ||
@@ -2876,80 +2884,48 @@ let history = [];
         return;
     }
 
-    const rect =
-        digitalTwinAvatar.getBoundingClientRect();
+    const rect = digitalTwinAvatar.getBoundingClientRect();
 
+    // FIX #2: leave BEFORE touching the timer.
+    // If the section is hidden, the old reset timer stays alive.
     if (!rect.width || !rect.height) return;
 
-    // Convert screen coordinates into the SVG coordinate system.
-    const targetX =
-        (clientX - rect.left) *
-        (DIGITAL_TWIN_IMAGE_WIDTH / rect.width);
+    if (digitalTwinEyeResetTimer) {
+        clearTimeout(digitalTwinEyeResetTimer);
+    }
 
-    const targetY =
-        (clientY - rect.top) *
-        (DIGITAL_TWIN_IMAGE_HEIGHT / rect.height);
-
-    moveDigitalTwinEye(
-        digitalTwinLeftEye,
-        DIGITAL_TWIN_EYES.left,
-        targetX,
-        targetY
-    );
-
-    moveDigitalTwinEye(
-        digitalTwinRightEye,
-        DIGITAL_TWIN_EYES.right,
-        targetX,
-        targetY
-    );
+    moveDigitalTwinEye(digitalTwinLeftEye, DIGITAL_TWIN_EYES.left, clientX, clientY, rect);
+    moveDigitalTwinEye(digitalTwinRightEye, DIGITAL_TWIN_EYES.right, clientX, clientY, rect);
 
     digitalTwinEyeResetTimer = setTimeout(() => {
-    digitalTwinLeftEye.style.transform = 'translate(0px, 0px)';
-    digitalTwinRightEye.style.transform = 'translate(0px, 0px)';
-}, 5000);
+        digitalTwinLeftEye.style.transform = 'translate(0px, 0px)';
+        digitalTwinRightEye.style.transform = 'translate(0px, 0px)';
+    }, 5000);
 }
 
+function moveDigitalTwinEye(eyeElement, eyeCenter, clientX, clientY, rect) {
+    // Where this eye is on the SCREEN, in pixels
+    const eyeScreenX = rect.left + eyeCenter.x * (rect.width / DIGITAL_TWIN_IMAGE_WIDTH);
+    const eyeScreenY = rect.top + eyeCenter.y * (rect.height / DIGITAL_TWIN_IMAGE_HEIGHT);
 
-function moveDigitalTwinEye(
-    eyeElement,
-    eyeCenter,
-    targetX,
-    targetY
-) {
-    const dx =
-        targetX - eyeCenter.x;
-
-    const dy =
-        targetY - eyeCenter.y;
-
-    const distance =
-        Math.hypot(dx, dy);
+    const dx = clientX - eyeScreenX;
+    const dy = clientY - eyeScreenY;
+    const distance = Math.hypot(dx, dy);
 
     if (distance === 0) {
-        eyeElement.style.transform =
-            'translate(0px, 0px)';
+        eyeElement.style.transform = 'translate(0px, 0px)';
         return;
     }
 
-    const limitedDistance =
-        Math.min(
-            distance,
-            DIGITAL_TWIN_MAX_EYE_MOVE
-        );
+    // FIX #1: strength goes from 0 to 1 based on how far the tap is.
+    const strength = Math.min(distance / DIGITAL_TWIN_EYE_FALLOFF_PX, 1);
+    const move = DIGITAL_TWIN_MAX_EYE_MOVE * strength;
 
-    const x =
-        (dx / distance) *
-        limitedDistance;
+    const x = (dx / distance) * move;
+    const y = (dy / distance) * move;
 
-    const y =
-        (dy / distance) *
-        limitedDistance;
-
-    eyeElement.style.transform =
-        `translate(${x}px, ${y}px)`;
+    eyeElement.style.transform = `translate(${x}px, ${y}px)`;
 }
-
 
 
     function bindElements() {
