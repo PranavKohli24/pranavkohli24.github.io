@@ -18,8 +18,8 @@
         // Every N coins "unlocks" the next skill. Put your real stack here.
         // They show up as a toast while playing and on the end screen.
         skills: [
-            'HTML', 'CSS', 'JavaScript', 'React', 'Node.js',
-            'Python', 'SQL', 'Git', 'REST APIs', 'Docker'
+            'Swift', 'React', 'Node.js', 'JavaScript', 'RAG',
+            'Python', 'DSA', 'AI/ML', 'Git', 'UI/UX'
         ],
 
         // Optional: path to a face image. If set, it appears on the robot's
@@ -46,7 +46,7 @@
             pool: { crate: 5, tall: 2, flag: 3, bunch: 1, coins: 2 },
             labels: {
                 crate: ['TYPO', 'NO EXP', 'GAP', '2 PAGES', 'CV.PDF'],
-                flag: ['REJECT', 'NO REPLY', 'SPAM']
+                flag: ['REJECT', 'NO REPLY', 'GHOST']
             },
             pal: {
                 sky: '#efe9fb', sun: '#fbe1ee', cloud: '#ffffff',
@@ -60,7 +60,7 @@
             length: 6400, speed: 335, gap: 0.92, tight: 0.94,
             pool: { crate: 3, tall: 2, flag: 2, bunch: 2, hop2: 2, drone: 2, flagCrate: 1, coins: 1 },
             labels: {
-                crate: ['BUG', 'TLE', '404', 'NULL', 'OFF BY 1'],
+                crate: ['BUG', 'TLE', '404', 'NULL', 'Semicolon missing'],
                 flag: ['TIMEOUT', 'DEADLINE', 'TAB SWITCH']
             },
             pal: {
