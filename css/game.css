@@ -439,6 +439,8 @@ body:has(#game.section.active) #liquid-glow {
     margin-top: 0.95rem;
     gap: 0.7rem;
     justify-content: center;
+    align-items: center;
+    flex-direction: row;
 }
 
 .dpad-btn {
@@ -455,7 +457,6 @@ body:has(#game.section.active) #liquid-glow {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.45rem;
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
