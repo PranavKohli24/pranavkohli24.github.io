@@ -1361,7 +1361,7 @@
             py = endT > 0.15 ? Math.abs(Math.sin(endT * 6.5)) * 42 : 0;
         }
 
-        if (endT >= (result === 'win' ? 1.1 : 1.25)) finishRun();
+        if (endT >= (result === 'win' ? 2.4 : 1.25)) finishRun();
         return endV * slow;
     }
 
