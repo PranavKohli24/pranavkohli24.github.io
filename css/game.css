@@ -78,7 +78,7 @@ body:has(#game.section.active) #liquid-glow {
 }
 
 .game-hud > div:nth-child(1) { background: #e7defb; }
-.game-hud > div:nth-child(2) { background: #fff3b0; }
+.game-hud > div:nth-child(2) { background: #fffbe0;; }
 
 .game-hud b {
     color: var(--g-ink);

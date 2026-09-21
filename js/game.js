@@ -1997,9 +1997,23 @@
         }
 
         // far limbs
+                // laptop tucked under the far arm, held against the torso
+        if (mode !== 'dead') {
+            ctx.save();
+            ctx.translate(-13, -27);
+            ctx.rotate(-0.18);
+            rr(-9, -1, 11, 8, 1.5);
+            fillStroke(BOT.shell, 1.8);
+            ctx.fillStyle = PAL.sky;
+            rr(-8, -0.5, 9, 5.5, 1);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // far limbs
         drawLimb(0, -32, armF.a, armF.a + armF.e, ARM_UP, ARM_LOW, BOT.limbF, false);
         drawLimb(-2, HIP_Y, legF.a, legF.a - legF.k, THIGH, SHIN, BOT.limbF, true);
-
+        
         // torso
         rr(-11, -37, 22, 20, 7);
         fillStroke(BOT.torso, 2.5);
