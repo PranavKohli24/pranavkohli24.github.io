@@ -39,10 +39,18 @@ const DIGITAL_TWIN_EYES = {
         y: 568
     }
 };
-const DIGITAL_TWIN_MAX_EYE_MOVE = 15;
-let digitalTwinEyeResetTimer = null;
+
+const DIGITAL_TWIN_MAX_EYE_MOVE_X = 15;   // left-right range
+const DIGITAL_TWIN_MAX_EYE_MOVE_Y = 9;    // up-down range (smaller = more natural)
+const DIGITAL_TWIN_IDLE_AFTER_MS = 4000;  // start wandering after this much quiet
+
 let digitalTwinLids = [];
 let digitalTwinBlinkTimer = null;
+let digitalTwinIdleTimer = null;
+let digitalTwinLastInteraction = 0;
+let digitalTwinLastGaze = { x: 0, y: 0 };
+let digitalTwinReadLineTop = null;   // remembers which text line the cursor is on
+let digitalTwinReadLastUpdate = 0;   // throttle
 
 let history = [];
     let sessionId = null;
@@ -103,18 +111,20 @@ let history = [];
 
 
     function getOrCreateSessionId() {
-        let id = sessionStorage.getItem(SESSION_KEY);
+    let id = null;
 
-        if (!id) {
-            id = (crypto.randomUUID
-                ? crypto.randomUUID()
-                : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+    try { id = sessionStorage.getItem(SESSION_KEY); } catch {}
 
-            sessionStorage.setItem(SESSION_KEY, id);
-        }
+    if (!id) {
+        id = (crypto.randomUUID
+            ? crypto.randomUUID()
+            : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2));
 
-        return id;
+        try { sessionStorage.setItem(SESSION_KEY, id); } catch {}
     }
+
+    return id;
+}
 
 
     /* =========================================================
@@ -1791,6 +1801,8 @@ let history = [];
                     userBubble.style.opacity = '';
                     userBubble.style.pointerEvents = '';
 
+                    lookAtElement(userBubble);
+
                     recentlyUsedSuggestions.push(question);
 
                     if (recentlyUsedSuggestions.length > MAX_RECENT_SUGGESTIONS) {
@@ -2282,6 +2294,9 @@ let history = [];
         function newBubble(withQuote) {
             const bubble = appendEmptyBotBubble(withQuote ? replyQuoteText : null);
             bubble.classList.add('chat-msg-pending');
+
+            digitalTwinReadLineTop = null;   // new bubble = fresh start on the left
+
             const entry = {
                 bubble,
                 p: bubble.querySelector('p'),
@@ -2343,6 +2358,8 @@ let history = [];
                 const wasFollowing = wasFollowingBottom();
                 renderLinkedText(current.p, segment, current.cursor);
                 applyScrollFollow(wasFollowing);
+
+                followReadingGaze(current.bubble, current.cursor);
             }
 
             await delay(TYPE_SPEED_MS);
@@ -2530,6 +2547,9 @@ let history = [];
 
             userBubble.style.opacity = '';
             userBubble.style.pointerEvents = '';
+
+            // Glance at your message once it lands, like he just read it
+            lookAtElement(userBubble);
         }, 550);
 
         pendingQueue.push({
@@ -2693,6 +2713,11 @@ let history = [];
 
             const { fullText, lastBubble, cursor } =
                 await streamMultiBubbleReply(res, showQuote ? text : null);
+
+            // Done reading: eyes come back to center
+            setDigitalTwinEyeOffset(digitalTwinLeftEye, 0, 0);
+            setDigitalTwinEyeOffset(digitalTwinRightEye, 0, 0);
+            digitalTwinLastGaze = { x: 0, y: 0 };
 
             const remaining =
                 res.headers.get('X-Messages-Remaining');
@@ -2877,6 +2902,11 @@ let history = [];
 // Closer taps = smaller movement. Farther taps = bigger movement.
 const DIGITAL_TWIN_EYE_FALLOFF_PX = 260;
 
+function setDigitalTwinEyeOffset(eyeElement, x, y) {
+    if (!eyeElement) return;
+    eyeElement.style.transform = `translate(${x}px, ${y}px)`;
+}
+
 function updateDigitalTwinEyes(clientX, clientY) {
     if (
         !digitalTwinAvatar ||
@@ -2887,26 +2917,28 @@ function updateDigitalTwinEyes(clientX, clientY) {
     }
 
     const rect = digitalTwinAvatar.getBoundingClientRect();
-
-    // FIX #2: leave BEFORE touching the timer.
-    // If the section is hidden, the old reset timer stays alive.
     if (!rect.width || !rect.height) return;
 
-    if (digitalTwinEyeResetTimer) {
-        clearTimeout(digitalTwinEyeResetTimer);
-    }
+    // Remember when the user last interacted, so idle wandering waits.
+    digitalTwinLastInteraction = Date.now();
 
-    moveDigitalTwinEye(digitalTwinLeftEye, DIGITAL_TWIN_EYES.left, clientX, clientY, rect);
+    const gaze = moveDigitalTwinEye(digitalTwinLeftEye, DIGITAL_TWIN_EYES.left, clientX, clientY, rect);
     moveDigitalTwinEye(digitalTwinRightEye, DIGITAL_TWIN_EYES.right, clientX, clientY, rect);
 
-    digitalTwinEyeResetTimer = setTimeout(() => {
-        digitalTwinLeftEye.style.transform = 'translate(0px, 0px)';
-        digitalTwinRightEye.style.transform = 'translate(0px, 0px)';
-    }, 5000);
+    // Big look = sometimes blink, like a real person shifting their gaze.
+    const shift = Math.hypot(
+        gaze.x - digitalTwinLastGaze.x,
+        gaze.y - digitalTwinLastGaze.y
+    );
+
+    if (shift > DIGITAL_TWIN_MAX_EYE_MOVE_X * 0.8 && Math.random() < 0.4) {
+        blinkDigitalTwin(false);
+    }
+
+    digitalTwinLastGaze = gaze;
 }
 
 function moveDigitalTwinEye(eyeElement, eyeCenter, clientX, clientY, rect) {
-    // Where this eye is on the SCREEN, in pixels
     const eyeScreenX = rect.left + eyeCenter.x * (rect.width / DIGITAL_TWIN_IMAGE_WIDTH);
     const eyeScreenY = rect.top + eyeCenter.y * (rect.height / DIGITAL_TWIN_IMAGE_HEIGHT);
 
@@ -2915,18 +2947,127 @@ function moveDigitalTwinEye(eyeElement, eyeCenter, clientX, clientY, rect) {
     const distance = Math.hypot(dx, dy);
 
     if (distance === 0) {
-        eyeElement.style.transform = 'translate(0px, 0px)';
-        return;
+        setDigitalTwinEyeOffset(eyeElement, 0, 0);
+        return { x: 0, y: 0 };
     }
 
-    // FIX #1: strength goes from 0 to 1 based on how far the tap is.
     const strength = Math.min(distance / DIGITAL_TWIN_EYE_FALLOFF_PX, 1);
-    const move = DIGITAL_TWIN_MAX_EYE_MOVE * strength;
 
-    const x = (dx / distance) * move;
-    const y = (dy / distance) * move;
+    // Oval range: more sideways, less up-down.
+    const x = (dx / distance) * strength * DIGITAL_TWIN_MAX_EYE_MOVE_X;
+    const y = (dy / distance) * strength * DIGITAL_TWIN_MAX_EYE_MOVE_Y;
 
-    eyeElement.style.transform = `translate(${x}px, ${y}px)`;
+    setDigitalTwinEyeOffset(eyeElement, x, y);
+    return { x, y };
+}
+
+// Make the twin look at a chat bubble, like he is reading it.
+function lookAtElement(el) {
+    if (!el) return;
+
+    const r = el.getBoundingClientRect();
+    if (!r.width && !r.height) return;
+
+    // Look near the start of the bubble, where reading begins.
+    // Clamp to the screen so a far-away bubble never gives a wild angle.
+    const x = Math.min(Math.max(r.left + Math.min(r.width / 2, 80), 0), window.innerWidth);
+    const y = Math.min(Math.max(r.top + 14, 0), window.innerHeight);
+
+    updateDigitalTwinEyes(x, y);
+}
+
+
+// Eyes read along with the typing cursor:
+// left edge = look left, right end of line = look right, new line = snap back left.
+function followReadingGaze(bubble, cursor) {
+    if (!bubble || !cursor || !cursor.isConnected) return;
+    if (!digitalTwinAvatar || !digitalTwinLeftEye || !digitalTwinRightEye) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Throttle: no need to update on every 30ms typing tick
+    const now = performance.now();
+    if (now - digitalTwinReadLastUpdate < 80) return;
+    digitalTwinReadLastUpdate = now;
+
+    const avatarRect = digitalTwinAvatar.getBoundingClientRect();
+    if (!avatarRect.width) return;   // section hidden
+
+    const b = bubble.getBoundingClientRect();
+    const c = cursor.getBoundingClientRect();
+    if (!b.width) return;
+
+    // New line? (cursor moved down by more than half a line)
+    const lineOffset = c.top - b.top;   // relative to the bubble, so scrolling can't fool it
+
+    const isNewLine =
+        digitalTwinReadLineTop !== null &&
+        lineOffset - digitalTwinReadLineTop > 8;
+
+    if (digitalTwinReadLineTop === null || isNewLine) {
+        digitalTwinReadLineTop = lineOffset;
+    }
+
+    // Use the bubble's MAX width as the "full line", not its current width.
+    // Otherwise a short reply would always look "fully right".
+    const maxLine = chatMessages.clientWidth * (window.innerWidth <= 768 ? 0.88 : 0.78) - 32;
+    const progress = Math.min(Math.max((c.left - b.left - 16) / maxLine, 0), 1);
+
+    // -0.8 (left) to +0.8 (right) of the horizontal range, slightly downward
+    const x = (-0.8 + 1.6 * progress) * DIGITAL_TWIN_MAX_EYE_MOVE_X;
+    const y = DIGITAL_TWIN_MAX_EYE_MOVE_Y * 0.5;
+
+    setDigitalTwinEyeOffset(digitalTwinLeftEye, x, y);
+    setDigitalTwinEyeOffset(digitalTwinRightEye, x, y);
+    digitalTwinLastGaze = { x, y };
+    digitalTwinLastInteraction = Date.now();
+
+    // Small chance of a blink when the eyes jump back to the next line
+    if (isNewLine && Math.random() < 0.25) {
+        blinkDigitalTwin(false);
+    }
+}
+
+// ---------- Idle looking around ----------
+
+function idleGlance() {
+    if (document.hidden || !isDigitalTwinSectionActive()) return;
+
+    // Stay focused on the reply while it is being written.
+    if (isSending) return;
+
+    // User was active recently, so don't wander.
+    if (Date.now() - digitalTwinLastInteraction < DIGITAL_TWIN_IDLE_AFTER_MS) return;
+
+    let x = 0;
+    let y = 0;
+
+    // 65% look somewhere small, 35% come back to center.
+    if (Math.random() > 0.35) {
+        x = (Math.random() * 2 - 1) * DIGITAL_TWIN_MAX_EYE_MOVE_X * 0.6;
+        y = (Math.random() * 2 - 1) * DIGITAL_TWIN_MAX_EYE_MOVE_Y * 0.6;
+    }
+
+    setDigitalTwinEyeOffset(digitalTwinLeftEye, x, y);
+    setDigitalTwinEyeOffset(digitalTwinRightEye, x, y);
+    digitalTwinLastGaze = { x, y };
+}
+
+function scheduleIdleGlance() {
+    // Random gap: 1.5 to 4 seconds
+    const wait = 1500 + Math.random() * 2500;
+
+    digitalTwinIdleTimer = setTimeout(() => {
+        idleGlance();
+        scheduleIdleGlance();
+    }, wait);
+}
+
+function startDigitalTwinIdleLook() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!digitalTwinLeftEye || !digitalTwinRightEye) return;
+
+    clearTimeout(digitalTwinIdleTimer);
+    scheduleIdleGlance();
 }
 
 function blinkDigitalTwin(allowDoubleBlink = true) {
@@ -3166,6 +3307,7 @@ return true;
         renderSuggestions();
         updateActionButton();
         startDigitalTwinBlinking();
+        startDigitalTwinIdleLook();
 
         const suggestions = document.getElementById('chatSuggestions');
 
