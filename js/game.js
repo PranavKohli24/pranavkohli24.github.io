@@ -2217,6 +2217,13 @@
         drawCountdown();
     }
 
+    let locked = false;
+    function setLock(on) {
+        if (on === locked) return;
+        locked = on;
+        document.documentElement.classList.toggle('game-lock', on);
+    }
+
     /* ---------------------------------------------------------------------
        Loop
        --------------------------------------------------------------------- */
@@ -2233,9 +2240,12 @@
         lastFrame = now;
 
         if (!sectionVisible()) {
+            setLock(false);
             if (state === 'playing' || state === 'countdown') pause();
             return;
         }
+
+        setLock(state === 'playing' || state === 'countdown' || state === 'ending');
 
         if (state === 'playing' || state === 'countdown') musicTick();
 
@@ -2262,6 +2272,12 @@
         if (tag === 'INPUT' || tag === 'TEXTAREA' || (event.target && event.target.isContentEditable)) return;
 
         const key = event.key;
+
+        // stop the page from scrolling while the game section is open
+        if (key === 'ArrowUp' || key === 'ArrowDown' ||
+            (key === ' ' && tag !== 'BUTTON' && tag !== 'A')) {
+            event.preventDefault();
+        }
 
         if (key === 'm' || key === 'M') {
             setMuted(!muted);
@@ -2362,9 +2378,13 @@
         pauseBtn.addEventListener('click', () => {
             if (state === 'paused') resume();
             else pause();
+            pauseBtn.blur();
         });
 
-        if (soundBtn) soundBtn.addEventListener('click', () => setMuted(!muted));
+        if (soundBtn) soundBtn.addEventListener('click', () => {
+            setMuted(!muted);
+            soundBtn.blur();
+        });
 
         bindPress(document.getElementById('btnUp'), pressJump);
         bindPress(document.getElementById('btnDown'), pressSlide);

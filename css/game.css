@@ -64,6 +64,7 @@ body:has(#game.section.active) #liquid-glow {
     margin: 0 0 0.8rem;
     position: relative;
     z-index: 20;
+    touch-action: none;
 }
 
 .game-hud > div {
@@ -195,6 +196,7 @@ body:has(#game.section.active) #liquid-glow {
     border-radius: 22px;
     overflow: hidden;
     isolation: isolate;
+    touch-action: none;
     background: #efe9fb;
     box-shadow: 0 6px 0 rgba(61, 54, 80, 0.14);
 }
@@ -436,6 +438,7 @@ body:has(#game.section.active) #liquid-glow {
 
 .game-dpad {
     display: none;
+    touch-action: none;
     margin-top: 0.95rem;
     gap: 0.7rem;
     justify-content: center;
@@ -563,7 +566,7 @@ body:has(#game.section.active) #liquid-glow {
     .game-hud > div {
         font-size: 0.66rem;
     }
-    
+
     .game-overlay h2 {
         font-size: 1.65rem;
     }
@@ -590,4 +593,10 @@ body:has(#game.section.active) #liquid-glow {
     .secondary-btn {
         transition: none;
     }
+}
+
+html.game-lock,
+html.game-lock body {
+    overflow: hidden;
+    overscroll-behavior: none;
 }
