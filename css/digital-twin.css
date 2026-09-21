@@ -71,6 +71,29 @@
     will-change: transform;
 }
 
+.digital-twin-lid {
+    transform-box: fill-box;
+    transform-origin: top center;
+    transform: scaleY(0);      /* open by default */
+    pointer-events: none;
+}
+
+.digital-twin-lid.blinking {
+    animation: digitalTwinBlink 180ms ease-in-out;
+}
+
+@keyframes digitalTwinBlink {
+    0%   { transform: scaleY(0); }
+    45%  { transform: scaleY(1); }   /* fully closed */
+    100% { transform: scaleY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .digital-twin-lid.blinking {
+        animation: none;
+    }
+}
+
 #digital-twin .header {
     font-size: 2.5rem;
     margin: 0;

@@ -41,6 +41,8 @@ const DIGITAL_TWIN_EYES = {
 };
 const DIGITAL_TWIN_MAX_EYE_MOVE = 15;
 let digitalTwinEyeResetTimer = null;
+let digitalTwinLids = [];
+let digitalTwinBlinkTimer = null;
 
 let history = [];
     let sessionId = null;
@@ -2927,6 +2929,39 @@ function moveDigitalTwinEye(eyeElement, eyeCenter, clientX, clientY, rect) {
     eyeElement.style.transform = `translate(${x}px, ${y}px)`;
 }
 
+function blinkDigitalTwin(allowDoubleBlink = true) {
+    if (!digitalTwinLids.length) return;
+    if (document.hidden || !isDigitalTwinSectionActive()) return;
+
+    digitalTwinLids.forEach(lid => {
+        lid.classList.remove('blinking');
+        void lid.getBoundingClientRect();   // restart the animation
+        lid.classList.add('blinking');
+    });
+
+    // Sometimes blink twice, like a real person
+    if (allowDoubleBlink && Math.random() < 0.2) {
+        setTimeout(() => blinkDigitalTwin(false), 260);
+    }
+}
+
+function scheduleNextBlink() {
+    // Random gap: 2.5 to 6 seconds
+    const wait = 2500 + Math.random() * 3500;
+
+    digitalTwinBlinkTimer = setTimeout(() => {
+        blinkDigitalTwin();
+        scheduleNextBlink();
+    }, wait);
+}
+
+function startDigitalTwinBlinking() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!digitalTwinLids.length) return;
+
+    clearTimeout(digitalTwinBlinkTimer);
+    scheduleNextBlink();
+}
 
     function bindElements() {
         chatMessages =
@@ -2979,6 +3014,10 @@ digitalTwinLeftEye =
 
 digitalTwinRightEye =
     document.getElementById('digitalTwinRightEye');
+
+digitalTwinLids =
+    Array.from(document.querySelectorAll('.digital-twin-lid'));
+
 
 return true;
     }
@@ -3126,6 +3165,7 @@ return true;
         });
         renderSuggestions();
         updateActionButton();
+        startDigitalTwinBlinking();
 
         const suggestions = document.getElementById('chatSuggestions');
 
