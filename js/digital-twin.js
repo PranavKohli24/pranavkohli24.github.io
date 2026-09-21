@@ -14,14 +14,35 @@
     'use strict';
 
     const WORKER_URL = 'https://pranav-digital-twin.pranavdigitaltwin.workers.dev';
-    const SESSION_KEY = 'digitalTwinSessionId';
+const SESSION_KEY = 'digitalTwinSessionId';
 
-    let chatMessages, chatInput, chatSendBtn, chatTyping, chatRemaining, chatScrollBottomBtn;
-    let chatMicIcon, chatSendIcon;
-    let chatRecording, chatVoiceControls, chatVoiceSendBtn, chatVoiceStopBtn;
-    let chatInputRow;
+let chatMessages, chatInput, chatSendBtn, chatTyping, chatRemaining, chatScrollBottomBtn;
+let chatMicIcon, chatSendIcon;
+let chatRecording, chatVoiceControls, chatVoiceSendBtn, chatVoiceStopBtn;
+let chatInputRow;
 
-    let history = [];
+// Digital Twin interactive eyes
+let digitalTwinAvatar;
+let digitalTwinLeftEye;
+let digitalTwinRightEye;
+
+const DIGITAL_TWIN_IMAGE_WIDTH = 1150;
+const DIGITAL_TWIN_IMAGE_HEIGHT = 1367;
+
+const DIGITAL_TWIN_EYES = {
+    left: {
+        x: 477,
+        y: 590
+    },
+    right: {
+        x: 680,
+        y: 568
+    }
+};
+const DIGITAL_TWIN_MAX_EYE_MOVE = 11.5;
+let digitalTwinEyeResetTimer = null;
+
+let history = [];
     let sessionId = null;
     let isSending = false;       // true while a request to the API is actively in flight
     let rateLimited = false;
@@ -2843,6 +2864,94 @@
     }
 
 
+    function updateDigitalTwinEyes(clientX, clientY) {
+    if (digitalTwinEyeResetTimer) {
+    clearTimeout(digitalTwinEyeResetTimer);
+}
+    if (
+        !digitalTwinAvatar ||
+        !digitalTwinLeftEye ||
+        !digitalTwinRightEye
+    ) {
+        return;
+    }
+
+    const rect =
+        digitalTwinAvatar.getBoundingClientRect();
+
+    if (!rect.width || !rect.height) return;
+
+    // Convert screen coordinates into the SVG coordinate system.
+    const targetX =
+        (clientX - rect.left) *
+        (DIGITAL_TWIN_IMAGE_WIDTH / rect.width);
+
+    const targetY =
+        (clientY - rect.top) *
+        (DIGITAL_TWIN_IMAGE_HEIGHT / rect.height);
+
+    moveDigitalTwinEye(
+        digitalTwinLeftEye,
+        DIGITAL_TWIN_EYES.left,
+        targetX,
+        targetY
+    );
+
+    moveDigitalTwinEye(
+        digitalTwinRightEye,
+        DIGITAL_TWIN_EYES.right,
+        targetX,
+        targetY
+    );
+
+    digitalTwinEyeResetTimer = setTimeout(() => {
+    digitalTwinLeftEye.style.transform = 'translate(0px, 0px)';
+    digitalTwinRightEye.style.transform = 'translate(0px, 0px)';
+}, 5000);
+}
+
+
+function moveDigitalTwinEye(
+    eyeElement,
+    eyeCenter,
+    targetX,
+    targetY
+) {
+    const dx =
+        targetX - eyeCenter.x;
+
+    const dy =
+        targetY - eyeCenter.y;
+
+    const distance =
+        Math.hypot(dx, dy);
+
+    if (distance === 0) {
+        eyeElement.style.transform =
+            'translate(0px, 0px)';
+        return;
+    }
+
+    const limitedDistance =
+        Math.min(
+            distance,
+            DIGITAL_TWIN_MAX_EYE_MOVE
+        );
+
+    const x =
+        (dx / distance) *
+        limitedDistance;
+
+    const y =
+        (dy / distance) *
+        limitedDistance;
+
+    eyeElement.style.transform =
+        `translate(${x}px, ${y}px)`;
+}
+
+
+
     function bindElements() {
         chatMessages =
             document.getElementById('chatMessages');
@@ -2880,15 +2989,38 @@
             document.getElementById('chatVoiceSendBtn');
 
         chatVoiceStopBtn =
-            document.getElementById('chatVoiceStopBtn');
+    document.getElementById('chatVoiceStopBtn');
 
-        chatInputRow = chatInput.closest('.chat-input-row');
+chatInputRow =
+    chatInput.closest('.chat-input-row');
 
-        return true;
+// Digital Twin eyes
+digitalTwinAvatar =
+    document.getElementById('digitalTwinAvatar');
+
+digitalTwinLeftEye =
+    document.getElementById('digitalTwinLeftEye');
+
+digitalTwinRightEye =
+    document.getElementById('digitalTwinRightEye');
+
+return true;
     }
 
 
     function attachListeners() {
+
+        // 👀 Look toward wherever the user taps/clicks
+    window.addEventListener(
+        'pointerdown',
+        (e) => {
+            updateDigitalTwinEyes(
+                e.clientX,
+                e.clientY
+            );
+        },
+        { passive: true }
+    );
 
         chatSendBtn.addEventListener(
             'click',
@@ -2921,28 +3053,42 @@
 
 
         chatInput.addEventListener(
-            'input',
-            () => {
-                /*
-                 * If the user deletes the interim transcript,
-                 * forget it.
-                 */
-                if (
-                    isListening &&
-                    interimVoiceText &&
-                    !chatInput.value
-                        .trim()
-                        .endsWith(
-                            interimVoiceText.trim()
-                        )
-                ) {
-                    interimVoiceText = '';
-                }
+    'input',
+    () => {
+        /*
+         * If the user deletes the interim transcript,
+         * forget it.
+         */
+        if (
+            isListening &&
+            interimVoiceText &&
+            !chatInput.value
+                .trim()
+                .endsWith(
+                    interimVoiceText.trim()
+                )
+        ) {
+            interimVoiceText = '';
+        }
 
-                updateActionButton();
-                autoResizeInput();
-            }
-        );
+        updateActionButton();
+        autoResizeInput();
+
+        // 👀 Make the Digital Twin look toward the input
+        if (chatInput.value.trim()) {
+            const inputRect =
+                chatInput.getBoundingClientRect();
+
+            updateDigitalTwinEyes(
+                inputRect.left +
+                    inputRect.width / 2,
+
+                inputRect.top +
+                    inputRect.height / 2
+            );
+        }
+    }
+);
 
 
         chatInput.addEventListener(
