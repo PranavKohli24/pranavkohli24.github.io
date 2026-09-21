@@ -1908,8 +1908,10 @@
             if (o.vy > 0) {
                 legN = { a: 0.95, k: 1.0 };
                 legF = { a: -0.5, k: 0.7 };
-                armN = { a: 2.4, e: 0.4 };
-                armF = { a: 2.9, e: 0.3 };
+                // both arms reach up and slightly back on takeoff,
+                // clear of the face
+                armN = { a: 3.0, e: 0.5 };
+                armF = { a: -2.7, e: 0.5 };
                 lean = -0.04;
                 thrust = true;
             } else {
@@ -1923,8 +1925,10 @@
         } else if (mode === 'slide') {
             legN = { a: 0.08, k: 0 };
             legF = { a: -0.05, k: 0 };
-            armN = { a: 2.9, e: 0 };
-            armF = { a: 2.7, e: 0 };
+            // arms reach forward and slightly bent, like bracing for balance
+            // low to the ground, instead of tucked up near the head
+            armN = { a: 1.3, e: 0.3 };
+            armF = { a: 1.1, e: 0.2 };
             thrust = true;
         } else if (mode === 'dead') {
             legN = { a: 0.6, k: 0.2 };
