@@ -109,6 +109,7 @@
     const HAZ = '#ff8fa3';
     const HAZ_DARK = '#ee6f89';
     const GOLD = '#ffd452';
+    const SKYLINE_NAMES = ['OPENAI', 'ANTHROPIC', 'GOOGLE', 'NVIDIA', 'AMAZON', 'RasoiBazaar', 'Kohli', 'Pranav', 'GitHub', 'META', 'Netflix'];
     const BOT = {
         shell: '#fbf9ff',
         torso: '#d2c7f7',
@@ -1486,16 +1487,28 @@
         }
 
         // far skyline
-        ctx.fillStyle = PAL.far;
         const tile = 74;
         const off = scroll * 0.16;
         for (let i = Math.floor(off / tile) - 1; i * tile - off < LW + tile; i++) {
             const h = 46 + hash(i) * 84;
             const w = 46 + hash(i + 40) * 24;
             const x = i * tile - off;
+
+            ctx.fillStyle = PAL.far;
             rr(x, GY - h, w, h + 6, 6);
             ctx.fill();
-            if (hash(i + 9) > 0.72) ctx.fillRect(x + w / 2 - 1.5, GY - h - 14, 3, 14);
+
+            const r = hash(i + 9);
+            if (r > 0.6 && w > 58) {
+                // named building sign, only on wide-enough buildings
+                const name = SKYLINE_NAMES[Math.floor(hash(i + 21) * SKYLINE_NAMES.length)];
+                ctx.fillStyle = PAL.detail;
+                rr(x + 6, GY - h + 10, w - 12, 13, 3);
+                ctx.fill();
+                text(name, x + w / 2, GY - h + 16.5, 8.5, PAL.sky, 800);
+            } else if (r > 0.4) {
+                ctx.fillRect(x + w / 2 - 1.5, GY - h - 14, 3, 14);
+            }
         }
 
         drawMidProps();
