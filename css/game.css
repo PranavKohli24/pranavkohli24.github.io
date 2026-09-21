@@ -78,8 +78,6 @@ body:has(#game.section.active) #liquid-glow {
 
 .game-hud > div:nth-child(1) { background: #e7defb; }
 .game-hud > div:nth-child(2) { background: #fff3b0; }
-.game-hud > div:nth-child(3) { background: #ffd9e0; }
-.game-hud > div:nth-child(4) { background: #d5f2e6; }
 
 .game-hud b {
     color: var(--g-ink);
@@ -91,12 +89,14 @@ body:has(#game.section.active) #liquid-glow {
     letter-spacing: 0.08em;
 }
 
-.game-hud .game-time {
-    min-width: 116px;
+.game-hud .game-pause {
+    min-width: 56px;
+    padding: 0;
+    border: none;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
 }
 
 .game-hud.game-started {
@@ -109,8 +109,8 @@ body:has(#game.section.active) #liquid-glow {
 }
 
 .pause-btn {
-    width: 26px;
-    height: 26px;
+    width: 40px;
+    height: 40px;
     padding: 0;
     border: 2px solid var(--g-ink);
     border-radius: 9px;
@@ -510,9 +510,8 @@ body:has(#game.section.active) #liquid-glow {
         font-size: 0.72rem;
     }
 
-    .game-hud .game-time {
+    .game-hud .game-pause {
         min-width: 0;
-        gap: 0.3rem;
     }
 
     .pause-btn {

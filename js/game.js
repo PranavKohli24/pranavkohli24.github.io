@@ -139,7 +139,7 @@
        DOM + view
        --------------------------------------------------------------------- */
     let canvas, ctx, wrap;
-    let roundTitle, flavorText, hudRound, hudScore, hudTime, hudLives, hud;
+    let roundTitle, flavorText, hudRound, hudScore, hudLives, hud;
     let startOverlay, startBtn, pauseOverlay, resumeBtn, winOverlay, playAgainBtn;
     let finalStats, bestScore, pauseBtn, dpad, hint, soundBtn;
 
@@ -161,7 +161,6 @@
     let combo = 0;
     let lives = CONFIG.lives;
 
-    let elapsed = 0;
     let dist = 0;
     let roundStartDist = 0;
     let scroll = 0;
@@ -380,7 +379,6 @@
         flavorText = document.getElementById('flavorText');
         hudRound = document.getElementById('hudRound');
         hudScore = document.getElementById('hudCoins');
-        hudTime = document.getElementById('hudTime');
         hudLives = document.getElementById('hudLives');
         hud = document.getElementById('gameHud');
         startOverlay = document.getElementById('startOverlay');
@@ -431,7 +429,6 @@
     function syncHud() {
         setText(hudRound, String(roundIndex + 1), 'round');
         setText(hudScore, String(coinCount), 'coins');
-        setText(hudTime, elapsed.toFixed(1) + 's', 'time');
         setText(
             hudLives,
             '♥'.repeat(Math.max(0, lives)) + '♡'.repeat(Math.max(0, CONFIG.lives - lives)),
@@ -1141,15 +1138,13 @@
 
         finalStats.textContent = '';
         const line = document.createElement('div');
+
         if (won) {
-            line.textContent = 'Round 4/4 cleared · ' +
-                coinCount + ' coins · ' +
-                elapsed.toFixed(1) + 's';
+            line.textContent = 'Round 4/4 cleared · ' + coinCount + ' coins';
         } else {
-            line.textContent = 'Reached Round ' + (roundIndex + 1) + '/4 · ' +
-                coinCount + ' coins · ' +
-                elapsed.toFixed(1) + 's';
+            line.textContent = 'Reached Round ' + (roundIndex + 1) + '/4 · ' + coinCount + ' coins';
         }
+
         finalStats.appendChild(line);
 
         if (unlocked.length) {
@@ -1176,7 +1171,6 @@
         combo = 0;
         lives = CONFIG.lives;
 
-        elapsed = 0;
         dist = 0;
         roundStartDist = 0;
         countdown = 2.5;
@@ -1246,7 +1240,6 @@
     }
 
     function stepPlaying(dt) {
-        elapsed += dt;
         runEase = Math.min(1, runEase + dt * 0.8);
 
         if (invuln > 0) invuln -= dt;
