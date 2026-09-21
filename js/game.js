@@ -1819,6 +1819,11 @@
     const ARM_LOW = 7;
     const SOLE = 3;
 
+    // eases the visual pose between run/air/slide/etc so limbs don't
+    // teleport on a mode switch; gameplay timing is untouched
+    let poseBlend = { t: 1, from: null, current: null };
+    let poseLastMode = null;
+
     function footY(l) {
         return HIP_Y + Math.cos(l.a) * THIGH + Math.cos(l.a - l.k) * SHIN;
     }
@@ -1893,9 +1898,11 @@
             legF = { a: 0.75 * Math.sin(p + Math.PI), k: 0.15 + 0.95 * Math.max(0, Math.cos(p + Math.PI)) };
             armN = { a: -0.85 * Math.sin(p), e: 1.0 };
             armF = { a: 0.85 * Math.sin(p), e: 1.0 };
-            lean = 0.09;
+            // slow secondary wave on lean/head so consecutive strides
+            // aren't perfectly identical, like natural weight-shifting
+            lean = 0.09 + Math.sin(p * 0.5) * 0.025;
             bounce = Math.abs(Math.sin(p)) * 2.2;
-            headBob = Math.sin(p * 2) * 0.8;
+            headBob = Math.sin(p * 2) * 0.8 + Math.sin(p * 0.5) * 0.35;
             dy = -(Math.max(footY(legN), footY(legF)) + SOLE);
         } else if (mode === 'air') {
             if (o.vy > 0) {
@@ -1934,6 +1941,23 @@
             eyes = 'happy';
             dy = -SOLE;
         }
+
+                if (mode !== poseLastMode) {
+            poseBlend.from = poseBlend.current || { legN, legF, armN, armF, lean };
+            poseBlend.t = 0;
+            poseLastMode = mode;
+        }
+        poseBlend.t = Math.min(1, poseBlend.t + 0.14);
+        if (poseBlend.t < 1 && poseBlend.from) {
+            const bt = poseBlend.t;
+            const bl = (a, b) => a + (b - a) * bt;
+            legN = { a: bl(poseBlend.from.legN.a, legN.a), k: bl(poseBlend.from.legN.k, legN.k) };
+            legF = { a: bl(poseBlend.from.legF.a, legF.a), k: bl(poseBlend.from.legF.k, legF.k) };
+            armN = { a: bl(poseBlend.from.armN.a, armN.a), e: bl(poseBlend.from.armN.e, armN.e) };
+            armF = { a: bl(poseBlend.from.armF.a, armF.a), e: bl(poseBlend.from.armF.e, armF.e) };
+            lean = bl(poseBlend.from.lean, lean);
+        }
+        poseBlend.current = { legN, legF, armN, armF, lean };
 
         ctx.save();
         if (o.alpha != null) ctx.globalAlpha = o.alpha;
