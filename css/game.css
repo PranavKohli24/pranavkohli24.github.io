@@ -1,5 +1,19 @@
-/* Game Section */
+/* =========================================================
+   Escape the Interview · portfolio arcade
+   Drop-in replacement for /css/game.css
+   Flat pastel palette, no gradients.
+   ========================================================= */
+
 #game {
+    --g-ink: #3d3650;
+    --g-ink-soft: #6a6282;
+    --g-paper: #fffdf9;
+    --g-lavender: #cdbff7;
+    --g-lavender-deep: #b9a9f0;
+    --g-mint: #a8e6cf;
+    --g-rose: #ff8fa3;
+    --g-butter: #fff3b0;
+
     flex-direction: column;
     align-items: center;
     text-align: center;
@@ -10,10 +24,6 @@
     display: flex;
 }
 
-#liquid-glow {
-    transition: opacity 0.4s ease, transform 1.2s cubic-bezier(0.075, 0.82, 0.165, 1);
-}
-
 body:has(#game.section.active) #liquid-glow {
     opacity: 0;
 }
@@ -22,62 +32,97 @@ body:has(#game.section.active) #liquid-glow {
     justify-content: center;
 }
 
-@media (max-width: 768px) {
-    #game .header {
-        margin-top: -1rem; 
-        padding-right: 2.5rem;
-        /* line-height: 1.1; */
-    }
+#game .header {
+    margin-bottom: 0.15rem;
+}
+
+#game .subtitle {
+    margin-top: 0;
 }
 
 .game-flavor {
     color: var(--secondary-text-color);
-    font-size: 1.05rem;
-    margin: -1.5rem 0 2rem 0;
-    max-width: 40ch;
+    font-size: 0.98rem;
+    margin: -0.75rem 0 1.4rem;
+    max-width: 54ch;
+    min-height: 1.4em;
+    opacity: 0.88;
 }
+
+/* ---------------------------------------------------------
+   HUD
+   --------------------------------------------------------- */
 
 .game-hud {
     display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-    gap: 2rem;
-    font-size: 0.9rem;
-    color: var(--secondary-text-color);
+    align-items: stretch;
+    justify-content: center;
+    gap: 0.55rem;
+    font-size: 0.82rem;
+    color: var(--g-ink);
     font-variant-numeric: tabular-nums;
-    margin-bottom: 1.5rem;
+    margin: 0 0 0.8rem;
     position: relative;
     z-index: 20;
-    pointer-events: auto;
 }
+
+.game-hud > div {
+    min-width: 84px;
+    padding: 0.5rem 0.8rem;
+    border: 2px solid var(--g-ink);
+    border-radius: 12px;
+    background: var(--g-paper);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.game-hud > div:nth-child(1) { background: #e7defb; }
+.game-hud > div:nth-child(2) { background: #fff3b0; }
+.game-hud > div:nth-child(3) { background: #ffd9e0; }
+.game-hud > div:nth-child(4) { background: #d5f2e6; }
 
 .game-hud b {
-    color: var(--text-color);
+    color: var(--g-ink);
+    font-weight: 800;
 }
 
-.game-time {
+.game-hud .hud-lives b {
+    color: #e2536f;
+    letter-spacing: 0.08em;
+}
+
+.game-hud .game-time {
+    min-width: 116px;
     display: flex;
     align-items: center;
-    gap: 0.45rem;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.game-hud.game-started {
+    animation: gameHudIn 0.3s ease both;
+}
+
+@keyframes gameHudIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 .pause-btn {
     width: 26px;
     height: 26px;
     padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: rgba(93, 0, 247, 0.08);
-    color: var(--highlight-color);
-    font-size: 0.72rem;
+    border: 2px solid var(--g-ink);
+    border-radius: 9px;
+    background: var(--g-paper);
+    color: var(--g-ink);
     display: none;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     position: relative;
     z-index: 20;
-    pointer-events: auto;
-    transition: background 0.2s ease, transform 0.15s ease;
+    transition: transform 0.12s ease, background 0.15s ease;
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -86,236 +131,21 @@ body:has(#game.section.active) #liquid-glow {
 }
 
 .pause-btn:hover {
-    background: rgba(93, 0, 247, 0.15);
-    transform: scale(1.08);
+    background: var(--g-lavender);
 }
 
 .pause-btn:active {
     transform: scale(0.92);
 }
 
-.game-canvas-wrap {
-    position: relative;
-    display: inline-block;
-    max-width: 100%;
+.pause-btn:focus-visible,
+.primary-btn:focus-visible,
+.secondary-btn:focus-visible,
+.dpad-btn:focus-visible,
+.sound-btn:focus-visible {
+    outline: 3px solid var(--g-ink);
+    outline-offset: 3px;
 }
-
-.game-canvas-wrap.is-paused #mazeCanvas {
-    filter: none;
-    transform: none;
-}
-
-.game-canvas-wrap.is-paused {
-    overflow: hidden;
-    border-radius: 16px;
-}
-
-#mazeCanvas {
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 12px 48px rgba(31, 38, 135, 0.45), inset 0 0 0 1px rgba(0,0,0,0.1);
-    touch-action: none;
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-
-.game-hint {
-    font-size: 0.85rem;
-    color: var(--secondary-text-color);
-    opacity: 0.7;
-    margin-top: 1.2rem;
-}
-
-.game-hint::after {
-    content: "Arrow keys / WASD to move";
-}
-
-@media (max-width: 768px) {
-    .game-hint::after {
-        content: "Swipe on the grid or tap the arrows to move";
-    }
-}
-
-/* D-pad controls */
-.game-dpad {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
-}
-
-.dpad-mid-row {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.dpad-btn {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    border: none;
-    background: rgba(93, 0, 247, 0.08);
-    color: var(--highlight-color);
-    font-size: 1.4rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 0.15s ease, transform 0.1s ease;
-}
-
-.dpad-btn:active {
-    background: rgba(93, 0, 247, 0.2);
-    transform: scale(0.94);
-}
-
-@media (max-width: 768px) {
-    .game-dpad {
-        display: flex;
-    }
-}
-
-.game-dpad.pre-start {
-    display: none !important;
-}
-
-.game-best {
-    font-size: 0.85rem;
-    color: var(--secondary-text-color);
-    margin-top: 0.3rem;
-}
-
-.game-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(245, 243, 239, 0.95);
-    backdrop-filter: blur(12px);
-    border-radius: 16px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-    padding: 1rem;
-    z-index: 5;
-}
-
-#pauseOverlay {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-}
-
-.game-overlay.active {
-    display: flex;
-}
-
-.game-overlay h2 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-}
-
-.game-overlay p {
-    color: var(--secondary-text-color);
-    font-size: 1rem;
-    max-width: 32ch;
-}
-
-.game-stats {
-    font-size: 0.95rem;
-    color: var(--text-color);
-}
-
-.primary-btn {
-    background: var(--highlight-color);
-    color: #fff;
-    border: none;
-    padding: 0.85rem 1.8rem;
-    border-radius: 100px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.primary-btn:hover {
-    transform: translateY(-2px);
-    background: #4b00c7;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-    .game-flavor {
-        font-size: 0.95rem;
-        margin: -1rem 0 1.5rem 0;
-    }
-    .game-hud {
-        align-items: center;
-        flex-wrap: nowrap;
-        gap: 1rem;
-        font-size: 0.85rem;
-        white-space: nowrap;
-    }
-    .game-overlay h2 {
-        font-size: 1.4rem;
-    }
-}
-
-/* Layout for the end-game buttons */
-.game-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap; /* Allows them to stack on very small screens */
-    margin-top: 0.5rem;
-}
-
-/* Secondary Button (Outline style for the Resume) */
-.secondary-btn {
-    background: transparent;
-    color: var(--highlight-color);
-    border: 2px solid var(--highlight-color);
-    padding: 0.85rem 1.8rem;
-    border-radius: 100px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none; /* Removes the underline from the <a> tag */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.secondary-btn:hover {
-    background: rgba(93, 0, 247, 0.08); /* Light purple tint on hover */
-    transform: translateY(-2px);
-}
-
-
-#winOverlay.active {
-    animation: offerReveal 1.8s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@keyframes offerReveal {
-    0% {
-        opacity: 0;
-        transform: scale(0.92);
-    }
-
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
 
 .pause-icon {
     width: 8px;
@@ -329,19 +159,14 @@ body:has(#game.section.active) #liquid-glow {
     content: "";
     position: absolute;
     top: 0;
-    width: 2px;
+    width: 2.5px;
     height: 10px;
-    border-radius: 1px;
+    border-radius: 2px;
     background: currentColor;
 }
 
-.pause-icon::before {
-    left: 0;
-}
-
-.pause-icon::after {
-    right: 0;
-}
+.pause-icon::before { left: 0; }
+.pause-icon::after  { right: 0; }
 
 .pause-btn.is-resume .pause-icon {
     width: 0;
@@ -349,9 +174,415 @@ body:has(#game.section.active) #liquid-glow {
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
     border-left: 7px solid currentColor;
+    transform: translateX(1px);
 }
 
 .pause-btn.is-resume .pause-icon::before,
 .pause-btn.is-resume .pause-icon::after {
     display: none;
+}
+
+/* ---------------------------------------------------------
+   Game viewport
+   --------------------------------------------------------- */
+
+.game-canvas-wrap {
+    position: relative;
+    display: block;
+    width: min(900px, 100%);
+    max-width: 100%;
+    border: 2px solid var(--g-ink);
+    border-radius: 22px;
+    overflow: hidden;
+    isolation: isolate;
+    background: #efe9fb;
+    box-shadow: 0 6px 0 rgba(61, 54, 80, 0.14);
+}
+
+#mazeCanvas {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    background: #efe9fb;
+    touch-action: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.game-canvas-wrap.is-paused #mazeCanvas {
+    opacity: 0.75;
+}
+
+/* ---------------------------------------------------------
+   Overlays
+   --------------------------------------------------------- */
+
+.game-overlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.8rem;
+    text-align: center;
+    padding: 1.5rem;
+    z-index: 8;
+    color: var(--g-ink);
+    background: rgba(255, 251, 246, 0.72);
+}
+
+.game-overlay.active {
+    display: flex;
+    animation: overlayIn 0.28s ease;
+}
+
+@keyframes overlayIn {
+    from { opacity: 0; transform: scale(0.985); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+#startOverlay {
+    background: rgba(255, 251, 246, 0.55);
+}
+
+.game-overlay h2 {
+    margin: 0;
+    font-size: clamp(1.9rem, 5vw, 3rem);
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--g-ink);
+}
+
+.game-overlay p {
+    margin: 0;
+    max-width: 38ch;
+    color: var(--g-ink-soft);
+    font-size: 0.98rem;
+    line-height: 1.5;
+}
+
+.game-overlay-kicker {
+    padding: 0.25rem 0.7rem;
+    border: 2px solid var(--g-ink);
+    border-radius: 999px;
+    background: var(--g-butter);
+    color: var(--g-ink);
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.game-keys {
+    list-style: none;
+    margin: 0.2rem 0 0;
+    padding: 0.7rem 1rem;
+    display: grid;
+    gap: 0.4rem;
+    border: 2px solid var(--g-ink);
+    border-radius: 14px;
+    background: var(--g-paper);
+    font-size: 0.86rem;
+    color: var(--g-ink);
+    text-align: left;
+}
+
+.game-keys kbd {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 0.05em 0.45em;
+    border: 2px solid var(--g-ink);
+    border-radius: 6px;
+    background: var(--g-lavender);
+    font: inherit;
+    font-weight: 800;
+    text-align: center;
+}
+
+.game-keys .keys-touch { display: none; }
+
+@media (pointer: coarse) {
+    .game-keys .keys-desktop { display: none; }
+    .game-keys .keys-touch { display: list-item; }
+}
+
+.game-stats {
+    min-width: 220px;
+    padding: 0.7rem 1rem;
+    border: 2px solid var(--g-ink);
+    border-radius: 14px;
+    background: var(--g-paper);
+    color: var(--g-ink);
+    font-size: 0.95rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.game-stats small {
+    display: block;
+    margin-top: 0.3rem;
+    max-width: 34ch;
+    color: var(--g-ink-soft);
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.game-actions {
+    display: flex;
+    gap: 0.7rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 0.3rem;
+}
+
+.primary-btn,
+.secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0.7rem 1.4rem;
+    border: 2px solid var(--g-ink);
+    border-radius: 999px;
+    color: var(--g-ink);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--g-ink);
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.primary-btn {
+    background: var(--g-lavender);
+}
+
+.secondary-btn {
+    background: var(--g-paper);
+}
+
+.primary-btn:hover { background: var(--g-lavender-deep); }
+.secondary-btn:hover { background: #f1ecfb; }
+
+.primary-btn:active,
+.secondary-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--g-ink);
+}
+
+/* ---------------------------------------------------------
+   Below-game helper UI
+   --------------------------------------------------------- */
+
+.game-hint {
+    max-width: 900px;
+    margin: 0.85rem auto 0;
+    color: var(--secondary-text-color);
+    font-size: 0.78rem;
+    letter-spacing: 0.01em;
+    opacity: 0.75;
+}
+
+.game-hint::after {
+    content: none;
+}
+
+.game-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+    margin-top: 0.4rem;
+}
+
+.game-best {
+    margin: 0;
+    color: var(--secondary-text-color);
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.8;
+}
+
+.game-best:empty {
+    display: none;
+}
+
+.sound-btn {
+    padding: 0.2rem 0.65rem;
+    border: 1.5px solid var(--g-ink);
+    border-radius: 999px;
+    background: var(--g-paper);
+    color: var(--g-ink);
+    font-family: inherit;
+    font-size: 0.74rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.sound-btn:hover {
+    background: var(--g-butter);
+}
+
+/* ---------------------------------------------------------
+   Touch controls
+   --------------------------------------------------------- */
+
+.game-dpad {
+    display: none;
+    margin-top: 0.95rem;
+    gap: 0.7rem;
+    justify-content: center;
+}
+
+.dpad-btn {
+    min-width: 128px;
+    height: 54px;
+    padding: 0 1rem;
+    border: 2px solid var(--g-ink);
+    border-radius: 16px;
+    background: var(--g-lavender);
+    color: var(--g-ink);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    box-shadow: 0 4px 0 var(--g-ink);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.dpad-btn.dpad-down {
+    background: #ffd9e0;
+}
+
+.dpad-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--g-ink);
+}
+
+.game-dpad.pre-start {
+    display: none !important;
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+    .game-dpad {
+        display: flex;
+    }
+}
+
+@media (max-width: 768px) {
+    #game .header {
+        margin-top: -1rem;
+        padding-right: 2.2rem;
+    }
+
+    .game-flavor {
+        font-size: 0.9rem;
+        margin: -0.55rem 0 0.85rem;
+    }
+
+    .game-hud {
+        width: min(100%, 900px);
+        gap: 0.35rem;
+        margin-bottom: 0.65rem;
+    }
+
+    .game-hud > div {
+        flex: 1;
+        min-width: 0;
+        padding: 0.45rem 0.3rem;
+        border-radius: 10px;
+        font-size: 0.72rem;
+    }
+
+    .game-hud .game-time {
+        min-width: 0;
+        gap: 0.3rem;
+    }
+
+    .pause-btn {
+        width: 23px;
+        height: 23px;
+        border-radius: 8px;
+    }
+
+    .game-canvas-wrap {
+        width: 100%;
+        border-radius: 18px;
+    }
+
+    .game-overlay {
+        padding: 1rem;
+        gap: 0.6rem;
+    }
+
+    .game-overlay h2 {
+        font-size: 1.9rem;
+    }
+
+    .game-overlay p {
+        max-width: 32ch;
+        font-size: 0.86rem;
+    }
+
+    .game-keys {
+        font-size: 0.8rem;
+        padding: 0.55rem 0.8rem;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+        min-height: 44px;
+        padding: 0.65rem 1.1rem;
+        font-size: 0.9rem;
+    }
+
+    .game-hint {
+        max-width: 330px;
+        margin-top: 0.78rem;
+        line-height: 1.45;
+    }
+}
+
+@media (max-width: 390px) {
+    .game-overlay h2 {
+        font-size: 1.65rem;
+    }
+
+    .game-overlay-kicker {
+        font-size: 0.7rem;
+    }
+
+    .dpad-btn {
+        min-width: 112px;
+        height: 50px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .game-hud.game-started,
+    .game-overlay.active {
+        animation: none;
+    }
+
+    .pause-btn,
+    .dpad-btn,
+    .primary-btn,
+    .secondary-btn {
+        transition: none;
+    }
 }
