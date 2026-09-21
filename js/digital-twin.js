@@ -3338,6 +3338,7 @@ return true;
         }
 
         suggestionsRotationInterval = setInterval(() => {
+            if (document.hidden || !isDigitalTwinSectionActive()) return;
             const suggestions = document.getElementById('chatSuggestions');
 
             suggestions.classList.add('changing');
