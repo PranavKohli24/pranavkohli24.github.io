@@ -187,6 +187,7 @@
     let fastFall = false;
     let flipping = false;
     let flip = 0;
+    let flipDir = 1;
     let squash = 0;
 
     let invuln = 0;
@@ -858,9 +859,10 @@
             airJumps = 0;
             flipping = true;
             flip = 0.001;
+            flipDir = Math.random() < 0.5 ? 1 : -1;
             burst(PX - 4, GY - py - 4, 7, ['#ffffff', '#d9d0f8'], 100, 0.35, 3.5, 200);
             sfx.air();
-        } else {
+        }else {
             squash = -0.7;
             dust();
             sfx.jump();
@@ -2175,7 +2177,7 @@
         else if (py > 0.5 || vy > 0) mode = 'air';
 
         let spin = 0;
-        if (flipping) spin = flip;
+        if (flipping) spin = flip * flipDir;
         if (mode === 'dead') spin = -1.4 * clamp(endT / 0.45, 0, 1);
 
         const flicker = invuln > 0 && rush <= 0 && Math.floor(worldT * 18) % 2 === 0;
