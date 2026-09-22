@@ -1200,6 +1200,58 @@
         showEnd();
     }
 
+    function buildLinkLine(label, url) {
+        const row = document.createElement('span');
+        row.className = 'game-link-row';
+
+        const labelSpan = document.createElement('span');
+        labelSpan.textContent = label + ': ';
+        row.appendChild(labelSpan);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = url;
+        row.appendChild(a);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'game-copy-btn';
+        btn.setAttribute('aria-label', 'Copy ' + label + ' link');
+        btn.textContent = '⧉';
+        row.appendChild(btn);
+
+        function copyLink() {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(flash).catch(() => {});
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = url;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch (e) { /* no-op */ }
+                document.body.removeChild(ta);
+                flash();
+            }
+        }
+
+        function flash() {
+            btn.textContent = '✓';
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.textContent = '⧉';
+                btn.classList.remove('copied');
+            }, 1200);
+        }
+
+        a.addEventListener('click', copyLink);
+        btn.addEventListener('click', copyLink);
+
+        return row;
+    }
     function showEnd() {
         const won = result === 'win';
         const h2 = winOverlay.querySelector('h2');
@@ -1234,15 +1286,14 @@
         // with the actual links instead of the stale "Round 4: HR Round" text.
         if (won) {
             if (roundTitle) {
-                roundTitle.innerHTML =
-                    'GitHub: <a href="https://github.com/PranavKohli24" target="_blank" rel="noopener noreferrer">https://github.com/PranavKohli24</a>';
+                roundTitle.innerHTML = '';
+                roundTitle.appendChild(buildLinkLine('GitHub', 'https://github.com/PranavKohli24'));
             }
             if (flavorText) {
-                flavorText.innerHTML =
-                    'LinkedIn: <a href="https://linkedin.com/in/pranavkohli24" target="_blank" rel="noopener noreferrer">https://linkedin.com/in/pranavkohli24</a>';
+                flavorText.innerHTML = '';
+                flavorText.appendChild(buildLinkLine('LinkedIn', 'https://linkedin.com/in/pranavkohli24'));
             }
         }
-
         document.getElementById('game').classList.toggle('win-links', won);
 
         winOverlay.classList.add('active');
