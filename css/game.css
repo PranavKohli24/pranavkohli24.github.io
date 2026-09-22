@@ -18,6 +18,11 @@
     align-items: center;
     text-align: center;
     width: 100%;
+
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 #game.section.active {
