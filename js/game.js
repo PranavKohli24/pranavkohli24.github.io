@@ -690,11 +690,43 @@
         },
 
         win() {
-            [660, 830, 990, 1320].forEach((f, i) => {
+            // Quick celebratory rise.
+            [660, 830, 990, 1320, 1580].forEach((f, i) => {
                 setTimeout(() => {
-                    tone(f, 0.18, 'triangle', 0.03);
-                }, i * 120);
+                    tone(
+                        f,
+                        0.16,
+                        'triangle',
+                        0.038
+                    );
+                }, i * 75);
             });
+
+            // Big bright chord underneath.
+            setTimeout(() => {
+                tone(660, 0.42, 'sine', 0.025);
+                tone(830, 0.42, 'sine', 0.022);
+                tone(990, 0.42, 'sine', 0.020);
+                tone(1320, 0.42, 'triangle', 0.018);
+            }, 280);
+
+            // Little sparkle burst.
+            setTimeout(() => {
+                noiseBurst(
+                    0.12,
+                    0.020,
+                    'highpass',
+                    1800,
+                    5000
+                );
+            }, 350);
+
+            // Final "ta-da!"
+            setTimeout(() => {
+                tone(990, 0.18, 'triangle', 0.030);
+                tone(1320, 0.24, 'triangle', 0.034);
+                tone(1580, 0.32, 'sine', 0.028);
+            }, 470);
         },
 
         lose() {
