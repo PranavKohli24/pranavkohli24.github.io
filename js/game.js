@@ -1230,6 +1230,21 @@
             finalStats.appendChild(small);
         }
 
+        // On a win, replace the round title / flavor line above the canvas
+        // with the actual links instead of the stale "Round 4: HR Round" text.
+        if (won) {
+            if (roundTitle) {
+                roundTitle.innerHTML =
+                    'GitHub: <a href="https://github.com/PranavKohli24" target="_blank" rel="noopener noreferrer">https://github.com/PranavKohli24</a>';
+            }
+            if (flavorText) {
+                flavorText.innerHTML =
+                    'LinkedIn: <a href="https://linkedin.com/in/pranavkohli24" target="_blank" rel="noopener noreferrer">https://linkedin.com/in/pranavkohli24</a>';
+            }
+        }
+
+        document.getElementById('game').classList.toggle('win-links', won);
+
         winOverlay.classList.add('active');
     }
 
@@ -1295,6 +1310,7 @@
         hud.classList.add('game-started');
         if (dpad) dpad.classList.remove('pre-start');
 
+        document.getElementById('game').classList.remove('win-links');
         updateText();
         syncHud();
         sfx.tick();

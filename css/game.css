@@ -25,8 +25,42 @@
     -ms-user-select: none;
 }
 
-#game.section.active {
-    display: flex;
+#roundTitle a,
+#flavorText a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: opacity 0.15s ease;
+}
+
+#roundTitle a:hover,
+#roundTitle a:focus-visible,
+#flavorText a:hover,
+#flavorText a:focus-visible {
+    opacity: 0.75;
+}
+
+/* Unify font size only — margins/line-height stay whatever
+   .subtitle / .game-flavor already define, so the box these
+   two lines occupy doesn't shift size when swapped in on win */
+#game.win-links #roundTitle,
+#game.win-links #flavorText {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+#game.win-links #roundTitle {
+    margin-top: 0.35rem;
+}
+
+.game-title-block {
+    display: inline-block;
+    margin: 0 auto;
+}
+
+#game.win-links .game-title-block #roundTitle,
+#game.win-links .game-title-block #flavorText {
+    text-align: left;
 }
 
 body:has(#game.section.active) #liquid-glow {
