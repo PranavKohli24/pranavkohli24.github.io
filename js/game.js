@@ -345,6 +345,102 @@
         osc.stop(t0 + dur + 0.02);
     }
 
+    function whoosh(startFreq, endFreq, dur, vol, filterType = 'bandpass') {
+    if (muted) return;
+
+    const ac = ensureAudio();
+    if (!ac || !master) return;
+
+    const t0 = ac.currentTime;
+
+    // Tonal motion layer
+    const osc = ac.createOscillator();
+    const oscGain = ac.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(startFreq, t0);
+    osc.frequency.exponentialRampToValueAtTime(
+        endFreq,
+        t0 + dur
+    );
+
+    oscGain.gain.setValueAtTime(0.0001, t0);
+    oscGain.gain.linearRampToValueAtTime(
+        Math.min(0.07, vol * VOL),
+        t0 + 0.012
+    );
+    oscGain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        t0 + dur
+    );
+
+    osc.connect(oscGain);
+    oscGain.connect(master);
+
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+
+    // Air layer
+    noiseBurst(
+        dur,
+        vol * 0.55,
+        filterType,
+        Math.max(startFreq * 1.8, 700),
+        Math.max(endFreq * 2.2, 1200)
+    );
+}
+
+    function noiseBurst(dur, vol, filterType, freq, sweepTo) {
+        if (muted) return;
+
+        const ac = ensureAudio();
+        if (!ac || !master) return;
+
+        const t0 = ac.currentTime;
+        const length = Math.max(1, Math.floor(ac.sampleRate * dur));
+        const buffer = ac.createBuffer(1, length, ac.sampleRate);
+        const data = buffer.getChannelData(0);
+
+        for (let i = 0; i < length; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const source = ac.createBufferSource();
+        const filter = ac.createBiquadFilter();
+        const gain = ac.createGain();
+
+        source.buffer = buffer;
+
+        filter.type = filterType || 'lowpass';
+        filter.frequency.setValueAtTime(freq || 1400, t0);
+
+        if (sweepTo) {
+            filter.frequency.exponentialRampToValueAtTime(
+                sweepTo,
+                t0 + dur
+            );
+        }
+
+        const peak = Math.min(0.3, (vol || 0.02) * VOL);
+
+        gain.gain.setValueAtTime(0.0001, t0);
+        gain.gain.linearRampToValueAtTime(
+            peak,
+            t0 + Math.min(0.008, dur * 0.2)
+        );
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            t0 + dur
+        );
+
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(master);
+
+        source.start(t0);
+        source.stop(t0 + dur + 0.02);
+    }
+
     const ARP = [
         [262, 330, 392, 330, 262, 330, 392, 523], // C
         [220, 262, 330, 262, 220, 262, 330, 440], // Am
@@ -354,6 +450,10 @@
     const BASS_NOTES = [131, 110, 87, 98];
     let musicStep = 0;
     let musicNext = 0;
+
+    let footstepTimer = 0;
+    let footstepSide = 0;
+    let slideSfxTimer = 0;
 
     function musicTone(freq, t0, dur, type, vol) {
         const osc = audio.createOscillator();
@@ -384,36 +484,220 @@
             musicNext += step;
         }
     }
+   
     const sfx = {
-        jump() { tone(360, 0.14, 'square', 0.02, 640); },
-        air() { tone(520, 0.14, 'square', 0.018, 900); },
-        slide() { tone(220, 0.16, 'sawtooth', 0.012, 110); },
-        land() { tone(120, 0.07, 'triangle', 0.03, 70); },
-        coin(n) { tone(760 + (n % 5) * 70, 0.08, 'triangle', 0.025); },
+        // Soft shoe impact + tiny air movement.
+        footstep(side) {
+            const pitch = side ? 105 : 95;
+
+            tone(
+                pitch,
+                0.055,
+                'triangle',
+                0.018,
+                pitch * 0.72
+            );
+
+            noiseBurst(
+                0.035,
+                0.012,
+                'lowpass',
+                1100,
+                650
+            );
+        },
+
+        // Physical jump: tiny body push + air whoosh.
+       
+        jump() {
+    // Tiny launch transient.
+    tone(
+        115,
+        0.045,
+        'triangle',
+        0.018,
+        80
+    );
+
+    // The actual "movement" sound.
+    whoosh(
+        260,
+        920,
+        0.14,
+        0.018,
+        'bandpass'
+    );
+
+    // Bright little tail.
+    setTimeout(() => {
+        tone(
+            780,
+            0.055,
+            'sine',
+            0.008,
+            980
+        );
+    }, 55);
+},
+
+        // Double jump: lighter and airier than the first jump.
+        air() {
+    whoosh(
+        420,
+        1200,
+        0.11,
+        0.014,
+        'bandpass'
+    );
+
+    setTimeout(() => {
+        tone(
+            1050,
+            0.045,
+            'triangle',
+            0.007,
+            1350
+        );
+    }, 45);
+},
+
+        // Ground contact.
+       
+        land() {
+    tone(82, 0.075, 'triangle', 0.028, 52);
+
+    noiseBurst(
+        0.035,
+        0.012,
+        'lowpass',
+        550,
+        220
+    );
+},
+
+        // Keep the coin sound you already like.
+        coin(n) {
+            tone(
+                760 + (n % 5) * 70,
+                0.08,
+                'triangle',
+                0.025
+            );
+        },
+
         power() {
             tone(500, 0.09, 'triangle', 0.03, 800);
-            setTimeout(() => tone(800, 0.12, 'triangle', 0.03, 1100), 80);
+            setTimeout(() => {
+                tone(800, 0.12, 'triangle', 0.03, 1100);
+            }, 80);
         },
-        hit() { tone(150, 0.25, 'sawtooth', 0.035, 60); },
-        pop() { tone(700, 0.12, 'sine', 0.03, 300); },
-        smash() { tone(300, 0.1, 'square', 0.025, 120); },
+
+        // Slide = low friction + air movement.
+        slide() {
+    // The body drops quickly.
+    whoosh(
+        520,
+        150,
+        0.12,
+        0.016,
+        'bandpass'
+    );
+
+    // Soft ground scrape.
+    noiseBurst(
+        0.075,
+        0.014,
+        'lowpass',
+        1200,
+        420
+    );
+
+    // Tiny trailing swipe.
+    setTimeout(() => {
+        whoosh(
+            700,
+            280,
+            0.075,
+            0.007,
+            'bandpass'
+        );
+    }, 65);
+},
+
+        // Body hitting something, rather than a synth buzz.
+        hit() {
+            tone(
+                105,
+                0.16,
+                'triangle',
+                0.04,
+                58
+            );
+
+            noiseBurst(
+                0.075,
+                0.03,
+                'lowpass',
+                900,
+                260
+            );
+
+            tone(
+                240,
+                0.055,
+                'square',
+                0.008,
+                110
+            );
+        },
+
+        // Shield pop stays clean.
+        pop() {
+            tone(700, 0.12, 'sine', 0.03, 300);
+            noiseBurst(0.05, 0.01, 'highpass', 1800, 900);
+        },
+
+        // Breaking an obstacle: low thump + crack.
+        smash() {
+            tone(135, 0.11, 'triangle', 0.03, 65);
+            noiseBurst(0.07, 0.025, 'highpass', 1400, 500);
+        },
+
         round() {
             tone(600, 0.1, 'triangle', 0.03);
-            setTimeout(() => tone(900, 0.16, 'triangle', 0.03), 110);
+            setTimeout(() => {
+                tone(900, 0.16, 'triangle', 0.03);
+            }, 110);
         },
-        tick() { tone(440, 0.06, 'sine', 0.02); },
-        go() { tone(720, 0.12, 'triangle', 0.03); },
+
+        tick() {
+            tone(440, 0.06, 'sine', 0.02);
+        },
+
+        go() {
+            tone(720, 0.12, 'triangle', 0.03);
+        },
+
         newBest() {
             [880, 1100, 1320].forEach((f, i) => {
-                setTimeout(() => tone(f, 0.14, 'triangle', 0.035), i * 90);
+                setTimeout(() => {
+                    tone(f, 0.14, 'triangle', 0.035);
+                }, i * 90);
             });
         },
+
         win() {
             [660, 830, 990, 1320].forEach((f, i) => {
-                setTimeout(() => tone(f, 0.18, 'triangle', 0.03), i * 120);
+                setTimeout(() => {
+                    tone(f, 0.18, 'triangle', 0.03);
+                }, i * 120);
             });
         },
-        lose() { tone(300, 0.4, 'sawtooth', 0.035, 80); }
+
+        lose() {
+            tone(300, 0.4, 'triangle', 0.035, 80);
+            noiseBurst(0.14, 0.018, 'lowpass', 500, 180);
+        }
     };
 
     function setMuted(value) {
@@ -923,7 +1207,14 @@
                 if (impact > 250) {
                     squash = 1;
                     dust();
-                    sfx.land();
+
+                    // Harder landing = slightly heavier sound.
+                    if (impact > 650) {
+                        sfx.land();
+                        setTimeout(() => sfx.land(), 25);
+                    } else {
+                        sfx.land();
+                    }
                 }
                 if (fastFall) {
                     fastFall = false;
@@ -942,20 +1233,44 @@
         }
 
         if (sliding) {
-            slideT -= dt;
-            if (Math.random() < 0.5) {
-                particles.push({
-                    x: PX + 16, y: GY - 2,
-                    vx: rand(-40, 20), vy: rand(-90, -30),
-                    life: 0.25, max: 0.25, size: 2.5, grav: 300,
-                    color: '#fff3b0', square: true, rot: 0
-                });
-            }
-            if (slideT <= 0) {
-                sliding = false;
-                slideT = 0;
-            }
-        }
+    slideT -= dt;
+    slideSfxTimer -= dt;
+
+    if (Math.random() < 0.5) {
+        particles.push({
+            x: PX + 16,
+            y: GY - 2,
+            vx: rand(-40, 20),
+            vy: rand(-90, -30),
+            life: 0.25,
+            max: 0.25,
+            size: 2.5,
+            grav: 300,
+            color: '#fff3b0',
+            square: true,
+            rot: 0
+        });
+    }
+
+    // Occasional tiny friction swishes while sliding.
+    if (slideSfxTimer <= 0 && slideT > 0.12) {
+        slideSfxTimer = rand(0.11, 0.17);
+
+        whoosh(
+            rand(240, 340),
+            rand(120, 180),
+            rand(0.045, 0.065),
+            0.005,
+            'lowpass'
+        );
+    }
+
+    if (slideT <= 0) {
+        sliding = false;
+        slideT = 0;
+        slideSfxTimer = 0;
+    }
+}
 
         squash -= squash * Math.min(1, dt * 14);
     }
@@ -1389,6 +1704,34 @@
         lastFrame = performance.now();
     }
 
+    function updateFootsteps(dt, speed) {
+        if (state !== 'playing') {
+            footstepTimer = 0;
+            return;
+        }
+
+        if (sliding || py > 1 || vy > 0) {
+            footstepTimer = 0;
+            return;
+        }
+
+        // Faster game = faster footsteps.
+        const interval = clamp(
+            0.235 - (speed - 300) * 0.00018,
+            0.155,
+            0.235
+        );
+
+        footstepTimer += dt;
+
+        if (footstepTimer >= interval) {
+            footstepTimer -= interval;
+
+            footstepSide ^= 1;
+            sfx.footstep(footstepSide);
+        }
+    }
+
     function stepPlaying(dt) {
         runEase = Math.min(1, runEase + dt * 0.8);
 
@@ -1417,7 +1760,10 @@
         score += dx * 0.05 * multiplier();
 
         updatePlayer(dt);
+        updateFootsteps(dt, v);
+
         moveWorld(dx, dt);
+
         if (state !== 'playing') return v;
 
         collide();
