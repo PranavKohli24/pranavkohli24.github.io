@@ -53,11 +53,40 @@ overlay.addEventListener('click', () => {
 });
 
 // Close menu when nav links are clicked
+// Close menu when nav links are clicked
 const allNavLinks = document.querySelectorAll('nav a');
+
 allNavLinks.forEach(link => {
     link.addEventListener('click', () => {
-        if (navMenu.classList.contains('is-active')) {
+        if (!navMenu.classList.contains('is-active')) return;
+
+        const targetPath = link.getAttribute('href');
+
+        // Internal navigation
+        if (targetPath && targetPath.startsWith('/')) {
+            const currentPath = window.location.pathname;
+
+            // Already on this section:
+            // go back to remove the temporary menu history entry.
+            if (currentPath === targetPath) {
+                history.back();
+                return;
+            }
+
+            // Going to another section:
+            // close the menu, then replace the temporary
+            // menu history entry with the real destination.
             toggleMenu();
+            history.replaceState({}, '', targetPath);
+
+            if (typeof showSection === 'function') {
+                showSection();
+            }
+
+            return;
         }
+
+        // External link
+        toggleMenu();
     });
 });
