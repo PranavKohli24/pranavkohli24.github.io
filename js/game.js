@@ -478,8 +478,8 @@
         while (musicNext < now + 0.3) {
             const bar = Math.floor(musicStep / 8) % 4;
             const i = musicStep % 8;
-            musicTone(ARP[bar][i], musicNext, 0.18, 'triangle', 0.04);
-            if (i % 4 === 0) musicTone(BASS_NOTES[bar], musicNext, 0.4, 'sine', 0.08);
+            musicTone(ARP[bar][i], musicNext, 0.18, 'triangle', 0.032);
+            if (i % 4 === 0) musicTone(BASS_NOTES[bar], musicNext, 0.4, 'sine', 0.06);
             musicStep++;
             musicNext += step;
         }
@@ -494,13 +494,13 @@
                 pitch,
                 0.055,
                 'triangle',
-                0.018,
+                0.026,
                 pitch * 0.72
             );
 
             noiseBurst(
                 0.035,
-                0.012,
+                0.017,
                 'lowpass',
                 1100,
                 650
