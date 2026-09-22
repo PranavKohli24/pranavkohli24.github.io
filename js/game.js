@@ -86,7 +86,7 @@
         },
         {
             title: 'HR Round',
-            flavor: 'Last one. Where do you see yourself in five minutes?',
+            flavor: 'Where do you see yourself in five minutes?',
             length: 8800, speed: 405, gap: 0.74, tight: 0.82,
             pool: { crate: 2, tall: 2, flag: 2, bunch: 2, hop2: 2, stairs: 2, drone: 2, droneCrate: 2, ball: 2, flagCrate: 2, crateFlag: 2, gauntlet: 2, coins: 1 },
             labels: {
