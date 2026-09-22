@@ -42,7 +42,7 @@
         {
             title: 'Resume Screening',
             flavor: 'They skim for six seconds. Keep moving.',
-            length: 5200, speed: 300, gap: 1.05, tight: 1,
+            length: 5200, speed: 305, gap: 1.05, tight: 1,
             pool: { crate: 5, tall: 2, flag: 3, bunch: 1, coins: 2 },
             labels: {
                 crate: ['TYPO', 'No experience', 'Internship', 'ATS', 'CV.PDF'],
@@ -57,7 +57,7 @@
         {
             title: 'Online Assessment',
             flavor: 'Two hours. Zero partial credit.',
-            length: 6400, speed: 335, gap: 0.92, tight: 0.94,
+            length: 6400, speed: 340, gap: 0.92, tight: 0.94,
             pool: { crate: 3, tall: 2, flag: 2, bunch: 2, hop2: 2, drone: 2, flagCrate: 1, coins: 1 },
             labels: {
                 crate: ['BUG', 'TLE', '404', 'NULL', 'Semicolon missing'],
@@ -72,7 +72,7 @@
         {
             title: 'Technical Interview',
             flavor: 'Can you optimize that? Keep moving.',
-            length: 7600, speed: 370, gap: 0.82, tight: 0.88,
+            length: 7600, speed: 375, gap: 0.82, tight: 0.88,
             pool: { crate: 2, tall: 2, flag: 2, bunch: 2, hop2: 2, stairs: 2, drone: 2, droneCrate: 1, ball: 2, flagCrate: 2, crateFlag: 2, coins: 1 },
             labels: {
                 crate: ['O(n²)', 'EDGE CASE', 'Memory Leak', 'Race condition', 'Error'],
@@ -87,7 +87,7 @@
         {
             title: 'HR Round',
             flavor: 'Where do you see yourself in five minutes?',
-            length: 8800, speed: 405, gap: 0.74, tight: 0.82,
+            length: 8800, speed: 410, gap: 0.74, tight: 0.82,
             pool: { crate: 2, tall: 2, flag: 2, bunch: 2, hop2: 2, stairs: 2, drone: 2, droneCrate: 2, ball: 2, flagCrate: 2, crateFlag: 2, gauntlet: 2, coins: 1 },
             labels: {
                 crate: ['SALARY?', 'WEAKNESS', 'Strengths', 'WHY US?', 'NOTICE?'],
