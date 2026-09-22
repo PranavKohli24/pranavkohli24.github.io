@@ -571,6 +571,7 @@
     <div class="game-hud" id="gameHud">
         <div>Round <b id="hudRound">1</b> / 4</div>
         <div>🪙 Coins <b id="hudCoins">0</b></div>
+        <div class="hud-lives">Lives <b id="hudLives">♥♥♥</b></div>
 
         <div class="game-pause">
             <button
@@ -591,7 +592,11 @@
 
         <div class="game-overlay active" id="startOverlay">
             <h2>Ready to escape?</h2>
-            <p>Four rounds, one maze each. The timer starts the moment you hit play.</p>
+            <p>Four rounds. Run, jump, slide, survive.</p>
+            <ul class="game-keys">
+                <li class="keys-desktop"><kbd>↑</kbd>/<kbd>Space</kbd> jump (again mid-air to double jump) · <kbd>↓</kbd> slide · <kbd>P</kbd> pause · <kbd>M</kbd> mute</li>
+                <li class="keys-touch">Tap to jump (tap again mid-air to double jump) · swipe down to slide</li>
+            </ul>
             <button class="primary-btn" id="startBtn">Start Game</button>
         </div>
 
