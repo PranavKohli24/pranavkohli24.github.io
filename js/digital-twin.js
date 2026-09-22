@@ -25,6 +25,8 @@ let chatInputRow;
 let digitalTwinAvatar;
 let digitalTwinLeftEye;
 let digitalTwinRightEye;
+let digitalTwinLeftHighlight;
+let digitalTwinRightHighlight;
 
 const DIGITAL_TWIN_IMAGE_WIDTH = 1150;
 const DIGITAL_TWIN_IMAGE_HEIGHT = 1367;
@@ -2724,6 +2726,8 @@ let history = [];
             // Done reading: eyes come back to center
             setDigitalTwinEyeOffset(digitalTwinLeftEye, 0, 0);
             setDigitalTwinEyeOffset(digitalTwinRightEye, 0, 0);
+            setDigitalTwinEyeOffset(digitalTwinLeftHighlight, 0, 0);
+            setDigitalTwinEyeOffset(digitalTwinRightHighlight, 0, 0);
             digitalTwinLastGaze = { x: 0, y: 0 };
 
             const remaining =
@@ -2909,6 +2913,12 @@ let history = [];
 // Closer taps = smaller movement. Farther taps = bigger movement.
 const DIGITAL_TWIN_EYE_FALLOFF_PX = 260;
 
+// The highlight reaches its max movement MUCH sooner than the iris does.
+// A near tap already pushes it to the edge; only a far tap pushes the iris that far.
+const DIGITAL_TWIN_HIGHLIGHT_FALLOFF_PX = 25;   // saturates fast, even for close taps
+const DIGITAL_TWIN_HIGHLIGHT_MAX_MOVE_X = 12;   // now a real, visible swing
+const DIGITAL_TWIN_HIGHLIGHT_MAX_MOVE_Y = 8;
+
 function setDigitalTwinEyeOffset(eyeElement, x, y) {
     if (!eyeElement) return;
     eyeElement.style.transform = `translate(${x}px, ${y}px)`;
@@ -2929,8 +2939,8 @@ function updateDigitalTwinEyes(clientX, clientY) {
     // Remember when the user last interacted, so idle wandering waits.
     digitalTwinLastInteraction = Date.now();
 
-    const gaze = moveDigitalTwinEye(digitalTwinLeftEye, DIGITAL_TWIN_EYES.left, clientX, clientY, rect);
-    moveDigitalTwinEye(digitalTwinRightEye, DIGITAL_TWIN_EYES.right, clientX, clientY, rect);
+    const gaze = moveDigitalTwinEye(digitalTwinLeftEye, DIGITAL_TWIN_EYES.left, clientX, clientY, rect, digitalTwinLeftHighlight);
+    moveDigitalTwinEye(digitalTwinRightEye, DIGITAL_TWIN_EYES.right, clientX, clientY, rect, digitalTwinRightHighlight);
 
     // Big look = sometimes blink, like a real person shifting their gaze.
     const shift = Math.hypot(
@@ -2945,7 +2955,7 @@ function updateDigitalTwinEyes(clientX, clientY) {
     digitalTwinLastGaze = gaze;
 }
 
-function moveDigitalTwinEye(eyeElement, eyeCenter, clientX, clientY, rect) {
+function moveDigitalTwinEye(eyeElement, eyeCenter, clientX, clientY, rect, highlightElement) {
     const eyeScreenX = rect.left + eyeCenter.x * (rect.width / DIGITAL_TWIN_IMAGE_WIDTH);
     const eyeScreenY = rect.top + eyeCenter.y * (rect.height / DIGITAL_TWIN_IMAGE_HEIGHT);
 
@@ -2955,16 +2965,25 @@ function moveDigitalTwinEye(eyeElement, eyeCenter, clientX, clientY, rect) {
 
     if (distance === 0) {
         setDigitalTwinEyeOffset(eyeElement, 0, 0);
+        if (highlightElement) setDigitalTwinEyeOffset(highlightElement, 0, 0);
         return { x: 0, y: 0 };
     }
 
+    // IRIS: needs a FAR tap to reach its max movement (unchanged from before).
     const strength = Math.min(distance / DIGITAL_TWIN_EYE_FALLOFF_PX, 1);
-
-    // Oval range: more sideways, less up-down.
     const x = (dx / distance) * strength * DIGITAL_TWIN_MAX_EYE_MOVE_X;
     const y = (dy / distance) * strength * DIGITAL_TWIN_MAX_EYE_MOVE_Y;
-
     setDigitalTwinEyeOffset(eyeElement, x, y);
+
+    // HIGHLIGHT: reaches its max movement even for a NEAR tap, because its
+    // own falloff distance is much smaller.
+    if (highlightElement) {
+        const highlightStrength = Math.min(distance / DIGITAL_TWIN_HIGHLIGHT_FALLOFF_PX, 1);
+        const hx = (dx / distance) * highlightStrength * DIGITAL_TWIN_HIGHLIGHT_MAX_MOVE_X;
+        const hy = (dy / distance) * highlightStrength * DIGITAL_TWIN_HIGHLIGHT_MAX_MOVE_Y;
+        setDigitalTwinEyeOffset(highlightElement, hx, hy);
+    }
+
     return { x, y };
 }
 
@@ -3025,8 +3044,12 @@ function followReadingGaze(bubble, cursor) {
 
     setDigitalTwinEyeOffset(digitalTwinLeftEye, x, y);
     setDigitalTwinEyeOffset(digitalTwinRightEye, x, y);
+    setDigitalTwinEyeOffset(digitalTwinLeftHighlight, x * 0.25, y * 0.25);
+    setDigitalTwinEyeOffset(digitalTwinRightHighlight, x * 0.25, y * 0.25);
     digitalTwinLastGaze = { x, y };
     digitalTwinLastInteraction = Date.now();
+
+    // Small chance of a blink when the eyes jump back to the next line
 
     // Small chance of a blink when the eyes jump back to the next line
     if (isNewLine && Math.random() < 0.25) {
@@ -3056,6 +3079,8 @@ function idleGlance() {
 
     setDigitalTwinEyeOffset(digitalTwinLeftEye, x, y);
     setDigitalTwinEyeOffset(digitalTwinRightEye, x, y);
+    setDigitalTwinEyeOffset(digitalTwinLeftHighlight, x * 0.25, y * 0.25);
+    setDigitalTwinEyeOffset(digitalTwinRightHighlight, x * 0.25, y * 0.25);
     digitalTwinLastGaze = { x, y };
 }
 
@@ -3162,6 +3187,12 @@ digitalTwinLeftEye =
 
 digitalTwinRightEye =
     document.getElementById('digitalTwinRightEye');
+
+digitalTwinLeftHighlight =
+    document.getElementById('digitalTwinLeftHighlight');
+
+digitalTwinRightHighlight =
+    document.getElementById('digitalTwinRightHighlight');
 
 digitalTwinLids =
     Array.from(document.querySelectorAll('.digital-twin-lid'));

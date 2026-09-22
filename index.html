@@ -164,7 +164,18 @@
         </defs>
 
         <!-- LEFT EYE -->
+                <!-- LEFT EYE -->
         <g id="digitalTwinLeftEye" class="digital-twin-pupil">
+            <!-- sclera: soft white base so the iris doesn't float in nothing -->
+            <ellipse
+                cx="477"
+                cy="590"
+                rx="36"
+                ry="30"
+                fill="#f5f0ec"
+                opacity="0.35"
+            />
+
             <!-- big ball -->
             <circle
                 cx="477"
@@ -174,6 +185,7 @@
             />
 
             <circle
+                class="digital-twin-pupil-core"
                 cx="478"
                 cy="595"
                 r="13"
@@ -181,16 +193,29 @@
             />
 
             <circle
-                cx="475"
-                cy="585"
-                r="5"
-                fill="white"
-                opacity="0.95"
-            />
+    id="digitalTwinLeftHighlight"
+    class="digital-twin-highlight"
+    cx="475"
+    cy="585"
+    r="5"
+    fill="white"
+    opacity="0.95"
+/>
         </g>
 
         <!-- RIGHT EYE -->
+                <!-- RIGHT EYE -->
         <g id="digitalTwinRightEye" class="digital-twin-pupil">
+            <!-- sclera: soft white base so the iris doesn't float in nothing -->
+            <ellipse
+                cx="680"
+                cy="568"
+                rx="36"
+                ry="30"
+                fill="#f5f0ec"
+                opacity="0.35"
+            />
+
             <circle
                 cx="680"
                 cy="568"
@@ -199,6 +224,7 @@
             />
 
             <circle
+                class="digital-twin-pupil-core"
                 cx="682"
                 cy="572"
                 r="13"
@@ -206,6 +232,8 @@
             />
 
             <circle
+                id="digitalTwinRightHighlight"
+                class="digital-twin-highlight"
                 cx="675"
                 cy="560"
                 r="5"

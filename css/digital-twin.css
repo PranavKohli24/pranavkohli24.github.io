@@ -82,6 +82,17 @@
     will-change: transform;
 }
 
+.digital-twin-pupil-core {
+    filter: blur(0.4px);
+}
+
+.digital-twin-highlight {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+        transform 140ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .digital-twin-lid {
     transform-box: fill-box;
     transform-origin: top center;
