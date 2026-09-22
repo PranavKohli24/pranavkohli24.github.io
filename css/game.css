@@ -82,7 +82,7 @@
 @media (max-width: 480px) {
     #game.win-links #roundTitle,
     #game.win-links #flavorText {
-        font-size: 0.82rem;
+        font-size: 0.72rem;
     }
 
     .game-link-row {
