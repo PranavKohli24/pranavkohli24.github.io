@@ -626,44 +626,33 @@
 
         // Body hitting something, rather than a synth buzz.
         hit() {
-    // Deep body impact
-    tone(
-        78,
-        0.12,
-        'sine',
-        0.040,
-        48
-    );
+            // Hard, low impact. No musical pitch.
+            tone(
+                72,
+                0.095,
+                'sine',
+                0.055,
+                42
+            );
 
-    // The actual material collision
-    noiseBurst(
-        0.055,
-        0.030,
-        'lowpass',
-        1400,
-        420
-    );
+            // Dense stone-like contact.
+            noiseBurst(
+                0.042,
+                0.045,
+                'lowpass',
+                1800,
+                500
+            );
 
-    // Tiny hard contact / edge knock
-    noiseBurst(
-        0.018,
-        0.018,
-        'highpass',
-        2600,
-        900
-    );
-
-    // Very short rebound
-    setTimeout(() => {
-        tone(
-            120,
-            0.045,
-            'triangle',
-            0.010,
-            75
-        );
-    }, 35);
-},
+            // Very short hard edge of the impact.
+            noiseBurst(
+                0.012,
+                0.025,
+                'highpass',
+                3200,
+                1100
+            );
+        },
 
         // Shield pop stays clean.
         pop() {
