@@ -45,7 +45,7 @@
             length: 5200, speed: 300, gap: 1.05, tight: 1,
             pool: { crate: 5, tall: 2, flag: 3, bunch: 1, coins: 2 },
             labels: {
-                crate: ['TYPO', 'NO EXP', 'GAP', '2 PAGES', 'CV.PDF'],
+                crate: ['TYPO', 'No experience', 'Internship', 'ATS', 'CV.PDF'],
                 flag: ['REJECT', 'NO REPLY', 'GHOST']
             },
             pal: {
@@ -61,7 +61,7 @@
             pool: { crate: 3, tall: 2, flag: 2, bunch: 2, hop2: 2, drone: 2, flagCrate: 1, coins: 1 },
             labels: {
                 crate: ['BUG', 'TLE', '404', 'NULL', 'Semicolon missing'],
-                flag: ['TIMEOUT', 'DEADLINE', 'TAB SWITCH']
+                flag: ['TIMEOUT', 'DEADLINE', 'Optimise code']
             },
             pal: {
                 sky: '#e6f1fb', sun: '#fff0d3', cloud: '#ffffff',
@@ -75,8 +75,8 @@
             length: 7600, speed: 370, gap: 0.82, tight: 0.88,
             pool: { crate: 2, tall: 2, flag: 2, bunch: 2, hop2: 2, stairs: 2, drone: 2, droneCrate: 1, ball: 2, flagCrate: 2, crateFlag: 2, coins: 1 },
             labels: {
-                crate: ['O(n²)', 'EDGE CASE', 'LEAK', 'RACE', 'SEGFAULT'],
-                flag: ['OPTIMIZE', 'WHITEBOARD', 'RECURSE']
+                crate: ['O(n²)', 'EDGE CASE', 'Memory Leak', 'Race condition', 'Error'],
+                flag: ['OPTIMIZE', 'WHITEBOARD', 'Sandbox']
             },
             pal: {
                 sky: '#e6f5ec', sun: '#fff3cb', cloud: '#ffffff',
@@ -90,7 +90,7 @@
             length: 8800, speed: 405, gap: 0.74, tight: 0.82,
             pool: { crate: 2, tall: 2, flag: 2, bunch: 2, hop2: 2, stairs: 2, drone: 2, droneCrate: 2, ball: 2, flagCrate: 2, crateFlag: 2, gauntlet: 2, coins: 1 },
             labels: {
-                crate: ['SALARY?', 'WEAKNESS', '5 YRS', 'WHY US?', 'NOTICE?'],
+                crate: ['SALARY?', 'WEAKNESS', 'Strengths', 'WHY US?', 'NOTICE?'],
                 flag: ['CULTURE FIT', 'GOALS?', 'REFERENCES']
             },
             pal: {
