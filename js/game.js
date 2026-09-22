@@ -585,12 +585,94 @@
             );
         },
 
-        power() {
-            tone(500, 0.09, 'triangle', 0.03, 800);
-            setTimeout(() => {
-                tone(800, 0.12, 'triangle', 0.03, 1100);
-            }, 80);
-        },
+        shieldPower() {
+    // Soft magical lift
+    tone(
+        420,
+        0.16,
+        'sine',
+        0.022,
+        900
+    );
+
+    // Sparkle
+    setTimeout(() => {
+        tone(
+            900,
+            0.10,
+            'triangle',
+            0.018,
+            1450
+        );
+    }, 55);
+
+    // Magical shimmer
+    setTimeout(() => {
+        noiseBurst(
+            0.12,
+            0.012,
+            'highpass',
+            2200,
+            5000
+        );
+    }, 100);
+
+    // Final glassy note
+    setTimeout(() => {
+        tone(
+            1320,
+            0.20,
+            'sine',
+            0.014,
+            1650
+        );
+    }, 145);
+},
+
+
+caffeinePower() {
+    // Initial energy hit
+    tone(
+        180,
+        0.08,
+        'triangle',
+        0.028,
+        420
+    );
+
+    // Fast magical climb
+    setTimeout(() => {
+        tone(
+            420,
+            0.10,
+            'sawtooth',
+            0.018,
+            1100
+        );
+    }, 45);
+
+    // Bright energy sparkle
+    setTimeout(() => {
+        tone(
+            1100,
+            0.12,
+            'triangle',
+            0.022,
+            1800
+        );
+    }, 95);
+
+    // Tiny energy burst
+    setTimeout(() => {
+        noiseBurst(
+            0.06,
+            0.016,
+            'highpass',
+            2600,
+            5200
+        );
+    }, 135);
+},
 
         // Slide = low friction + air movement.
         slide() {
@@ -1402,17 +1484,42 @@
     }
 
     function collectPower(p) {
-        sfx.power();
-        burst(p.x, GY - p.h, 12, ['#fff', GOLD, '#bfe3ff'], 180, 0.5, 4, 150);
-        if (p.kind === 'shield') {
-            shield = true;
-            toast('Referral! Shield ready');
-        } else {
-            rush = RUSH_TIME;
-            invuln = Math.max(invuln, 0.3);
-            toast('Caffeine rush! Smash everything');
-        }
+    if (p.kind === 'shield') {
+        sfx.shieldPower();
+
+        burst(
+            p.x,
+            GY - p.h,
+            14,
+            ['#fff', '#bfe3ff', '#9be8cf'],
+            180,
+            0.55,
+            4,
+            120
+        );
+
+        shield = true;
+        toast('Referral! Shield ready');
+
+    } else {
+        sfx.caffeinePower();
+
+        burst(
+            p.x,
+            GY - p.h,
+            16,
+            ['#fff', '#ffd452', '#ffb56b'],
+            210,
+            0.50,
+            4,
+            140
+        );
+
+        rush = RUSH_TIME;
+        invuln = Math.max(invuln, 0.3);
+        toast('Caffeine rush! Smash everything');
     }
+}
 
     function collide() {
         const pb = playerBox();
