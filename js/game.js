@@ -2320,7 +2320,7 @@
             return;
         }
 
-        setLock(state === 'playing' || state === 'countdown' || state === 'ending');
+        setLock(true);
 
         if (state === 'playing' || state === 'countdown') musicTick();
 
