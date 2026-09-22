@@ -572,15 +572,6 @@
         <div>Round <b id="hudRound">1</b> / 4</div>
         <div>🪙 Coins <b id="hudCoins">0</b></div>
         <div class="hud-lives">Lives <b id="hudLives">♥♥♥</b></div>
-
-        <div class="game-pause">
-            <button
-                class="pause-btn"
-                id="pauseBtn"
-                aria-label="Pause game"
-                title="Pause game"
-            ><span class="pause-icon"></span></button>
-        </div>
     </div>
 
     <div class="game-canvas-wrap">
@@ -614,9 +605,18 @@
         </div>
     </div>
 
-    <div class="game-dpad pre-start" id="gameDpad" aria-label="movement controls">
-        <button class="dpad-btn dpad-up" id="btnUp" aria-label="Jump">↑</button>
-        <button class="dpad-btn dpad-down" id="btnDown" aria-label="Slide">↓</button>
+    <div class="game-controls-bottom">
+        <button
+            class="pause-btn"
+            id="pauseBtn"
+            aria-label="Pause game"
+            title="Pause game"
+        ><span class="pause-icon"></span></button>
+
+        <div class="game-dpad pre-start" id="gameDpad" aria-label="movement controls">
+            <button class="dpad-btn dpad-up" id="btnUp" aria-label="Jump">↑</button>
+            <button class="dpad-btn dpad-down" id="btnDown" aria-label="Slide">↓</button>
+        </div>
     </div>
 
     <p class="game-hint"></p>

@@ -127,7 +127,15 @@ body:has(#game.section.active) #liquid-glow {
     -webkit-tap-highlight-color: transparent;
 }
 
-.game-hud.game-started .pause-btn {
+.game-controls-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9rem;
+    margin-top: 0.95rem;
+}
+
+#gameHud.game-started ~ .game-controls-bottom .pause-btn {
     display: inline-flex;
 }
 
