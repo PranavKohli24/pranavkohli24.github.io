@@ -305,7 +305,7 @@
     let master = null;
     let muted = false;
 
-    const VOL = 3.5; // sound effect loudness multiplier
+    const VOL = 5; // sound effect loudness multiplier
 
     function ensureAudio() {
         if (audio) {
