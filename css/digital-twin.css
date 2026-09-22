@@ -84,6 +84,10 @@
 
 .digital-twin-pupil-core {
     filter: blur(0.4px);
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+        transform 140ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .digital-twin-highlight {

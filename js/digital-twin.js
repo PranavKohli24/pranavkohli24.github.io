@@ -27,6 +27,8 @@ let digitalTwinLeftEye;
 let digitalTwinRightEye;
 let digitalTwinLeftHighlight;
 let digitalTwinRightHighlight;
+let digitalTwinLeftPupilCore;
+let digitalTwinRightPupilCore;
 
 const DIGITAL_TWIN_IMAGE_WIDTH = 1150;
 const DIGITAL_TWIN_IMAGE_HEIGHT = 1367;
@@ -2724,8 +2726,11 @@ let history = [];
                 await streamMultiBubbleReply(res, showQuote ? text : null);
 
             // Done reading: eyes come back to center
+
             setDigitalTwinEyeOffset(digitalTwinLeftEye, 0, 0);
             setDigitalTwinEyeOffset(digitalTwinRightEye, 0, 0);
+            setDigitalTwinEyeOffset(digitalTwinLeftPupilCore, 0, 0);
+            setDigitalTwinEyeOffset(digitalTwinRightPupilCore, 0, 0);
             setDigitalTwinEyeOffset(digitalTwinLeftHighlight, 0, 0);
             setDigitalTwinEyeOffset(digitalTwinRightHighlight, 0, 0);
             digitalTwinLastGaze = { x: 0, y: 0 };
@@ -2919,6 +2924,12 @@ const DIGITAL_TWIN_HIGHLIGHT_FALLOFF_PX = 25;   // saturates fast, even for clos
 const DIGITAL_TWIN_HIGHLIGHT_MAX_MOVE_X = 12;   // now a real, visible swing
 const DIGITAL_TWIN_HIGHLIGHT_MAX_MOVE_Y = 8;
 
+// Pupil (the black circle): moves a bit on its own, between the iris group's
+// full movement and the highlight's fast, big swing.
+const DIGITAL_TWIN_PUPIL_FALLOFF_PX = 90;
+const DIGITAL_TWIN_PUPIL_MAX_MOVE_X = 6;
+const DIGITAL_TWIN_PUPIL_MAX_MOVE_Y = 4;
+
 function setDigitalTwinEyeOffset(eyeElement, x, y) {
     if (!eyeElement) return;
     eyeElement.style.transform = `translate(${x}px, ${y}px)`;
@@ -2939,8 +2950,9 @@ function updateDigitalTwinEyes(clientX, clientY) {
     // Remember when the user last interacted, so idle wandering waits.
     digitalTwinLastInteraction = Date.now();
 
-    const gaze = moveDigitalTwinEye(digitalTwinLeftEye, DIGITAL_TWIN_EYES.left, clientX, clientY, rect, digitalTwinLeftHighlight);
-    moveDigitalTwinEye(digitalTwinRightEye, DIGITAL_TWIN_EYES.right, clientX, clientY, rect, digitalTwinRightHighlight);
+
+    const gaze = moveDigitalTwinEye(digitalTwinLeftEye, DIGITAL_TWIN_EYES.left, clientX, clientY, rect, digitalTwinLeftHighlight, digitalTwinLeftPupilCore);
+    moveDigitalTwinEye(digitalTwinRightEye, DIGITAL_TWIN_EYES.right, clientX, clientY, rect, digitalTwinRightHighlight, digitalTwinRightPupilCore);
 
     // Big look = sometimes blink, like a real person shifting their gaze.
     const shift = Math.hypot(
@@ -2955,7 +2967,7 @@ function updateDigitalTwinEyes(clientX, clientY) {
     digitalTwinLastGaze = gaze;
 }
 
-function moveDigitalTwinEye(eyeElement, eyeCenter, clientX, clientY, rect, highlightElement) {
+function moveDigitalTwinEye(eyeElement, eyeCenter, clientX, clientY, rect, highlightElement, pupilElement) {
     const eyeScreenX = rect.left + eyeCenter.x * (rect.width / DIGITAL_TWIN_IMAGE_WIDTH);
     const eyeScreenY = rect.top + eyeCenter.y * (rect.height / DIGITAL_TWIN_IMAGE_HEIGHT);
 
@@ -2966,6 +2978,7 @@ function moveDigitalTwinEye(eyeElement, eyeCenter, clientX, clientY, rect, highl
     if (distance === 0) {
         setDigitalTwinEyeOffset(eyeElement, 0, 0);
         if (highlightElement) setDigitalTwinEyeOffset(highlightElement, 0, 0);
+        if (pupilElement) setDigitalTwinEyeOffset(pupilElement, 0, 0);
         return { x: 0, y: 0 };
     }
 
@@ -2974,6 +2987,15 @@ function moveDigitalTwinEye(eyeElement, eyeCenter, clientX, clientY, rect, highl
     const x = (dx / distance) * strength * DIGITAL_TWIN_MAX_EYE_MOVE_X;
     const y = (dy / distance) * strength * DIGITAL_TWIN_MAX_EYE_MOVE_Y;
     setDigitalTwinEyeOffset(eyeElement, x, y);
+
+    // PUPIL (black circle): moves a bit extra on its own, reaching its max
+    // sooner than the iris but not as fast as the highlight.
+    if (pupilElement) {
+        const pupilStrength = Math.min(distance / DIGITAL_TWIN_PUPIL_FALLOFF_PX, 1);
+        const px = (dx / distance) * pupilStrength * DIGITAL_TWIN_PUPIL_MAX_MOVE_X;
+        const py = (dy / distance) * pupilStrength * DIGITAL_TWIN_PUPIL_MAX_MOVE_Y;
+        setDigitalTwinEyeOffset(pupilElement, px, py);
+    }
 
     // HIGHLIGHT: reaches its max movement even for a NEAR tap, because its
     // own falloff distance is much smaller.
@@ -3044,6 +3066,8 @@ function followReadingGaze(bubble, cursor) {
 
     setDigitalTwinEyeOffset(digitalTwinLeftEye, x, y);
     setDigitalTwinEyeOffset(digitalTwinRightEye, x, y);
+    setDigitalTwinEyeOffset(digitalTwinLeftPupilCore, x * 0.4, y * 0.4);
+    setDigitalTwinEyeOffset(digitalTwinRightPupilCore, x * 0.4, y * 0.4);
     setDigitalTwinEyeOffset(digitalTwinLeftHighlight, x * 0.25, y * 0.25);
     setDigitalTwinEyeOffset(digitalTwinRightHighlight, x * 0.25, y * 0.25);
     digitalTwinLastGaze = { x, y };
@@ -3079,6 +3103,8 @@ function idleGlance() {
 
     setDigitalTwinEyeOffset(digitalTwinLeftEye, x, y);
     setDigitalTwinEyeOffset(digitalTwinRightEye, x, y);
+    setDigitalTwinEyeOffset(digitalTwinLeftPupilCore, x * 0.4, y * 0.4);
+    setDigitalTwinEyeOffset(digitalTwinRightPupilCore, x * 0.4, y * 0.4);
     setDigitalTwinEyeOffset(digitalTwinLeftHighlight, x * 0.25, y * 0.25);
     setDigitalTwinEyeOffset(digitalTwinRightHighlight, x * 0.25, y * 0.25);
     digitalTwinLastGaze = { x, y };
@@ -3193,6 +3219,12 @@ digitalTwinLeftHighlight =
 
 digitalTwinRightHighlight =
     document.getElementById('digitalTwinRightHighlight');
+
+digitalTwinLeftPupilCore =
+    document.getElementById('digitalTwinLeftPupilCore');
+
+digitalTwinRightPupilCore =
+    document.getElementById('digitalTwinRightPupilCore');
 
 digitalTwinLids =
     Array.from(document.querySelectorAll('.digital-twin-lid'));
