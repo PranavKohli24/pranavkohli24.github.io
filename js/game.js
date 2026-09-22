@@ -205,6 +205,8 @@
     let toastT = 0;
     let lastHit = '';
     let unlocked = [];
+    let prevBest = 0;
+    let newBestFired = false;
 
     let obstacles = [];
     let coinItems = [];
@@ -400,6 +402,11 @@
         },
         tick() { tone(440, 0.06, 'sine', 0.02); },
         go() { tone(720, 0.12, 'triangle', 0.03); },
+        newBest() {
+            [880, 1100, 1320].forEach((f, i) => {
+                setTimeout(() => tone(f, 0.14, 'triangle', 0.035), i * 90);
+            });
+        },
         win() {
             [660, 830, 990, 1320].forEach((f, i) => {
                 setTimeout(() => tone(f, 0.18, 'triangle', 0.03), i * 120);
@@ -1017,6 +1024,17 @@
             unlocked.push(skill);
             toast('Skill unlocked: ' + skill);
         }
+        // mid-run "NEW BEST!" moment: fires once, the instant this run's
+        // coin count overtakes the previous best (only if there IS a
+        // previous best — first-ever run doesn't need the fanfare)
+        if (!newBestFired && prevBest > 0 && coinCount > prevBest) {
+            newBestFired = true;
+            toast('NEW BEST! 🔥');
+            floater('NEW BEST!', PX + 10, GY - py - 90, GOLD);
+            burst(PX, GY - py - 40, 18, [GOLD, '#fff3b0', '#ffffff'], 200, 0.6, 4, 200);
+            shake = Math.max(shake, 6);
+            sfx.newBest();
+        }
     }
 
     function collectCoin(c) {
@@ -1257,6 +1275,8 @@
         lastHit = '';
         toastT = 0;
         bannerT = 0;
+        prevBest = Number(load(CONFIG.bestKey) || 0);
+        newBestFired = false;
 
         obstacles = [];
         coinItems = [];
