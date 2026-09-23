@@ -664,6 +664,19 @@ body:has(#game.section.active) #liquid-glow {
         padding-right: 2.2rem;
     }
 
+    .game-share-btn {
+        right: 10px;
+        bottom: 10px;
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+    }
+
+    .game-share-btn svg {
+        width: 22px;
+        height: 22px;
+    }
+    
     .game-flavor {
         font-size: 0.9rem;
         margin: -0.55rem 0 0.85rem;

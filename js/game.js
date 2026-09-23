@@ -1864,8 +1864,8 @@ function doShare() {
                 files: [file],
                 title: 'Escape the Interview',
                 text: result === 'win'
-                    ? 'I just escaped the interview!'
-                    : 'Playing this portfolio game — can you beat me?'
+                    ? 'I just cleared the interview!'
+                    : 'Playing this portfolio game made by Pranav Kohli'
             }).catch(() => {});
 
             return;
