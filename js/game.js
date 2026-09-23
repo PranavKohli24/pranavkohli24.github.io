@@ -157,7 +157,6 @@
     let result = 'lose';
 
     let roundIndex = 0;
-    let score = 0;
     let coinCount = 0;
     let combo = 0;
     let lives = CONFIG.lives;
@@ -1492,7 +1491,6 @@ caffeinePower() {
         combo += 1;
         addCoins(1);
         const m = multiplier();
-        score += 10 * m;
         sfx.coin(combo);
         burst(c.x, GY - c.h, 5, [GOLD, '#fff3b0'], 110, 0.35, 3, 200);
         if (m > prev) floater('x' + m + ' combo', PX + 10, GY - py - 70, '#e0a53a');
@@ -1940,7 +1938,6 @@ function doShare() {
         result = 'lose';
 
         roundIndex = 0;
-        score = 0;
         coinCount = 0;
         combo = 0;
         lives = CONFIG.lives;
@@ -2070,7 +2067,6 @@ function doShare() {
         const v = worldSpeed();
         const dx = v * dt;
         dist += dx;
-        score += dx * 0.05 * multiplier();
 
         updatePlayer(dt);
         updateFootsteps(dt, v);
