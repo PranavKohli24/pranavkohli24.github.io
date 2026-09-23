@@ -292,7 +292,6 @@
 
     const R = () => ROUNDS[roundIndex];
     const roundDist = () => dist - roundStartDist;
-    const multiplier = () => Math.min(5, 1 + Math.floor(combo / 10));
     const spawnX = () => LW + 40;
 
     /* ---------------------------------------------------------------------
@@ -1487,14 +1486,19 @@ caffeinePower() {
     }
 
     function collectCoin(c) {
-        const prev = multiplier();
         combo += 1;
         addCoins(1);
-        const m = multiplier();
         sfx.coin(combo);
         burst(c.x, GY - c.h, 5, [GOLD, '#fff3b0'], 110, 0.35, 3, 200);
-        if (m > prev) floater('x' + m + ' combo', PX + 10, GY - py - 70, '#e0a53a');
 
+        if (combo % 10 === 0) {
+            floater(
+                combo + ' coin streak',
+                PX + 10,
+                GY - py - 70,
+                '#e0a53a'
+            );
+        }
     }
 
     function collectPower(p) {
@@ -2916,12 +2920,20 @@ function doShare() {
         }
 
         // combo
-        const m = multiplier();
-        if (m > 1) {
-            rr(LW - 74, 8, 62, 24, 12);
-            fillStroke('#fff3b0', 2);
-            text('x' + m + ' combo', LW - 43, 20.5, 11, INK, 800);
-        }
+            // coin streak
+    const streak = Math.floor(combo / 10) * 10;
+    if (streak >= 10) {
+        rr(LW - 104, 8, 92, 24, 12);
+        fillStroke('#fff3b0', 2);
+        text(
+            streak + ' coin streak',
+            LW - 58,
+            20.5,
+            10.5,
+            INK,
+            800
+        );
+    }
 
         // power-ups
         let py2 = 8;
