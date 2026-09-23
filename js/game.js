@@ -1787,7 +1787,9 @@ function buildShareCanvas() {
 
     const c = shareCanvas.getContext('2d');
     const pal = PAL || ROUNDS[0].pal;
+    const won = result === 'win';
 
+    // Background
     c.fillStyle = pal.sky || '#efe9fb';
     c.fillRect(0, 0, 1200, 630);
 
@@ -1797,43 +1799,95 @@ function buildShareCanvas() {
     c.fillStyle = pal.accent || '#8f75e0';
     c.fillRect(0, 496, 1200, 6);
 
-    c.textAlign = 'left';
+    // Main end-screen card
+    c.fillStyle = 'rgba(255, 251, 246, 0.92)';
+    c.strokeStyle = INK;
+    c.lineWidth = 4;
+
+    rrShare(c, 70, 55, 1060, 500, 28);
+    c.fill();
+    c.stroke();
+
+    // Heading
+    c.textAlign = 'center';
     c.fillStyle = INK;
-    c.font = '800 52px ' + FONT;
-
-    const headline = result === 'win'
-        ? 'I escaped the interview! 🎉'
-        : 'Interview run: reached Round ' + (roundIndex + 1) + '/4';
-
-    c.fillText(headline, 60, 130);
-
-    c.font = '600 26px ' + FONT;
-    c.fillStyle = '#3d3650';
+    c.font = '800 54px ' + FONT;
 
     c.fillText(
-        coinCount + ' coins · ' + unlocked.length + '/' + CONFIG.skills.length + ' skills unlocked',
-        60,
-        178
+        won ? 'You got the offer! 🎉' : 'Interview failed.',
+        600,
+        145
     );
 
-    let by = 250;
-    c.font = '700 24px ' + FONT;
+    // Exact description from the end screen
+    c.font = '600 27px ' + FONT;
+    c.fillStyle = '#6a6282';
 
-    unlocked.forEach(skill => {
-        c.fillText('✓ ' + skill, 60, by);
-        by += 42;
-    });
+    const description = won
+        ? 'Four rounds, one ridiculous sprint. You made it.'
+        : (lastHit
+            ? 'Rejected by "' + lastHit + '". Take another shot.'
+            : 'Take another shot.');
 
-    c.font = '600 22px ' + FONT;
+    c.fillText(description, 600, 195);
+
+    // Exact round + coin result
+    c.fillStyle = INK;
+    c.font = '800 30px ' + FONT;
+
+    c.fillText(
+        won
+            ? 'Round 4/4 cleared · ' + coinCount + ' coins'
+            : 'Reached Round ' + (roundIndex + 1) + '/4 · ' + coinCount + ' coins',
+        600,
+        275
+    );
+
+    // Exact skills line
+    if (unlocked.length) {
+        c.font = '600 23px ' + FONT;
+        c.fillStyle = '#6a6282';
+
+        c.fillText(
+            'Skills unlocked: ' + unlocked.join(' · '),
+            600,
+            325
+        );
+    }
+
+    // Branding
+    c.font = '800 22px ' + FONT;
+    c.fillStyle = INK;
+
+    c.fillText(
+        'Escape the Interview',
+        600,
+        470
+    );
+
+    c.font = '600 18px ' + FONT;
     c.fillStyle = '#6a6282';
 
     c.fillText(
-        'Escape the Interview · a portfolio arcade game',
-        60,
-        590
+        'a portfolio arcade game by Pranav Kohli',
+        600,
+        505
     );
 
     return shareCanvas;
+}
+
+// Rounded rectangle helper for the share card
+function rrShare(c, x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
 }
 
 function doShare() {
