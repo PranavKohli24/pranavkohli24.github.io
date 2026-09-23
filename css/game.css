@@ -312,6 +312,65 @@ body:has(#game.section.active) #liquid-glow {
     box-shadow: 0 6px 0 rgba(61, 54, 80, 0.14);
 }
 
+.game-share-btn {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 20;
+
+    width: 52px;
+    height: 52px;
+    padding: 0;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    border: 2px solid var(--g-ink);
+    border-radius: 16px;
+
+    background: var(--g-mint);
+    color: var(--g-ink);
+
+    box-shadow: 4px 4px 0 var(--g-ink);
+
+    cursor: pointer;
+    transform: rotate(-8deg);
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        background 0.15s ease;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+.game-share-btn.visible {
+    display: flex;
+}
+
+.game-share-btn svg {
+    width: 25px;
+    height: 25px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.game-share-btn:hover {
+    background: #b9efd9;
+    transform: translateY(-3px) rotate(-8deg);
+    box-shadow: 4px 7px 0 var(--g-ink);
+}
+
+.game-share-btn:active {
+    transform: translateY(2px) rotate(-8deg) scale(0.94);
+    box-shadow: 2px 2px 0 var(--g-ink);
+}
+
+
 #mazeCanvas {
     display: block;
     width: 100%;

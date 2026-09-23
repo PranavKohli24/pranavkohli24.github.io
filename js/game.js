@@ -142,7 +142,7 @@
     let canvas, ctx, wrap;
     let roundTitle, flavorText, hudRound, hudScore, hudLives, hud;
     let startOverlay, startBtn, pauseOverlay, resumeBtn, winOverlay, playAgainBtn;
-    let finalStats, bestScore, pauseBtn, dpad, hint, soundBtn;
+    let finalStats, bestScore, pauseBtn, dpad, hint, soundBtn, shareBtn, shareCanvas;
 
     let FONT = 'system-ui, sans-serif';
     let cssW = 760, cssH = 400, LW = 760, LH = 338, GY = 262, PX = 120;
@@ -856,6 +856,20 @@ caffeinePower() {
         dpad = document.getElementById('gameDpad');
         hint = document.querySelector('.game-hint');
         soundBtn = document.getElementById('soundBtn');
+
+        shareBtn = document.createElement('button');
+        shareBtn.type = 'button';
+        shareBtn.className = 'game-share-btn';
+        shareBtn.setAttribute('aria-label', 'Share result');
+        shareBtn.setAttribute('title', 'Share result');
+        shareBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 18L18 6"></path>
+                <path d="M10 6H18V14"></path>
+            </svg>
+        `;
+        wrap.appendChild(shareBtn);
+        shareBtn.addEventListener('click', doShare);
 
         return !!(startOverlay && startBtn && pauseOverlay && resumeBtn &&
             winOverlay && playAgainBtn && finalStats && hud && pauseBtn);
@@ -1753,10 +1767,123 @@ caffeinePower() {
                 flavorText.appendChild(buildLinkLine('LinkedIn', 'https://linkedin.com/in/pranavkohli24'));
             }
         }
+
         document.getElementById('game').classList.toggle('win-links', won);
+
+        if (shareBtn) shareBtn.classList.add('visible');
 
         winOverlay.classList.add('active');
     }
+
+    /* ---------------------------------------------------------------------
+   Shareable result card
+   --------------------------------------------------------------------- */
+function buildShareCanvas() {
+    if (!shareCanvas) {
+        shareCanvas = document.createElement('canvas');
+        shareCanvas.width = 1200;
+        shareCanvas.height = 630;
+    }
+
+    const c = shareCanvas.getContext('2d');
+    const pal = PAL || ROUNDS[0].pal;
+
+    c.fillStyle = pal.sky || '#efe9fb';
+    c.fillRect(0, 0, 1200, 630);
+
+    c.fillStyle = pal.ground || '#bcaee4';
+    c.fillRect(0, 500, 1200, 130);
+
+    c.fillStyle = pal.accent || '#8f75e0';
+    c.fillRect(0, 496, 1200, 6);
+
+    c.textAlign = 'left';
+    c.fillStyle = INK;
+    c.font = '800 52px ' + FONT;
+
+    const headline = result === 'win'
+        ? 'I escaped the interview! 🎉'
+        : 'Interview run: reached Round ' + (roundIndex + 1) + '/4';
+
+    c.fillText(headline, 60, 130);
+
+    c.font = '600 26px ' + FONT;
+    c.fillStyle = '#3d3650';
+
+    c.fillText(
+        coinCount + ' coins · ' + unlocked.length + '/' + CONFIG.skills.length + ' skills unlocked',
+        60,
+        178
+    );
+
+    let by = 250;
+    c.font = '700 24px ' + FONT;
+
+    unlocked.forEach(skill => {
+        c.fillText('✓ ' + skill, 60, by);
+        by += 42;
+    });
+
+    c.font = '600 22px ' + FONT;
+    c.fillStyle = '#6a6282';
+
+    c.fillText(
+        'Escape the Interview · a portfolio arcade game',
+        60,
+        590
+    );
+
+    return shareCanvas;
+}
+
+function doShare() {
+    ensureAudio();
+
+    const c = buildShareCanvas();
+
+    c.toBlob(blob => {
+        if (!blob) return;
+
+        let file = null;
+
+        try {
+            file = new File(
+                [blob],
+                'escape-the-interview.png',
+                { type: 'image/png' }
+            );
+        } catch (e) {}
+
+        if (
+            file &&
+            navigator.share &&
+            navigator.canShare &&
+            navigator.canShare({ files: [file] })
+        ) {
+            navigator.share({
+                files: [file],
+                title: 'Escape the Interview',
+                text: result === 'win'
+                    ? 'I just escaped the interview!'
+                    : 'Playing this portfolio game — can you beat me?'
+            }).catch(() => {});
+
+            return;
+        }
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+
+        a.href = url;
+        a.download = 'escape-the-interview.png';
+
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+    }, 'image/png');
+}
 
     /* ---------------------------------------------------------------------
        State machine
@@ -1813,6 +1940,7 @@ caffeinePower() {
         startOverlay.classList.remove('active');
         pauseOverlay.classList.remove('active');
         winOverlay.classList.remove('active');
+        if (shareBtn) shareBtn.classList.remove('visible');
         wrap.classList.remove('is-paused');
         pauseBtn.classList.remove('is-resume');
         pauseBtn.setAttribute('aria-label', 'Pause game');
