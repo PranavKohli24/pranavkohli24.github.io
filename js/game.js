@@ -141,7 +141,7 @@
        --------------------------------------------------------------------- */
     let canvas, ctx, wrap;
     let roundTitle, flavorText, hudRound, hudScore, hudLives, hud;
-    let startOverlay, startBtn, pauseOverlay, resumeBtn, winOverlay, playAgainBtn;
+    let startOverlay, startBtn, pauseOverlay, resumeBtn, restartBtn, winOverlay, playAgainBtn;
     let finalStats, bestScore, pauseBtn, dpad, hint, soundBtn, shareBtn, shareCanvas;
 
     let FONT = 'system-ui, sans-serif';
@@ -848,6 +848,7 @@ caffeinePower() {
         startBtn = document.getElementById('startBtn');
         pauseOverlay = document.getElementById('pauseOverlay');
         resumeBtn = document.getElementById('resumeBtn');
+        restartBtn = document.getElementById('restartBtn');
         winOverlay = document.getElementById('winOverlay');
         playAgainBtn = document.getElementById('playAgainBtn');
         finalStats = document.getElementById('finalStats');
@@ -3175,6 +3176,11 @@ function doShare() {
 
         startBtn.addEventListener('click', start);
         resumeBtn.addEventListener('click', resume);
+        restartBtn.addEventListener('click', () => {
+            pauseOverlay.classList.remove('active');
+            wrap.classList.remove('is-paused');
+            start();
+        });
         playAgainBtn.addEventListener('click', start);
 
         pauseBtn.addEventListener('click', () => {

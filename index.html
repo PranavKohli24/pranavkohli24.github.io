@@ -609,7 +609,10 @@
         <canvas id="mazeCanvas"></canvas>
         <div class="game-overlay" id="pauseOverlay">
             <h2>Game paused</h2>
-            <button class="primary-btn" id="resumeBtn">keep playing</button>
+            <div class="game-actions">
+                <button type="button" class="primary-btn" id="resumeBtn">keep playing</button>
+                <button type="button" class="secondary-btn" id="restartBtn">restart</button>
+            </div>
         </div>
 
         <div class="game-overlay active" id="startOverlay">
