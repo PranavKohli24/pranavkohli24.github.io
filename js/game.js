@@ -868,7 +868,8 @@ caffeinePower() {
                 <path d="M10 6H18V14"></path>
             </svg>
         `;
-        wrap.appendChild(shareBtn);
+        const controlsBottom = document.querySelector('.game-controls-bottom');
+        (controlsBottom || wrap).appendChild(shareBtn);
         shareBtn.addEventListener('click', doShare);
 
         return !!(startOverlay && startBtn && pauseOverlay && resumeBtn &&
@@ -1788,91 +1789,78 @@ function buildShareCanvas() {
     const c = shareCanvas.getContext('2d');
     const pal = PAL || ROUNDS[0].pal;
     const won = result === 'win';
+    const W = 1200, H = 630;
 
-    // Background
+    // Fallback fill, then the ACTUAL game frame, cover-fit
     c.fillStyle = pal.sky || '#efe9fb';
-    c.fillRect(0, 0, 1200, 630);
+    c.fillRect(0, 0, W, H);
 
-    c.fillStyle = pal.ground || '#bcaee4';
-    c.fillRect(0, 500, 1200, 130);
-
-    c.fillStyle = pal.accent || '#8f75e0';
-    c.fillRect(0, 496, 1200, 6);
-
-    // Main end-screen card
-    c.fillStyle = 'rgba(255, 251, 246, 0.92)';
-    c.strokeStyle = INK;
-    c.lineWidth = 4;
-
-    rrShare(c, 70, 55, 1060, 500, 28);
-    c.fill();
-    c.stroke();
-
-    // Heading
-    c.textAlign = 'center';
-    c.fillStyle = INK;
-    c.font = '800 54px ' + FONT;
-
-    c.fillText(
-        won ? 'You got the offer! 🎉' : 'Interview failed.',
-        600,
-        145
-    );
-
-    // Exact description from the end screen
-    c.font = '600 27px ' + FONT;
-    c.fillStyle = '#6a6282';
-
-    const description = won
-        ? 'Four rounds, one ridiculous sprint. You made it.'
-        : (lastHit
-            ? 'Rejected by "' + lastHit + '". Take another shot.'
-            : 'Take another shot.');
-
-    c.fillText(description, 600, 195);
-
-    // Exact round + coin result
-    c.fillStyle = INK;
-    c.font = '800 30px ' + FONT;
-
-    c.fillText(
-        won
-            ? 'Round 4/4 cleared · ' + coinCount + ' coins'
-            : 'Reached Round ' + (roundIndex + 1) + '/4 · ' + coinCount + ' coins',
-        600,
-        275
-    );
-
-    // Exact skills line
-    if (unlocked.length) {
-        c.font = '600 23px ' + FONT;
-        c.fillStyle = '#6a6282';
-
-        c.fillText(
-            'Skills unlocked: ' + unlocked.join(' · '),
-            600,
-            325
-        );
+    const cw = canvas.width, ch = canvas.height;
+    if (cw && ch) {
+        const scale = Math.max(W / cw, H / ch);
+        const dw = cw * scale, dh = ch * scale;
+        c.drawImage(canvas, (W - dw) / 2, (H - dh) / 2, dw, dh);
     }
 
-    // Branding
-    c.font = '800 22px ' + FONT;
+    // Result badge, top-left, echoes the in-game banner style
+    const kicker = won ? 'OFFER RECEIVED' : 'ROUND ' + (roundIndex + 1) + '/4';
+    c.font = '800 20px ' + FONT;
+    const kw = c.measureText(kicker).width + 32;
+    rrShare(c, 32, 32, kw, 38, 19);
+    c.fillStyle = won ? GOLD : '#ffffff';
+    c.fill();
+    c.lineWidth = 3;
+    c.strokeStyle = INK;
+    c.stroke();
     c.fillStyle = INK;
+    c.textAlign = 'left';
+    c.textBaseline = 'middle';
+    c.fillText(kicker, 48, 51);
 
+    // Bottom gradient so text stays legible over gameplay art
+    const grad = c.createLinearGradient(0, H - 260, 0, H);
+    grad.addColorStop(0, 'rgba(61,54,80,0)');
+    grad.addColorStop(1, 'rgba(61,54,80,0.86)');
+    c.fillStyle = grad;
+    c.fillRect(0, H - 260, W, 260);
+
+    // Headline
+    c.textAlign = 'left';
+    c.fillStyle = '#ffffff';
+    c.font = '800 46px ' + FONT;
+    c.fillText(won ? 'I got the offer! 🎉' : 'Interview: rejected.', 56, H - 172);
+
+    // Same description as the on-screen end card
+    c.font = '600 21px ' + FONT;
+    c.fillStyle = 'rgba(255,255,255,0.82)';
+    const description = won
+        ? 'Four rounds, one ridiculous sprint.'
+        : (lastHit ? 'Rejected by "' + lastHit + '". Taking another shot.' : 'Taking another shot.');
+    c.fillText(description, 56, H - 136);
+
+    // Stat line
+    c.font = '800 24px ' + FONT;
+    c.fillStyle = GOLD;
     c.fillText(
-        'Escape the Interview',
-        600,
-        470
+        won ? 'Round 4/4 cleared · ' + coinCount + ' coins'
+            : 'Reached Round ' + (roundIndex + 1) + '/4 · ' + coinCount + ' coins',
+        56, H - 95
     );
 
-    c.font = '600 18px ' + FONT;
-    c.fillStyle = '#6a6282';
+    if (unlocked.length) {
+        c.font = '600 17px ' + FONT;
+        c.fillStyle = 'rgba(255,255,255,0.72)';
+        c.fillText('Skills unlocked: ' + unlocked.join(' · '), 56, H - 62);
+    }
 
-    c.fillText(
-        'a portfolio arcade game by Pranav Kohli',
-        600,
-        505
-    );
+    // Branding, bottom-right
+    c.textAlign = 'right';
+    c.font = '800 20px ' + FONT;
+    c.fillStyle = '#ffffff';
+    c.fillText('Escape the Interview', W - 56, H - 62);
+    c.font = '600 15px ' + FONT;
+    c.fillStyle = 'rgba(255,255,255,0.68)';
+    c.fillText('a portfolio arcade game by Pranav Kohli', W - 56, H - 38);
 
     return shareCanvas;
 }
