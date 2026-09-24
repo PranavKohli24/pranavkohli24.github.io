@@ -45,8 +45,8 @@
             length: 5200, speed: 305, gap: 1.05, tight: 1,
             pool: { crate: 5, tall: 2, flag: 3, bunch: 1, coins: 2 },
             labels: {
-                crate: ['TYPO', 'No experience', 'Internship', 'ATS', 'CV.PDF'],
-                flag: ['REJECT', 'NO REPLY', 'GHOST']
+                crate: ['TYPO', 'Referral', 'No experience', 'Internship', 'ATS', 'CV.PDF', 'Follow-up', 'Skills Match'],
+                flag: ['REJECT', 'NO REPLY', 'GHOST', 'Eligibility']
             },
             pal: {
                 sky: '#efe9fb', sun: '#fbe1ee', cloud: '#ffffff',
@@ -60,8 +60,8 @@
             length: 6400, speed: 340, gap: 0.92, tight: 0.94,
             pool: { crate: 3, tall: 2, flag: 2, bunch: 2, hop2: 2, drone: 2, flagCrate: 1, coins: 1 },
             labels: {
-                crate: ['BUG', 'TLE', '404', 'NULL', 'Semicolon missing'],
-                flag: ['TIMEOUT', 'DEADLINE', 'Optimise code']
+                crate: ['BUG', 'TLE', '404', 'NULL', 'Semicolon missing', 'Wrong Answer', 'Constraints'],
+                flag: ['TIMEOUT', 'Runtime error', 'Optimise code', 'Test cases']
             },
             pal: {
                 sky: '#e6f1fb', sun: '#fff0d3', cloud: '#ffffff',
@@ -76,7 +76,7 @@
             pool: { crate: 2, tall: 2, flag: 2, bunch: 2, hop2: 2, stairs: 2, drone: 2, droneCrate: 1, ball: 2, flagCrate: 2, crateFlag: 2, coins: 1 },
             labels: {
                 crate: ['O(n²)', 'EDGE CASE', 'Memory Leak', 'Race condition', 'Error'],
-                flag: ['OPTIMIZE', 'WHITEBOARD', 'Sandbox']
+                flag: ['OPTIMIZE', 'Deadlock', 'Sandbox', 'Scalability']
             },
             pal: {
                 sky: '#e6f5ec', sun: '#fff3cb', cloud: '#ffffff',
@@ -90,8 +90,8 @@
             length: 8800, speed: 410, gap: 0.74, tight: 0.82,
             pool: { crate: 2, tall: 2, flag: 2, bunch: 2, hop2: 2, stairs: 2, drone: 2, droneCrate: 2, ball: 2, flagCrate: 2, crateFlag: 2, gauntlet: 2, coins: 1 },
             labels: {
-                crate: ['SALARY?', 'WEAKNESS', 'Strengths', 'WHY US?', 'NOTICE?'],
-                flag: ['CULTURE FIT', 'GOALS?', 'REFERENCES']
+                crate: ['SALARY?', 'WEAKNESS', 'Strengths', 'WHY US?', 'NOTICE?', 'relocation'],
+                flag: ['CULTURE FIT', 'GOALS?', 'REFERENCES', 'WORK ETHICS']
             },
             pal: {
                 sky: '#fdf3d9', sun: '#ffe3d6', cloud: '#ffffff',
