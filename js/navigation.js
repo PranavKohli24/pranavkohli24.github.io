@@ -1,98 +1,77 @@
 /**
- * Navigation Module
- * Handles section navigation based on URL path
+ * Navigation Module (hash-based)
+ * mysite/#about, mysite/#contact, mysite/#twin, mysite/#blog/1
  */
 
-// Helper function that actually changes the HTML
+function isSection(id) {
+    const el = document.getElementById(id);
+    return !!(el && el.classList.contains('section'));
+}
+
 function updateDOM(sectionId) {
-    const sections = document.querySelectorAll('.section');
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
 
-    sections.forEach(section => {
-        section.classList.remove('active');
-    });
-
-    const targetSection = document.getElementById(sectionId);
-
-    if (targetSection) {
-        targetSection.classList.add('active');
+    const target = document.getElementById(sectionId);
+    if (target) {
+        target.classList.add('active');
         window.scrollTo(0, 0);
     }
 }
 
-// Short-URL aliases: URL segment -> actual section element id.
-// Add more here anytime you want to shorten a URL without renaming its id.
-const SECTION_ALIASES = {
-    twin: 'digital-twin'
-};
+// URL segment -> actual section id
+const SECTION_ALIASES = { twin: 'digital-twin' };
+// actual section id -> canonical short URL segment
+const CANONICAL_PATHS = { 'digital-twin': 'twin' };
 
-// Reverse map: actual section id -> canonical (preferred) short URL.
-const CANONICAL_PATHS = {
-    'digital-twin': 'twin'
-};
+const resolveSectionId = id => SECTION_ALIASES[id] || id;
+const canonicalPathFor = id => CANONICAL_PATHS[id] || id;
 
-function resolveSectionId(id) {
-    return SECTION_ALIASES[id] || id;
+function getRoute() {
+    return window.location.hash
+        .replace(/^#\/?/, '')   // strip "#" or "#/"
+        .replace(/\/$/, '');    // strip trailing slash
 }
 
-function canonicalPathFor(id) {
-    return CANONICAL_PATHS[id] || id;
-}
+let lastSection = null;
 
 function showSection() {
-    const isRootPath =
-        window.location.pathname === '/' || window.location.pathname === '';
-
-    if (window.location.hash && isRootPath) {
-        const legacyId = window.location.hash.slice(1);
-        history.replaceState({}, '', `/${legacyId}`);
+    // Old-style path URL (e.g. /about) -> /#about
+    const legacyPath = window.location.pathname.replace(/^\/|\/$/g, '');
+    if (legacyPath && !legacyPath.includes('.') && !window.location.hash) {
+        history.replaceState({}, '', `/#${legacyPath}`);
     }
 
-    const rawPath =
-        window.location.pathname.replace(/^\/|\/$/g, '') || 'about';
+    const rawRoute = getRoute() || 'about';
+    let sectionId = rawRoute;
 
-    let sectionId = rawPath;
+    // #blog/1 -> blog1
+    const blogMatch = rawRoute.match(/^blog\/(\d+)$/);
+    if (blogMatch) sectionId = `blog${blogMatch[1]}`;
 
-    // /blog/1 -> blog1 (keeps blog section ids unchanged internally)
-    const blogMatch = rawPath.match(/^blog\/(\d+)$/);
-    if (blogMatch) {
-        sectionId = `blog${blogMatch[1]}`;
-    }
-
-    // Resolve short-URL aliases (e.g. /twin -> digital-twin)
     sectionId = resolveSectionId(sectionId);
 
-    if (!document.getElementById(sectionId)) {
-        // Full path didn't resolve - check if the first segment is a valid section
-        const firstSegment = resolveSectionId(rawPath.split('/')[0]);
-
-        if (firstSegment && firstSegment !== sectionId && document.getElementById(firstSegment)) {
-            history.replaceState({}, '', `/${canonicalPathFor(firstSegment)}`);
-            updateDOM(firstSegment);
-            return;
+    if (!isSection(sectionId)) {
+        const first = resolveSectionId(rawRoute.split('/')[0]);
+        if (isSection(first)) {
+            sectionId = first;
+            history.replaceState({}, '', `#${canonicalPathFor(first)}`);
+        } else {
+            sectionId = 'about';
+            history.replaceState({}, '', window.location.pathname + window.location.search);
         }
-
-        history.replaceState({}, '', '/');
-        updateDOM('about');
-        return;
     }
 
-    const pathSegments = window.location.pathname
-        .replace(/^\/|\/$/g, '')
-        .split('/')
-        .filter(Boolean);
+    // popstate + hashchange can both fire; also skips re-render when the
+    // menu / info sheet closes via history.back()
+    if (sectionId === lastSection) return;
+    lastSection = sectionId;
 
-    const basePath = pathSegments[0]
-        ? canonicalPathFor(resolveSectionId(pathSegments[0]))
-        : 'about';
-
-    document.querySelectorAll('nav a[href^="/"]').forEach(link => {
-        link.classList.toggle(
-            'active',
-            link.getAttribute('href') === `/${basePath}`
-        );
+    // Blog posts (blog1, blog2...) highlight the "blog" nav item
+    const navKey = /^blog\d+$/.test(sectionId) ? 'blog' : canonicalPathFor(sectionId);
+    document.querySelectorAll('nav a[href^="#"]').forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === `#${navKey}`);
     });
 
-    // Pause all audio players when navigating
     if (typeof window.pauseAllAudioPlayers === 'function') {
         window.pauseAllAudioPlayers();
     }
@@ -101,28 +80,26 @@ function showSection() {
         updateDOM(sectionId);
         return;
     }
-
-    document.startViewTransition(() => {
-        updateDOM(sectionId);
-    });
+    document.startViewTransition(() => updateDOM(sectionId));
 }
 
 document.addEventListener('click', event => {
-    const link = event.target.closest('a[href^="/"]');
+    const link = event.target.closest('a[href^="#"]');
     if (!link || link.target === '_blank') return;
 
-    const targetPath = link.getAttribute('href');
+    const targetHash = link.getAttribute('href');
+    const route = targetHash.replace(/^#\/?/, '');
 
-    if (window.location.pathname === targetPath) {
-        event.preventDefault();
-        return;
-    }
+    // Ignore bare "#" and in-page anchors that aren't routes
+    if (!route || !isSection(resolveSectionId(route.split('/')[0]))) return;
 
     event.preventDefault();
+    if (window.location.hash === targetHash) return;
 
-    history.pushState({}, '', targetPath);
+    history.pushState({}, '', targetHash);
     showSection();
 });
 
 window.addEventListener('popstate', showSection);
+window.addEventListener('hashchange', showSection);
 window.addEventListener('load', showSection);

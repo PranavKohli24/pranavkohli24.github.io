@@ -53,36 +53,29 @@ overlay.addEventListener('click', () => {
 });
 
 // Close menu when nav links are clicked
-// Close menu when nav links are clicked
 const allNavLinks = document.querySelectorAll('nav a');
 
 allNavLinks.forEach(link => {
     link.addEventListener('click', () => {
         if (!navMenu.classList.contains('is-active')) return;
 
-        const targetPath = link.getAttribute('href');
+        const targetHash = link.getAttribute('href');
 
         // Internal navigation
-        if (targetPath && targetPath.startsWith('/')) {
-            const currentPath = window.location.pathname;
-
-            // Already on this section:
-            // go back to remove the temporary menu history entry.
-            if (currentPath === targetPath) {
+        if (targetHash && targetHash.startsWith('#')) {
+            // Already on this section: remove the temporary menu history entry
+            if (window.location.hash === targetHash) {
                 history.back();
                 return;
             }
 
-            // Going to another section:
-            // close the menu, then replace the temporary
-            // menu history entry with the real destination.
+            // Different section: close menu, replace the temporary entry
             toggleMenu();
-            history.replaceState({}, '', targetPath);
+            history.replaceState({}, '', targetHash);
 
             if (typeof showSection === 'function') {
                 showSection();
             }
-
             return;
         }
 

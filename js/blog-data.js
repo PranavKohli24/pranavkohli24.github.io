@@ -183,7 +183,7 @@ const blogPosts = [
                 <p>
                     When I was building my
                     <a
-                        href="/twin"
+                        href="#twin"
                         style="color: #7446A8;"
                         onpointerdown="this.style.color='#A98BC7'"
                         onpointerup="this.style.color='#7446A8'"
