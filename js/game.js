@@ -4945,25 +4945,6 @@ function drawSun() {
     ctx.globalAlpha = 1;
 }
 
-function drawMoon() {
-    const m = clamp((dayShown - 0.70) / 0.30, 0, 1);
-    if (m <= 0) return;
-
-    const x = LW * (0.18 + 0.22 * m);
-    const y = GY * (1.0 - 0.72 * Math.sin(m * Math.PI / 2));
-    const r = 26;
-
-    ctx.fillStyle = '#f3eed8';
-    ctx.globalAlpha = 0.14; circle(x, y, r * 1.8); ctx.fill();
-    ctx.globalAlpha = 1;    circle(x, y, r);       ctx.fill();
-
-    ctx.fillStyle = PAL.far;
-    ctx.globalAlpha = 0.35;
-    circle(x - 7, y - 5, 4);   ctx.fill();
-    circle(x + 6, y + 4, 5.5); ctx.fill();
-    circle(x - 3, y + 9, 2.5); ctx.fill();
-    ctx.globalAlpha = 1;
-}
 
 function drawBackground() {
     const lit = currentLit();
@@ -5058,19 +5039,22 @@ function drawFarCity() {
     ctx.restore();
 }
 
-/* ---- moon: stays in the same part of the sky as the sun, rises slowly ---- */
+/* ---- moon: subtle, tight glow ---- */
 function drawMoon() {
     const m = clamp((dayShown - 0.70) / 0.30, 0, 1);
     if (m <= 0) return;
 
-    const x = LW * (0.74 + 0.02 * m);          // barely drifts sideways
-    const y = GY * (0.62 - 0.30 * m);          // slow rise from behind the skyline
+    const x = LW * (0.74 + 0.02 * m);
+    const y = GY * (0.62 - 0.30 * m);
     const r = 26;
-    const fade = clamp(m / 0.25, 0, 1);        // fades in so it never pops
+    const fade = clamp(m / 0.25, 0, 1);
 
+    // faint, tight halo (was r * 1.8 at 0.12 alpha)
     ctx.fillStyle = '#f3eed8';
-    ctx.globalAlpha = 0.12 * fade; circle(x, y, r * 1.8); ctx.fill();
-    ctx.globalAlpha = fade;        circle(x, y, r);       ctx.fill();
+    ctx.globalAlpha = 0.04 * fade; circle(x, y, r * 1.25); ctx.fill();
+
+    // moon disc, slightly softened so it doesn't glare
+    ctx.globalAlpha = 0.92 * fade; circle(x, y, r); ctx.fill();
 
     // craters
     ctx.fillStyle = PAL.far;
