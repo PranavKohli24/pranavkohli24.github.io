@@ -5153,6 +5153,102 @@ window.addEventListener('resize', () => {
     fitRaf = requestAnimationFrame(() => { fitRaf = 0; resize(); });
 });
 
+
+/* ---- monorail: 4-car train moving right → left, against the robot ---- */
+const TRAIN_SPEED = 260;     // extra speed on top of the world scroll (px/s)
+const TRAIN_CARS = 4;
+const CAR_W = 72;
+const CAR_GAP = 6;
+
+function drawMonorail(lit) {
+    const ty = GY - 100;
+
+    // rail beam + pillars (scroll with the world)
+    ctx.fillStyle = PAL.mid;
+    ctx.fillRect(0, ty, LW, 5);
+
+    const tile = 150;
+    const off = scroll * 0.3;
+    ctx.beginPath();
+    for (let i = Math.floor(off / tile) - 1; i * tile - off < LW + tile; i++) {
+        ctx.rect(i * tile - off, ty + 5, 8, GY - ty - 5);
+    }
+    ctx.fill();
+
+    // train position = world scroll + its own speed, so it visibly outruns the pillars
+    const total = TRAIN_CARS * CAR_W + (TRAIN_CARS - 1) * CAR_GAP;
+    const span = LW + total + 900;                       // long gap between passes
+    const travelled = (worldT * TRAIN_SPEED + scroll * 0.3) % span;
+    const tx = LW + 40 - travelled;
+    if (tx > LW || tx + total < 0) return;               // off-screen
+
+    const winCol = lit > 0.4 ? '#fff3b0' : PAL.sky;
+
+    for (let c = 0; c < TRAIN_CARS; c++) {
+        const x = tx + c * (CAR_W + CAR_GAP);
+        const top = ty - 24;
+
+        // coupler to the next car
+        if (c < TRAIN_CARS - 1) {
+            ctx.fillStyle = PAL.detail;
+            ctx.fillRect(x + CAR_W - 1, ty - 11, CAR_GAP + 2, 3);
+        }
+
+        // car body (front car has a slanted nose on the left)
+        ctx.fillStyle = PAL.top;
+        if (c === 0) {
+            ctx.beginPath();
+            ctx.moveTo(x + 14, top);
+            ctx.lineTo(x + CAR_W - 4, top);
+            ctx.quadraticCurveTo(x + CAR_W, top, x + CAR_W, top + 4);
+            ctx.lineTo(x + CAR_W, ty - 2);
+            ctx.quadraticCurveTo(x + CAR_W, ty, x + CAR_W - 4, ty);
+            ctx.lineTo(x + 2, ty);
+            ctx.lineTo(x, top + 10);
+            ctx.closePath();
+            ctx.fill();
+        } else {
+            rr(x, top, CAR_W, 24, 4);
+            ctx.fill();
+        }
+
+        // colored stripe along the lower body
+        ctx.fillStyle = PAL.accent;
+        ctx.fillRect(x + (c === 0 ? 2 : 0), ty - 6, CAR_W - (c === 0 ? 2 : 0), 3);
+
+        // windows (skip a gap in the middle for the door)
+        ctx.fillStyle = winCol;
+        ctx.beginPath();
+        const wins = c === 0 ? [20, 33, 46, 59] : [6, 19, 46, 59];
+        for (const wx of wins) ctx.rect(x + wx, top + 5, 10, 9);
+        ctx.fill();
+
+        // door
+        if (c !== 0) {
+            ctx.fillStyle = PAL.mid;
+            ctx.fillRect(x + 31, top + 4, 10, 16);
+            ctx.fillStyle = winCol;
+            ctx.fillRect(x + 33, top + 6, 6, 8);
+        }
+
+        // roof detail
+        ctx.fillStyle = PAL.mid;
+        ctx.fillRect(x + (c === 0 ? 22 : 8), top - 2, CAR_W - 30, 2);
+    }
+
+    // headlight on the front (left) nose
+    ctx.fillStyle = lit > 0.3 ? '#fff3b0' : PAL.detail;
+    circle(tx + 5, ty - 8, 2.4);
+    ctx.fill();
+    if (lit > 0.4) {
+        ctx.globalAlpha = 0.18;
+        ctx.fillStyle = '#fff3b0';
+        circle(tx + 2, ty - 8, 9);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+}
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
