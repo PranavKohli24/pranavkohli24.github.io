@@ -49,9 +49,9 @@
                 flag: ['REJECT', 'NO REPLY', 'GHOST', 'Eligibility']
             },
             pal: {
-                sky: '#efe9fb', sun: '#fbe1ee', cloud: '#ffffff',
-                far: '#ddd3f3', mid: '#cbbdee', ground: '#bcaee4',
-                top: '#d5c9f3', detail: '#a493d8', accent: '#8f75e0'
+                sky: '#f8f3fd', sun: '#ffe8c0', cloud: '#ffffff',
+                far: '#ece3f8', mid: '#ded2f3', ground: '#d3c5ee',
+                top: '#e7dcf8', detail: '#b8a8e2', accent: '#a58ae9'
             }
         },
         {
@@ -64,9 +64,9 @@
                 flag: ['TIMEOUT', 'Runtime error', 'Optimise code', 'Test cases']
             },
             pal: {
-                sky: '#e6f1fb', sun: '#fff0d3', cloud: '#ffffff',
-                far: '#d1e3f5', mid: '#bcd6f0', ground: '#a8c8ea',
-                top: '#c3dbf3', detail: '#8db3dc', accent: '#5f9ae0'
+                sky: '#fff2cf', sun: '#ffd04f', cloud: '#ffffff',
+                far: '#f7e3b2', mid: '#efd293', ground: '#e1bf7b',
+                top: '#f2dea3', detail: '#c79c4c', accent: '#e89a2e'
             }
         },
         {
@@ -79,9 +79,9 @@
                 flag: ['OPTIMIZE', 'Deadlock', 'Sandbox', 'Scalability']
             },
             pal: {
-                sky: '#e6f5ec', sun: '#fff3cb', cloud: '#ffffff',
-                far: '#d0ebda', mid: '#b9e0c9', ground: '#a2d2b4',
-                top: '#bde3cc', detail: '#85bd9b', accent: '#4fb383'
+                sky: '#d3dcf3', sun: '#ffb48a', cloud: '#f1e1ee',
+                far: '#b9c5e6', mid: '#a4b2db', ground: '#8f9ecb',
+                top: '#b0bde3', detail: '#6f7fb8', accent: '#6f86e0'
             }
         },
         {
@@ -94,9 +94,9 @@
                 flag: ['CULTURE FIT', 'GOALS?', 'REFERENCES', 'WORK ETHICS']
             },
             pal: {
-                sky: '#fdf3d9', sun: '#ffe3d6', cloud: '#ffffff',
-                far: '#f7e8bd', mid: '#efdb9f', ground: '#e5cc86',
-                top: '#f1dfa5', detail: '#d3b565', accent: '#e0a53a'
+                sky: '#585b69', sun: '#f3eed8', cloud: '#767a8a',
+                far: '#656877', mid: '#5f6270', ground: '#4f525f',
+                top: '#70737f', detail: '#b4b8c8', accent: '#c6cbe0'
             }
         }
     ];
@@ -233,6 +233,7 @@
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
     const rand = (a, b) => a + Math.random() * (b - a);
     const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+    const smooth = x => x * x * (3 - 2 * x);   // quick ease in/out for round colour fades
 
     function hash(n) {
         const s = Math.sin(n * 127.1 + 311.7) * 43758.5453;
@@ -275,7 +276,7 @@
     function currentPal() {
         const target = ROUNDS[roundIndex].pal;
         if (palT >= 1 || !palFrom) return target;
-        return mixPal(palFrom, target, palT);
+        return mixPal(palFrom, target, smooth(palT));
     }
 
     function store(key, value) {
@@ -2118,7 +2119,7 @@ function doShare() {
 
         if (shake > 0) shake = Math.max(0, shake - dt * 45);
         if (flash > 0) flash = Math.max(0, flash - dt * 2.6);
-        if (palT < 1) palT = Math.min(1, palT + dt / 1.1);
+        if (palT < 1) palT = Math.min(1, palT + dt / 0.9);
         if (toastT > 0) toastT -= dt;
         if (bannerT > 0) bannerT -= dt;
 
@@ -3264,10 +3265,10 @@ function doShare() {
    ===================================================================== */
 
 /* ---------------------------------------------------------------------
-   Time of day: 0 = morning, 1 = evening. Rounds blend smoothly.
-   Round 1 morning · Round 2 midday · Round 3 afternoon · Round 4 golden hour
+   Time of day: 0 = morning, 1 = night. Rounds blend smoothly.
+   Round 1 morning · Round 2 afternoon · Round 3 evening · Round 4 night
    --------------------------------------------------------------------- */
-const LIT = [0, 0, 0.35, 0.8];
+const LIT = [0, 0.1, 0.55, 0.9];
 let lastHurtAt = -99;     // when the robot last took a real hit
 const litCache = { ref: null, idx: -1 };
 
@@ -3279,7 +3280,7 @@ function currentLit() {
         litCache.idx = ROUNDS.findIndex(r => r.pal === palFrom);
     }
     const f = litCache.idx >= 0 ? LIT[litCache.idx] : t;
-    return f + (t - f) * palT;
+    return f + (t - f) * smooth(palT);
 }
 
 /* ---------------------------------------------------------------------
@@ -3337,9 +3338,27 @@ function makeProp(i) {
 function drawBackground() {
     const lit = currentLit();
 
-    // sun sinks toward the skyline as the day goes on
+    // stars fade in as evening turns to night
+    if (lit > 0.6) {
+        const sa = (lit - 0.6) / 0.4;
+        ctx.fillStyle = '#fff8dc';
+        for (let i = 0; i < 46; i++) {
+            const sx = hash(i * 3.1) * LW;
+            const sy = hash(i * 7.7 + 2) * GY * 0.5;
+            const tw = 0.55 + 0.45 * Math.sin(worldT * 2.2 + i * 1.7);
+            ctx.globalAlpha = sa * tw;
+            const z = 1 + (i % 3 === 0 ? 1 : 0);
+            ctx.fillRect(sx, sy, z, z);
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    // sun sinks toward the skyline through the day; at night the moon rises
+    const celY = lit <= 0.75
+        ? GY * (0.3 + 0.28 * lit)
+        : GY * (0.51 - (lit - 0.75) * 1.2);
     ctx.fillStyle = PAL.sun;
-    circle(LW * 0.78, GY * (0.3 + 0.28 * lit), 44 + lit * 10);
+    circle(LW * 0.78, celY, 44 + Math.min(lit, 0.75) * 10);
     ctx.fill();
 
     // clouds
