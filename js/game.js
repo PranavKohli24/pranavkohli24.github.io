@@ -3474,34 +3474,6 @@ function drawNearCity(lit) {
     }
 }
 
-// elevated rail with a train gliding through the city
-function drawMonorail(lit) {
-    const ty = GY - 100;
-    ctx.fillStyle = PAL.mid;
-    ctx.fillRect(0, ty, LW, 5);
-
-    const tile = 150;
-    const off = scroll * 0.3;
-    ctx.beginPath();
-    for (let i = Math.floor(off / tile) - 1; i * tile - off < LW + tile; i++) {
-        ctx.rect(i * tile - off, ty + 5, 8, GY - ty - 5);
-    }
-    ctx.fill();
-
-    const span = LW + 420;
-    const tx = LW + 60 - ((worldT * 120) % span);
-    if (tx > LW || tx + 3 * 78 < 0) return;   // train is off-screen
-    ctx.fillStyle = PAL.top;
-    ctx.beginPath();
-    for (let c = 0; c < 3; c++) ctx.rect(tx + c * 78, ty - 24, 72, 24);
-    ctx.fill();
-    ctx.fillStyle = lit > 0.4 ? '#fff3b0' : PAL.sky;
-    ctx.beginPath();
-    for (let c = 0; c < 3; c++) {
-        for (let k = 0; k < 4; k++) ctx.rect(tx + c * 78 + 7 + k * 16, ty - 18, 11, 9);
-    }
-    ctx.fill();
-}
 
 // tiny delivery drones drifting across the sky
 function drawAirTraffic() {
@@ -5163,9 +5135,10 @@ const CAR_GAP = 6;
 function drawMonorail(lit) {
     const ty = GY - 100;
 
-    // rail beam + pillars (scroll with the world)
-    ctx.fillStyle = PAL.mid;
+     ctx.fillStyle = PAL.mid;
+    ctx.globalAlpha = 0.5;
     ctx.fillRect(0, ty, LW, 5);
+    ctx.globalAlpha = 1;
 
     const tile = 150;
     const off = scroll * 0.3;
@@ -5214,7 +5187,9 @@ function drawMonorail(lit) {
 
         // colored stripe along the lower body
         ctx.fillStyle = PAL.accent;
+        ctx.globalAlpha = 0.4;
         ctx.fillRect(x + (c === 0 ? 2 : 0), ty - 6, CAR_W - (c === 0 ? 2 : 0), 3);
+        ctx.globalAlpha = 1;
 
         // windows (skip a gap in the middle for the door)
         ctx.fillStyle = winCol;
