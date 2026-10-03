@@ -3292,7 +3292,7 @@ function currentLit() {
 const nearCache = new Map();
 const farCache = new Map();
 const propCache = new Map();
-const ADS = ['HIRING', 'NEW ROLE', 'AI JOBS', 'APPLY', 'SDE II', 'REMOTE'];
+const ADS = ['Kohli', 'Open to Work', 'Digital Twin', 'SDE-1', 'Pranav', '8860271737'];
 
 function cacheGet(map, i, make) {
     let v = map.get(i);
