@@ -4856,9 +4856,318 @@ function drawRobot(o) {
 
 
 
+/* =====================================================================
+   DAY CYCLE · continuous morning → afternoon → evening → night
+   ===================================================================== */
+const DUSK_PAL = {
+    sky: '#a58bbd', sun: '#ff9a6b', cloud: '#e9c3d6',
+    far: '#8c7bb0', mid: '#7f6ea3', ground: '#6b5d8e',
+    top: '#8b7baf', detail: '#5f5188', accent: '#8a6fd6'
+};
 
 
 
+const SUN_FADE_END = 0.77;   // sun is completely gone after this
+let dayShown = 0;
+let dayLastWT = 0;
+
+/* ---- hybrid: slow drift inside a round, clear glide at each door ---- */
+function dayTarget() {
+    if (state === 'menu') return 0;
+    const p = clamp(roundDist() / R().length, 0, 1);
+    return (roundIndex + 0.35 * p) / ROUNDS.length;   // only 35% of the span drifts during the round
+}
+
+// retuned so each round's start lands on its own look; the glide between rounds passes through dusk
+const DAY_STOPS = [
+    { t: 0.04, pal: ROUNDS[0].pal },   // morning
+    { t: 0.29, pal: ROUNDS[1].pal },   // afternoon
+    { t: 0.54, pal: ROUNDS[2].pal },   // evening
+    { t: 0.66, pal: DUSK_PAL },        // dusk (seen during the round 3 → 4 glide)
+    { t: 0.80, pal: ROUNDS[3].pal }    // night
+];
+
+// eased so restarts / round changes never snap
+function stepDay() {
+    const dt = clamp(worldT - dayLastWT, 0, 0.05);
+    dayLastWT = worldT;
+    dayShown += (dayTarget() - dayShown) * (1 - Math.exp(-dt * 3));
+    return dayShown;
+}
+
+function currentPal() {
+    const t = stepDay();
+    const s = DAY_STOPS;
+    if (t <= s[0].t) return s[0].pal;
+    const last = s[s.length - 1];
+    if (t >= last.t) return last.pal;
+    for (let i = 0; i < s.length - 1; i++) {
+        const a = s[i], b = s[i + 1];
+        if (t <= b.t) return mixPal(a.pal, b.pal, smooth((t - a.t) / (b.t - a.t)));
+    }
+    return last.pal;
+}
+
+// 0 = bright day, 1 = full night (drives stars, windows, lamps, billboards)
+function currentLit() {
+    return smooth(clamp((dayShown - 0.45) / 0.45, 0, 1));
+}
+
+function drawSun() {
+    const t = dayShown;
+    if (t >= SUN_FADE_END) return;
+
+    const sunT = clamp(t / 0.74, 0, 1);
+    const u = 0.1 + 0.9 * sunT;                    // position along the arc
+    const alt = Math.sin(Math.PI * u) - 0.1;       // slightly negative = below horizon
+    const x = LW * (0.12 + 0.78 * u);              // left (east) → right (west)
+    const y = GY * 0.98 - alt * GY * 0.8;
+    const r = 40 + 16 * (1 - Math.sin(Math.PI * u)); // bigger near horizon
+    const fade = clamp((SUN_FADE_END - t) / 0.07, 0, 1);
+
+    // warm haze near the horizon at sunrise and sunset
+    const rise = clamp(1 - sunT / 0.3, 0, 1);
+    const set = clamp((sunT - 0.65) / 0.35, 0, 1) *
+        (1 - smooth(clamp((t - 0.72) / 0.1, 0, 1)));
+    const haze = Math.max(rise, set);
+    if (haze > 0.01) {
+        ctx.fillStyle = PAL.sun;
+        for (let k = 0; k < 3; k++) {
+            ctx.globalAlpha = haze * 0.13;
+            ctx.fillRect(0, GY * (0.62 + 0.12 * k), LW, GY * (0.38 - 0.12 * k));
+        }
+    }
+
+    ctx.fillStyle = PAL.sun;
+    ctx.globalAlpha = 0.16 * fade; circle(x, y, r * 1.55); ctx.fill();
+    ctx.globalAlpha = 0.10 * fade; circle(x, y, r * 2.1);  ctx.fill();
+    ctx.globalAlpha = fade;        circle(x, y, r);        ctx.fill();
+    ctx.globalAlpha = 1;
+}
+
+function drawMoon() {
+    const m = clamp((dayShown - 0.70) / 0.30, 0, 1);
+    if (m <= 0) return;
+
+    const x = LW * (0.18 + 0.22 * m);
+    const y = GY * (1.0 - 0.72 * Math.sin(m * Math.PI / 2));
+    const r = 26;
+
+    ctx.fillStyle = '#f3eed8';
+    ctx.globalAlpha = 0.14; circle(x, y, r * 1.8); ctx.fill();
+    ctx.globalAlpha = 1;    circle(x, y, r);       ctx.fill();
+
+    ctx.fillStyle = PAL.far;
+    ctx.globalAlpha = 0.35;
+    circle(x - 7, y - 5, 4);   ctx.fill();
+    circle(x + 6, y + 4, 5.5); ctx.fill();
+    circle(x - 3, y + 9, 2.5); ctx.fill();
+    ctx.globalAlpha = 1;
+}
+
+function drawBackground() {
+    const lit = currentLit();
+
+    // stars fade in once the sun is gone
+    if (lit > 0.6) {
+        const sa = (lit - 0.6) / 0.4;
+        ctx.fillStyle = '#fff8dc';
+        for (let i = 0; i < 46; i++) {
+            const sx = hash(i * 3.1) * LW;
+            const sy = hash(i * 7.7 + 2) * GY * 0.5;
+            const tw = 0.55 + 0.45 * Math.sin(worldT * 2.2 + i * 1.7);
+            ctx.globalAlpha = sa * tw;
+            const z = 1 + (i % 3 === 0 ? 1 : 0);
+            ctx.fillRect(sx, sy, z, z);
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    drawSun();
+    drawMoon();
+
+    // clouds
+    ctx.fillStyle = PAL.cloud;
+    const span = LW + 300;
+    for (let i = 0; i < 6; i++) {
+        const cx = (((i * span / 6 - scroll * 0.06) % span) + span) % span - 150;
+        const cy = 34 + ((i * 41) % 70);
+        const s = 0.8 + (i % 3) * 0.25;
+        ctx.beginPath();
+        blob(cx, cy, 13 * s);
+        blob(cx + 17 * s, cy - 8 * s, 17 * s);
+        blob(cx + 35 * s, cy, 13 * s);
+        ctx.rect(cx, cy, 35 * s, 13 * s);
+        ctx.fill();
+    }
+
+    drawFarCity();
+    drawNearCity(lit);
+    drawMonorail(lit);
+    drawAirTraffic();
+    drawMidProps(lit);
+}
+
+/* ---- slower, subtler sun that always sits behind the buildings ---- */
+function drawSun() {
+    const t = dayShown;
+    if (t >= SUN_FADE_END) return;
+
+    const sunT = clamp(t / 0.74, 0, 1);
+    const x = LW * (0.72 + 0.06 * sunT);        // barely drifts sideways
+    const y = GY * (0.30 + 0.50 * sunT);        // slow, gentle sink behind the skyline
+    const r = 44 + 8 * sunT;                    // almost constant size
+    const fade = clamp((SUN_FADE_END - t) / 0.07, 0, 1);
+
+    // warm haze near the horizon at sunrise and sunset
+    const rise = clamp(1 - sunT / 0.3, 0, 1) * 0.6;
+    const set = clamp((sunT - 0.65) / 0.35, 0, 1) *
+        (1 - smooth(clamp((t - 0.72) / 0.1, 0, 1)));
+    const haze = Math.max(rise, set);
+    if (haze > 0.01) {
+        ctx.fillStyle = PAL.sun;
+        for (let k = 0; k < 3; k++) {
+            ctx.globalAlpha = haze * 0.13;
+            ctx.fillRect(0, GY * (0.62 + 0.12 * k), LW, GY * (0.38 - 0.12 * k));
+        }
+    }
+
+    ctx.fillStyle = PAL.sun;
+    ctx.globalAlpha = 0.14 * fade; circle(x, y, r * 1.5); ctx.fill();
+    ctx.globalAlpha = fade;        circle(x, y, r);       ctx.fill();
+    ctx.globalAlpha = 1;
+}
+
+// distant towers: same look as before, but opaque so the sun/moon can't show through
+function drawFarCity() {
+    const tile = 58;
+    const off = scroll * 0.07;
+    ctx.beginPath();
+    for (let i = Math.floor(off / tile) - 1; i * tile - off < LW + tile; i++) {
+        const t = cacheGet(farCache, i, makeFar);
+        const x = i * tile - off;
+        ctx.rect(x, GY - t.h, t.w, t.h + 6);
+        if (t.ant) ctx.rect(x + t.w / 2 - 1.5, GY - t.h - 18, 3, 18);
+    }
+    ctx.save();
+    ctx.fillStyle = PAL.sky;       // opaque base blocks the sun
+    ctx.fill();
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = PAL.far;       // original tint on top
+    ctx.fill();
+    ctx.restore();
+}
+
+/* ---- moon: stays in the same part of the sky as the sun, rises slowly ---- */
+function drawMoon() {
+    const m = clamp((dayShown - 0.70) / 0.30, 0, 1);
+    if (m <= 0) return;
+
+    const x = LW * (0.74 + 0.02 * m);          // barely drifts sideways
+    const y = GY * (0.62 - 0.30 * m);          // slow rise from behind the skyline
+    const r = 26;
+    const fade = clamp(m / 0.25, 0, 1);        // fades in so it never pops
+
+    ctx.fillStyle = '#f3eed8';
+    ctx.globalAlpha = 0.12 * fade; circle(x, y, r * 1.8); ctx.fill();
+    ctx.globalAlpha = fade;        circle(x, y, r);       ctx.fill();
+
+    // craters
+    ctx.fillStyle = PAL.far;
+    ctx.globalAlpha = 0.35 * fade;
+    circle(x - 7, y - 5, 4);   ctx.fill();
+    circle(x + 6, y + 4, 5.5); ctx.fill();
+    circle(x - 3, y + 9, 2.5); ctx.fill();
+    ctx.globalAlpha = 1;
+}
+
+
+/* =====================================================================
+   FIT TO VIEWPORT · shrink the game when the page is zoomed / short,
+   and only lock page scrolling when everything actually fits
+   ===================================================================== */
+const MIN_CANVAS_H = 320;   // never shrink the canvas below this (px)
+const BOTTOM_PAD = 12;      // breathing room under the last element (px)
+let scrollOk = true;        // false = couldn't fit, so let the page scroll
+
+// lowest visible edge of anything inside #game, in document coordinates
+function contentBottom() {
+    const game = document.getElementById('game');
+    let b = 0;
+    if (game) {
+        for (const el of game.children) {
+            const r = el.getBoundingClientRect();
+            if (r.height > 0 && r.bottom > b) b = r.bottom;
+        }
+    }
+    return b + window.scrollY;
+}
+
+function resize() {
+    if (!canvas || !wrap) return;
+
+    wrap.style.maxWidth = '';                       // measure at natural width
+    const w0 = wrap.clientWidth || 760;
+    const cssW0 = Math.max(280, Math.min(900, Math.floor(w0)));
+    const cssH0 = cssW0 < 520 ? 320 : 400;
+    const visible = wrap.offsetParent !== null && wrap.clientWidth > 0;
+
+    // the logical world size depends only on the natural width, never on the fit
+    LW = clamp(cssW0, 440, 760);
+    PX = clamp(Math.round(LW * 0.16), 80, 120);
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    const cs = getComputedStyle(wrap);
+    const borderW = cs.boxSizing === 'border-box' ? wrap.offsetWidth - wrap.clientWidth : 0;
+
+    const apply = f => {
+        cssW = Math.round(cssW0 * f);
+        cssH = Math.round(cssH0 * f);
+        viewScale = cssW / LW;
+        LH = cssH / viewScale;
+        GY = Math.round(LH - 76);
+
+        const pw = Math.round(cssW * dpr);
+        const ph = Math.round(cssH * dpr);
+        if (canvas.width !== pw) canvas.width = pw;
+        if (canvas.height !== ph) canvas.height = ph;
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+        wrap.style.maxWidth = f < 1 ? (cssW + borderW) + 'px' : '';
+    };
+
+    apply(1);
+    scrollOk = true;
+
+    if (visible) {
+        const over = contentBottom() - (window.innerHeight - BOTTOM_PAD);
+        if (over > 0) {
+            const minH = Math.min(MIN_CANVAS_H, cssH0);
+            const targetH = cssH0 - over;
+            if (targetH >= minH) {
+                apply(targetH / cssH0);          // shrink just enough to fit
+            } else {
+                apply(minH / cssH0);             // can't fit: shrink to the min...
+                scrollOk = false;                // ...and let the page scroll
+            }
+        }
+    }
+}
+
+// only lock page scrolling when the whole game fits on screen
+function setLock(on) {
+    const want = on && scrollOk;
+    if (want === locked) return;
+    locked = want;
+    document.documentElement.classList.toggle('game-lock', want);
+}
+
+// browser zoom / window resize changes the viewport height, not always the wrap width
+let fitRaf = 0;
+window.addEventListener('resize', () => {
+    if (!wrap || fitRaf) return;
+    fitRaf = requestAnimationFrame(() => { fitRaf = 0; resize(); });
+});
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
