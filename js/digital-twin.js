@@ -1883,7 +1883,7 @@ let history = [];
             text: title,
             dates: `${formatCalendarDate(start)}/${formatCalendarDate(end)}`,
             details: 'Meeting with Pranav Kohli',
-            add: 'hey@pranavkohli.me'
+            add: 'kohlipranav24@gmail.com'
         });
 
         return `https://calendar.google.com/calendar/render?${params.toString()}`;
@@ -2043,11 +2043,11 @@ let history = [];
                 domain: 'drive.google.com'
             },
             {
-                match: 'hey@pranavkohli.me',
+                match: 'kohlipranav24@gmail.com',
                 title: 'Email Pranav',
                 description: 'Tap to send mail',
                 image: `/src/images/mail_preview${Math.floor(Math.random() * 2) + 1}.png`,
-                domain: 'hey@pranavkohli.me'
+                domain: 'kohlipranav24@gmail.com'
             },
             {
                 match: 'https://www.geeksforgeeks.org/profile/pranavkohli',
@@ -2603,7 +2603,7 @@ let history = [];
                 </button>
 
                 <a
-                    href="mailto:hey@pranavkohli.me"
+                    href="mailto:kohlipranav24@gmail.com"
                     class="chat-email-btn"
                 >
                     Email Pranav
@@ -2691,7 +2691,7 @@ let history = [];
                 const limitBubble = appendMessage(
                     'error',
                     data.message ||
-                    "Oops, you've reached the message limit for this conversation! But hey, you can talk to the real Pranav instead of his AI version 😄 Reach him at hey@pranavkohli.me or give him a call at +918860271737",
+                    "Oops, you've reached the message limit for this conversation! But hey, you can talk to the real Pranav instead of his AI version 😄 Reach him at kohlipranav24@gmail.com or give him a call at +918860271737",
                     true
                 );
 
@@ -2886,14 +2886,14 @@ let history = [];
             if (err?.message === 'STREAM_IDLE_TIMEOUT') {
                 appendMessage(
                     'error',
-                    "Looks like Pranav is sleeping right now !  please try again in a bit or mail him at: hey@pranavkohli.me"
+                    "Looks like Pranav is sleeping right now !  please try again in a bit or mail him at: kohlipranav24@gmail.com"
                 );
             } else if (err?.name === 'AbortError') {
                 // Ignore intentional aborts.
             } else {
                 appendMessage(
                     'error',
-                    "Oops, looks like I couldn't reach Pranav! My bad :( In the meantime, please check your internet connection and try again or reach him at mail: hey@pranavkohli.me"
+                    "Oops, looks like I couldn't reach Pranav! My bad :( In the meantime, please check your internet connection and try again or reach him at mail: kohlipranav24@gmail.com"
                 );
             }
             // No history.push happened for this turn in any failure case,
