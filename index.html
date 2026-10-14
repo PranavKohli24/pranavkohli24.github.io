@@ -595,40 +595,101 @@
 <!-- Projects Section -->
 <section id="projects" class="section">
     <div class="projects-shell">
+
         <div class="projects-heading-row">
             <div>
                 <h1 class="header">Projects<span class="highlight">.</span></h1>
-                <p class="projects-intro">A few things I've built, explored, and learned along the way.</p>
+                <p class="projects-intro">
+                    A few things I've built, explored, and learned along the way.
+                </p>
             </div>
         </div>
 
         <div class="projects-search-wrap">
             <form class="projects-search" id="projectsSearchForm" role="search">
-                <svg class="projects-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
-                    <circle cx="10.8" cy="10.8" r="6.8"></circle>
-                    <path d="m16 16 4.1 4.1"></path>
-                </svg>
 
-                <div class="projects-search-input-wrap">
-                    <label class="projects-visually-hidden" for="projectsSearchInput">Search projects</label>
-                    <input class="projects-search-input" id="projectsSearchInput" type="search"
-                           placeholder="" autocomplete="off" spellcheck="false"
-                           aria-controls="projectsGrid">
-                    <span class="projects-search-ghost" id="projectsSearchGhost" aria-hidden="true"></span>
+                <!-- Input field -->
+                <div class="projects-search-field">
+
+                    <!-- Search icon inside the field on desktop -->
+                    <svg
+                        class="projects-search-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                        stroke-linecap="round"
+                        aria-hidden="true"
+                    >
+                        <circle cx="10.8" cy="10.8" r="6.8"></circle>
+                        <path d="m16 16 4.1 4.1"></path>
+                    </svg>
+
+                    <!-- Search input and animated placeholder -->
+                    <div class="projects-search-input-wrap">
+                        <label
+                            class="projects-visually-hidden"
+                            for="projectsSearchInput"
+                        >
+                            Search projects
+                        </label>
+
+                        <input
+                            class="projects-search-input"
+                            id="projectsSearchInput"
+                            type="search"
+                            placeholder=""
+                            autocomplete="off"
+                            spellcheck="false"
+                            aria-controls="projectsGrid"
+                        >
+
+                        <span
+                            class="projects-search-ghost"
+                            id="projectsSearchGhost"
+                            aria-hidden="true"
+                        ></span>
+                    </div>
+
+                    <!-- Small, background-free clear cross -->
+                    <button
+                        class="projects-search-clear is-hidden"
+                        id="projectsSearchClear"
+                        type="button"
+                        aria-label="Clear project search"
+                    >Clear</button>
+
                 </div>
 
-                <button class="projects-search-clear is-hidden" id="projectsSearchClear" type="button"
-                        aria-label="Clear project search">Clear</button>
-                <button class="projects-search-submit" type="submit">Search</button>
+                <!-- Submit button outside the input field -->
+                <button
+                    class="projects-search-submit"
+                    type="submit"
+                    aria-label="Search projects"
+                >Search</button>
+
             </form>
-            <p class="projects-search-hint" id="projectsSearchHint" aria-live="polite">
+
+            <p
+                class="projects-search-hint"
+                id="projectsSearchHint"
+                aria-live="polite"
+            >
                 Search by project, technology, or describe what you are looking for.
             </p>
         </div>
 
-        <div class="projects-filters" id="projectsFilters" role="group" aria-label="Filter projects by category"></div>
+        <!-- Category filters -->
+        <div
+            class="projects-filters"
+            id="projectsFilters"
+            role="group"
+            aria-label="Filter projects by category"
+        ></div>
+
+        <!-- Rendered projects -->
         <div id="projectsGrid" aria-live="polite"></div>
+
     </div>
 </section>
 

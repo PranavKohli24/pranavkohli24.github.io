@@ -812,3 +812,240 @@ html {
         font-size: 0.84rem;
     }
 }
+
+/* Projects search layout update.
+   Append after the existing Projects stylesheet. Requires the
+   .projects-search-field wrapper shown in projects-search-markup-v3.html.
+*/
+
+/* The form is now the outer row. The bordered surface belongs only to the field. */
+#projects .projects-search-wrap {
+    width: min(100%, 38rem);
+}
+
+#projects .projects-search {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    min-height: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    transition: none;
+}
+
+#projects .projects-search:focus-within {
+    border-color: transparent;
+    box-shadow: none;
+}
+
+/* The input and clear cross remain inside this surface. */
+#projects .projects-search-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 0.85rem;
+    min-height: 3.4rem;
+    padding: 0.4rem 0.5rem 0.4rem 1.25rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-top-color: rgba(255, 255, 255, 0.85);
+    border-left-color: rgba(255, 255, 255, 0.85);
+    border-radius: 16px;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.55) 0%,
+        rgba(93, 0, 247, 0.015) 100%
+    );
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    backdrop-filter: blur(16px) saturate(120%);
+    box-shadow:
+        0 6px 22px 0 rgba(31, 38, 135, 0.05),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+    transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+#projects .projects-search-field:focus-within {
+    border-color: rgba(255, 255, 255, 0.95);
+    box-shadow:
+        0 10px 28px -6px rgba(93, 0, 247, 0.14),
+        inset 0 0 16px rgba(255, 255, 255, 0.5);
+}
+
+#projects .projects-search-input-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* Keep rotating examples clipped to the input's available space. */
+#projects .projects-search-ghost {
+    right: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* A smaller bare cross, with no button background in any state. */
+#projects .projects-search-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 1.35rem;
+    width: 1.35rem;
+    min-width: 1.35rem;
+    height: 1.6rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--project-muted, #505050);
+    font-size: 0;
+    line-height: 1;
+}
+
+#projects .projects-search-clear::before {
+    content: "×";
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1;
+}
+
+#projects .projects-search-clear:hover,
+#projects .projects-search-clear:active,
+#projects .projects-search-clear:focus-visible {
+    background: transparent;
+    color: var(--project-ink, #0a0a0a);
+}
+
+/* Desktop keeps the normal Search label, now outside the input surface. */
+#projects .projects-search-submit {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    #projects .projects-search-wrap {
+        width: 100%;
+    }
+
+    #projects .projects-search {
+        gap: 0.5rem;
+    }
+
+    #projects .projects-search-field {
+        gap: 0.35rem;
+        min-height: 3.1rem;
+        padding: 0.3rem 0.45rem 0.3rem 0.7rem;
+        border-radius: 14px;
+    }
+
+    /* On phones, the external submit button itself supplies the search icon. */
+    #projects .projects-search-icon {
+        display: none;
+    }
+
+    #projects .projects-search-input {
+        font-size: 0.9rem;
+    }
+
+    #projects .projects-search-ghost {
+        font-size: 0.9rem;
+    }
+
+    #projects .projects-search-clear {
+        flex-basis: 1.25rem;
+        width: 1.25rem;
+        min-width: 1.25rem;
+        height: 1.5rem;
+    }
+
+    #projects .projects-search-clear::before {
+        font-size: 1.05rem;
+    }
+
+    #projects .projects-search-submit {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 2.6rem;
+        width: 2.6rem;
+        height: 2.6rem;
+        padding: 0;
+        border-radius: 11px;
+        background: rgba(10, 10, 10, 0.045);
+        color: var(--highlight-color);
+        font-size: 0;
+        box-shadow: none;
+        transform: none;
+    }
+
+    #projects .projects-search-submit::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0.72rem;
+        height: 0.72rem;
+        border: 1.7px solid currentColor;
+        border-radius: 50%;
+        transform: translate(-65%, -65%);
+        pointer-events: none;
+    }
+
+    #projects .projects-search-submit::after {
+        content: "";
+        position: absolute;
+        top: calc(50% + 0.18rem);
+        left: calc(50% + 0.12rem);
+        width: 0.38rem;
+        height: 1.7px;
+        border-radius: 2px;
+        background: currentColor;
+        transform: rotate(45deg);
+        transform-origin: left center;
+        pointer-events: none;
+    }
+
+    /* Touch-screen resting appearance matches the intended active appearance. */
+    #projects .projects-search-submit:hover,
+    #projects .projects-search-submit:active,
+    #projects .projects-search-submit:focus-visible {
+        background: rgba(10, 10, 10, 0.045);
+        color: var(--highlight-color);
+        box-shadow: none;
+        transform: none;
+    }
+}
+
+@media (max-width: 360px) {
+    #projects .projects-search {
+        gap: 0.35rem;
+    }
+
+    #projects .projects-search-field {
+        padding-left: 0.55rem;
+        padding-right: 0.3rem;
+    }
+
+    #projects .projects-search-submit {
+        flex-basis: 2.35rem;
+        width: 2.35rem;
+    }
+
+    #projects .projects-search-input,
+    #projects .projects-search-ghost {
+        font-size: 0.82rem;
+    }
+}

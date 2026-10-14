@@ -329,7 +329,7 @@
                         `Matching projects across ${parsed.categories.join(joiner)}.`;
                 } else {
                     searchHint.textContent =
-                        'Search by category — try iOS, React, React Native, Angular, Backend, or DSA.';
+                        'Search by category - try iOS, React, React Native, Angular, Backend, or DSA.';
                 }
             }
 
@@ -372,7 +372,7 @@
             if (trimmed && !parsed.categories.length) {
                 if (searchHint) {
                     searchHint.textContent =
-                        'Search by category — try iOS, React, React Native, Angular, Backend, or DSA.';
+                        'Search by category - try iOS, React, React Native, Angular, Backend, or DSA.';
                 }
                 return;
             }
