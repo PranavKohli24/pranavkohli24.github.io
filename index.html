@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="/css/game.css">
     <link rel="stylesheet" href="/css/digital-twin.css">
     <link rel="stylesheet" href="/css/digital-twin-info.css">
+    <link rel="stylesheet" href="/css/projects.css">
 </head>
 
 <body>
@@ -46,7 +47,7 @@
             <a href="#twin"><span class="hover-trigger" data-src="/src/images/digital_twin.png" data-width="160px" data-height="160px">digital twin</span></a>
             <a href="#contact">contact</a>
             <a href="#blog">blog</a>
-            <a href="https://github.com/PranavKohli24?tab=repositories" target="_blank" rel="noopener noreferrer">projects</a>
+            <a href="#projects">projects</a>
             <a href="https://drive.google.com/file/d/1sRL-trbYmkjwWxeYPqwt3ZFYAyQ6vScG/view?usp=drive_link" target="_blank" rel="noopener noreferrer">resume</a>
             <a href="#game">play</a>
         </nav>
@@ -591,6 +592,47 @@
 </div>
 </section>
 
+<!-- Projects Section -->
+<section id="projects" class="section">
+    <div class="projects-shell">
+        <div class="projects-heading-row">
+            <div>
+                <h1 class="header">Projects<span class="highlight">.</span></h1>
+                <p class="projects-intro">A few things I've built, explored, and learned along the way.</p>
+            </div>
+        </div>
+
+        <div class="projects-search-wrap">
+            <form class="projects-search" id="projectsSearchForm" role="search">
+                <svg class="projects-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+                    <circle cx="10.8" cy="10.8" r="6.8"></circle>
+                    <path d="m16 16 4.1 4.1"></path>
+                </svg>
+
+                <div class="projects-search-input-wrap">
+                    <label class="projects-visually-hidden" for="projectsSearchInput">Search projects</label>
+                    <input class="projects-search-input" id="projectsSearchInput" type="search"
+                           placeholder="" autocomplete="off" spellcheck="false"
+                           aria-controls="projectsGrid">
+                    <span class="projects-search-ghost" id="projectsSearchGhost" aria-hidden="true"></span>
+                </div>
+
+                <button class="projects-search-clear is-hidden" id="projectsSearchClear" type="button"
+                        aria-label="Clear project search">Clear</button>
+                <button class="projects-search-submit" type="submit">Search</button>
+            </form>
+            <p class="projects-search-hint" id="projectsSearchHint" aria-live="polite">
+                Search by project, technology, or describe what you are looking for.
+            </p>
+        </div>
+
+        <div class="projects-filters" id="projectsFilters" role="group" aria-label="Filter projects by category"></div>
+        <div id="projectsGrid" aria-live="polite"></div>
+    </div>
+</section>
+
+
 <!-- Game Section -->
 <section id="game" class="section" data-glow="rgba(93, 0, 247, 0.35)">
     <div class="header-container">
@@ -887,6 +929,8 @@
     <!-- JavaScript -->
     <script src="/js/blog-data.js"></script>
     <script src="/js/blog-renderer.js"></script>
+    <script src="/js/projects-data.js"></script>
+    <script src ="/js/projects-renderer.js"></script>
     <script src="/js/audio-player.js"></script>
     <script src="/js/menu.js"></script>
     <script src="/js/navigation.js"></script>

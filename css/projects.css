@@ -1,0 +1,670 @@
+/* =========================================
+   PROJECTS
+   Editorial strip layout — one project per
+   full-width row, divided by hairlines.
+   Built to sit inside the existing design
+   system: same text/background colors as
+   the rest of the site, same Inter weights
+   (400/500/700), same hover motion language
+   (translateX, not scale/glow), one pastel
+   tint of the brand purple as the only
+   accent — never full-strength, never neon.
+   ========================================= */
+
+/* The real jitter wasn't the rows — it was the whole page. Your body is
+   `display:flex; justify-content:center`, so whenever filtered results
+   changed the document's height enough to cross the point where a
+   vertical scrollbar appears or disappears, the entire centered page
+   shifted sideways by the scrollbar's width. Reserving that space
+   permanently removes the shift. This belongs on <html> site-wide, not
+   just here, but it's safe to ship from this file too. */
+html {
+    scrollbar-gutter: stable;
+}
+
+#projects {
+    --project-ink: var(--text-color, #0a0a0a);
+    --project-muted: var(--secondary-text-color, #505050);
+    --project-faint: #b4b0a8;
+    --project-border: #e4dfd4;
+
+    /* A pastel wash of the site's own brand purple — diluted toward
+       white so it reads as a quiet tint, never the full laser hue. */
+    --project-accent: #c7b2f7;
+    --project-accent: color-mix(in srgb, var(--highlight-color, #5d00f7) 34%, white);
+
+    color: var(--project-ink);
+}
+
+#projects .projects-shell {
+    width: 100%;
+    max-width: 1180px;
+}
+
+/* Heading — reuses the site's own .header/.subtitle styles,
+   this just tightens the spacing to sit above a dense list. */
+
+#projects .projects-heading-row {
+    margin-bottom: 3rem;
+}
+
+#projects .projects-heading-row .header {
+    font-size: clamp(2.4rem, 4.2vw, 3.4rem);
+    margin: 0;
+}
+
+#projects .projects-intro {
+    max-width: 52ch;
+    margin: 0.6rem 0 0;
+    color: var(--project-muted);
+    font-size: 1.05rem;
+    font-weight: 400;
+    line-height: 1.75;
+    letter-spacing: -0.01em;
+}
+
+/* =========================================
+   NATURAL-LANGUAGE SEARCH
+   Picks up the site's own "liquid glass"
+   language (see .contact-item: frosted
+   blur, specular top/left highlight, soft
+   purple-tinted shadow) instead of
+   inventing a new widget shape from scratch.
+
+   Resilience: the real <input> always carries
+   a plain, visible `placeholder` attribute as
+   a fallback (see projects-renderer.js). The
+   animated "ghost" example text is a pure
+   enhancement layered on top — if its markup
+   is ever missing, misconfigured, or JS fails,
+   the bar still shows real placeholder text
+   instead of going silently blank.
+   ========================================= */
+
+#projects .projects-search-wrap {
+    width: min(100%, 32rem);
+    margin: 0 0 2rem;
+}
+
+#projects .projects-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-height: 3.4rem;
+    padding: 0.4rem 0.5rem 0.4rem 1.25rem;
+    border-radius: 16px;
+    overflow: hidden;
+
+    /* Translucent base with a hint of brand purple, same recipe as
+       .contact-item but toned down so it reads as a quiet surface,
+       not another glowing card. */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.55) 0%,
+        rgba(93, 0, 247, 0.015) 100%
+    );
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-top-color: rgba(255, 255, 255, 0.85);
+    border-left-color: rgba(255, 255, 255, 0.85);
+
+    box-shadow:
+        0 6px 22px 0 rgba(31, 38, 135, 0.05),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+
+    transition: box-shadow 0.4s ease, border-color 0.4s ease, transform 0.15s ease-out;
+}
+
+#projects .projects-search:focus-within {
+    border-color: rgba(255, 255, 255, 0.95);
+    box-shadow:
+        0 10px 28px -6px rgba(93, 0, 247, 0.14),
+        inset 0 0 16px rgba(255, 255, 255, 0.5);
+}
+
+#projects .projects-search-icon {
+    display: block;
+    flex: 0 0 auto;
+    width: 1.05rem;
+    height: 1.05rem;
+    color: var(--secondary-text-color, #505050);
+    transition: color var(--transition-speed, 0.3s) ease;
+}
+
+#projects .projects-search:focus-within .projects-search-icon {
+    color: var(--highlight-color);
+}
+
+#projects .projects-search-input-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+#projects .projects-search-input {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding: 0.5rem 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--project-ink);
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.5;
+    box-shadow: none;
+    appearance: none;
+}
+
+/* Visible by default — this is the fallback shown whenever the
+   animated ghost layer isn't active (see note above the block). */
+#projects .projects-search-input::placeholder {
+    color: #8c8578;
+    opacity: 1;
+}
+
+/* Once JS confirms the ghost element exists and is running, it adds
+   this class so the two pieces of text never show at once. */
+#projects .projects-search-input.has-ghost::placeholder {
+    color: transparent;
+}
+
+#projects .projects-search-input::-webkit-search-cancel-button {
+    appearance: none;
+}
+
+#projects .projects-search-input:focus-visible {
+    outline: 0;
+}
+
+#projects .projects-search-ghost {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    z-index: 0;
+    color: #8c8578;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translateY(-50%);
+    opacity: 1;
+    transition: opacity 280ms ease, transform 280ms ease, filter 280ms ease;
+    filter: blur(0);
+}
+
+#projects .projects-search-ghost.is-swapping {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translateY(-50%) translateY(4px);
+}
+
+#projects .projects-search-ghost.is-hidden {
+    opacity: 0;
+    transform: translateY(-50%) translateY(-3px);
+    transition-duration: 150ms;
+}
+
+#projects .projects-search-clear {
+    flex: 0 0 auto;
+    min-width: 2.2rem;
+    padding: 0.4rem 0.35rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--project-muted);
+    font: inherit;
+    font-size: 0.7rem;
+    text-align: center;
+    cursor: pointer;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 160ms ease, color var(--transition-speed, 0.3s) ease, background-color var(--transition-speed, 0.3s) ease;
+}
+
+#projects .projects-search-clear:hover {
+    color: var(--project-ink);
+    background: rgba(10, 10, 10, 0.045);
+}
+
+/* Toggled by a class, not the `hidden` attribute — removing an element
+   from the flex row reflows everything next to it (the Search button
+   shifts sideways). Fading it out in place keeps the row's width
+   constant whether or not there's text to clear. */
+#projects .projects-search-clear.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+#projects .projects-search-submit {
+    flex: 0 0 auto;
+    padding: 0.65rem 1.1rem;
+    border: 0;
+    border-radius: 11px;
+    background: var(--project-ink);
+    color: #fbfaf7;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: background-color var(--transition-speed, 0.3s) ease, transform 0.15s ease-out, box-shadow var(--transition-speed, 0.3s) ease;
+}
+
+#projects .projects-search-submit:hover {
+    background: var(--highlight-color);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px -6px rgba(93, 0, 247, 0.45);
+}
+
+#projects .projects-search-submit:active {
+    transform: translateY(0);
+}
+
+#projects .projects-search-hint {
+    min-height: 1.1rem;
+    margin: 0.7rem 0.3rem 0;
+    color: #938d81;
+    font-size: 0.72rem;
+    line-height: 1.55;
+}
+
+@media (max-width: 768px) {
+    #projects .projects-search {
+        min-height: 3.1rem;
+        padding: 0.3rem 0.3rem 0.3rem 1.1rem;
+        border-radius: 14px;
+    }
+}
+
+#projects .projects-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* =========================================
+   FILTERS
+   ========================================= */
+
+#projects .projects-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.6rem;
+    margin: 0 0 0.3rem;
+    padding: 0 0 1.1rem;
+}
+
+#projects .project-filter {
+    position: relative;
+    appearance: none;
+    padding: 0.3rem 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--project-muted);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color var(--transition-speed, 0.3s) ease;
+}
+
+#projects .project-filter:hover {
+    color: var(--project-ink);
+}
+
+#projects .project-filter.is-active {
+    color: var(--project-ink);
+    font-weight: 700;
+}
+
+#projects .project-filter.is-active::after {
+    position: absolute;
+    right: 0;
+    bottom: -4px;
+    left: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--project-accent);
+    content: "";
+}
+
+#projects .project-filter:focus-visible,
+#projects .project-link:focus-visible,
+#projects .projects-search button:focus-visible {
+    outline: 2px solid rgba(10, 10, 10, 0.3);
+    outline-offset: 4px;
+}
+
+/* =========================================
+   PROJECT STRIPS
+   One row per project, full width, divided
+   by hairlines. Media and content alternate
+   sides for rhythm instead of repeating the
+   same card shape down the page.
+   ========================================= */
+
+#projects #projectsGrid {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--project-border);
+}
+
+#projects .project-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 3.6rem;
+    padding: 3.2rem 0;
+    border-bottom: 1px solid var(--project-border);
+    opacity: 0;
+    transition: opacity 520ms ease;
+}
+
+/* Fires once, on first paint (scroll-triggered). Re-renders from
+   filtering/search add this class immediately with no transition,
+   so nothing ever visibly jumps while someone is typing. */
+#projects .project-row.is-visible {
+    opacity: 1;
+}
+
+#projects .project-row:nth-child(even) {
+    flex-direction: row-reverse;
+}
+
+#projects .project-row-media {
+    position: relative;
+    flex: 0 0 min(23rem, 42%);
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #efebe2;
+    border-radius: 10px;
+}
+
+#projects .project-thumbnail {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#projects .project-row:hover .project-thumbnail:not(.project-thumbnail--empty) {
+    transform: scale(1.035);
+}
+
+#projects .project-thumbnail--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2rem;
+    color: #928c7f;
+    background:
+        repeating-linear-gradient(
+            135deg,
+            #efebe2,
+            #efebe2 11px,
+            #e7e1d4 11px,
+            #e7e1d4 12px
+        );
+    font-size: 0.8rem;
+    letter-spacing: 0.015em;
+    text-align: center;
+}
+
+/* Content */
+
+#projects .project-row-content {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+#projects .project-index {
+    display: block;
+    margin-bottom: 1.1rem;
+    color: var(--project-faint);
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+#projects .project-eyebrow {
+    display: block;
+    margin-bottom: 0.85rem;
+    color: var(--highlight-color);
+    opacity: 0.72;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+}
+
+#projects .project-row-title {
+    margin: 0 0 0.85rem;
+    color: var(--project-ink);
+    font-size: clamp(1.5rem, 2.1vw, 2.05rem);
+    font-weight: 700;
+    line-height: 1.16;
+    letter-spacing: -0.035em;
+}
+
+#projects .project-row-description {
+    max-width: 44ch;
+    margin: 0 0 1.35rem;
+    color: var(--project-muted);
+    font-size: 0.92rem;
+    font-weight: 400;
+    line-height: 1.8;
+}
+
+#projects .project-tech-line {
+    margin: 0 0 1.6rem;
+    color: #9a9387;
+    font-size: 0.7rem;
+    font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
+    letter-spacing: 0.02em;
+    line-height: 1.7;
+}
+
+/* Links — same horizontal-slide motion as the site's own nav
+   links, so the interaction language matches throughout. */
+
+#projects .project-row-links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+#projects .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.1rem 0;
+    color: var(--project-ink);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    transition: color var(--transition-speed, 0.3s) ease, transform var(--transition-speed, 0.3s) ease;
+}
+
+#projects .project-link svg {
+    transition: transform var(--transition-speed, 0.3s) ease;
+}
+
+#projects .project-link:hover {
+    color: var(--highlight-color);
+    transform: translateX(4px);
+}
+
+#projects .project-link:hover svg {
+    transform: translate(2px, -2px);
+}
+
+#projects .project-link--secondary {
+    color: var(--project-muted);
+    border-bottom-color: transparent;
+}
+
+#projects .project-link--secondary:hover {
+    color: var(--project-ink);
+}
+
+#projects .project-link-divider {
+    width: 1px;
+    height: 0.8rem;
+    background: var(--project-border);
+}
+
+/* Empty state */
+
+#projects .projects-empty-state {
+    padding: 4rem 0.5rem;
+    border-top: 1px solid var(--project-border);
+    text-align: left;
+}
+
+#projects .projects-empty-icon {
+    display: inline-block;
+    margin-bottom: 0.9rem;
+    color: var(--project-faint);
+    font-size: 1.4rem;
+}
+
+#projects .projects-empty-state h2 {
+    margin-bottom: 0.5rem;
+    color: var(--project-ink);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+#projects .projects-empty-state p {
+    color: var(--project-muted);
+    font-size: 0.82rem;
+    line-height: 1.7;
+}
+
+/* Tablet */
+
+@media (max-width: 900px) {
+    #projects .project-row {
+        gap: 2.4rem;
+        padding: 2.5rem 0;
+    }
+
+    #projects .project-row-media {
+        flex-basis: min(17rem, 40%);
+    }
+
+    #projects .project-row-title {
+        font-size: 1.35rem;
+    }
+}
+
+/* Mobile — rows stack, media always on top,
+   alternation drops entirely. */
+
+@media (max-width: 768px) {
+    #projects .projects-heading-row {
+        margin-bottom: 2.2rem;
+    }
+
+    #projects .projects-intro {
+        font-size: 0.95rem;
+    }
+
+    #projects .projects-search-wrap {
+        margin-bottom: 1.5rem;
+    }
+
+    #projects .projects-filters {
+        flex-wrap: nowrap;
+        gap: 1.3rem;
+        margin-bottom: 0.2rem;
+        padding-bottom: 1rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #projects .projects-filters::-webkit-scrollbar {
+        display: none;
+    }
+
+    #projects .project-filter {
+        flex: 0 0 auto;
+        font-size: 0.78rem;
+    }
+
+    #projects .project-row,
+    #projects .project-row:nth-child(even) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.4rem;
+        padding: 2.1rem 0;
+    }
+
+    #projects .project-row-media {
+        flex-basis: auto;
+        aspect-ratio: 16 / 10;
+    }
+
+    #projects .project-index {
+        margin-bottom: 0.9rem;
+        font-size: 0.82rem;
+    }
+
+    #projects .project-row-title {
+        font-size: 1.3rem;
+    }
+
+    #projects .project-row-description {
+        max-width: none;
+        margin-bottom: 1.1rem;
+        font-size: 0.86rem;
+    }
+
+    #projects .project-tech-line {
+        margin-bottom: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    #projects .projects-heading-row .header {
+        font-size: 1.9rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #projects .project-row,
+    #projects .project-thumbnail,
+    #projects .project-filter,
+    #projects .project-link,
+    #projects .projects-search,
+    #projects .projects-search-ghost {
+        animation: none;
+        transition: none;
+        transform: none;
+    }
+}

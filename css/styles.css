@@ -92,6 +92,8 @@ nav a.active::after {
 
 /* Main Content */
 main {
+    flex: 1;
+    min-width: 0;
     padding-left: 7rem;
 }
 
