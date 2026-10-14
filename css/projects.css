@@ -668,3 +668,147 @@ html {
         transform: none;
     }
 }
+
+/* Mobile-only project search polish. Desktop styles remain untouched. */
+@media (max-width: 768px) {
+    /* Use the submit control as the search icon, avoiding duplicate icons. */
+    #projects .projects-search-icon {
+        display: none;
+    }
+
+    #projects .projects-search {
+        gap: 0.35rem;
+        padding: 0.3rem 0.35rem 0.3rem 0.7rem;
+    }
+
+    /* Keep the animated placeholder strictly inside the input's own lane. */
+    #projects .projects-search-input-wrap {
+        flex: 1 1 0;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    #projects .projects-search-input {
+        width: 100%;
+        min-width: 0;
+        font-size: 0.9rem;
+    }
+
+    #projects .projects-search-ghost {
+        display: block;
+        right: 0;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.9rem;
+    }
+
+    /* Compact clear control: show an × instead of the word Clear. */
+    #projects .projects-search-clear {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 2rem;
+        width: 2rem;
+        min-width: 2rem;
+        height: 2.25rem;
+        padding: 0;
+        font-size: 0;
+        line-height: 1;
+        border-radius: 8px;
+        /* Touch screens get the hover appearance as the resting design. */
+        color: var(--project-ink);
+        background: rgba(10, 10, 10, 0.045);
+    }
+
+    #projects .projects-search-clear::before {
+        content: "×";
+        font-size: 1.4rem;
+        font-weight: 400;
+        line-height: 1;
+    }
+
+    /* Compact submit control: draw a magnifying glass instead of Search. */
+    #projects .projects-search-submit {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 2.35rem;
+        width: 2.35rem;
+        height: 2.35rem;
+        padding: 0;
+        border-radius: 9px;
+        /* Touch screens get the hover appearance as the resting design. */
+        background: rgba(10, 10, 10, 0.045);
+        color: var(--highlight-color);
+        font-size: 0;
+        box-shadow: none;
+        transform: none;
+    }
+
+    #projects .projects-search-submit::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0.72rem;
+        height: 0.72rem;
+        border: 1.7px solid currentColor;
+        border-radius: 50%;
+        transform: translate(-65%, -65%);
+        pointer-events: none;
+    }
+
+    #projects .projects-search-submit::after {
+        content: "";
+        position: absolute;
+        top: calc(50% + 0.18rem);
+        left: calc(50% + 0.12rem);
+        width: 0.38rem;
+        height: 1.7px;
+        border-radius: 2px;
+        background: currentColor;
+        transform: rotate(45deg);
+        transform-origin: left center;
+        pointer-events: none;
+    }
+
+    #projects .projects-search-clear:hover,
+    #projects .projects-search-clear:active {
+        color: var(--project-ink);
+        background: rgba(10, 10, 10, 0.045);
+    }
+
+    #projects .projects-search-submit:hover,
+    #projects .projects-search-submit:active {
+        background: rgba(10, 10, 10, 0.045);
+        color: var(--highlight-color);
+        box-shadow: none;
+        transform: none;
+    }
+}
+
+@media (max-width: 360px) {
+    #projects .projects-search {
+        gap: 0.2rem;
+        padding-left: 0.55rem;
+        padding-right: 0.25rem;
+    }
+
+    #projects .projects-search-clear {
+        flex-basis: 1.75rem;
+        width: 1.75rem;
+        min-width: 1.75rem;
+    }
+
+    #projects .projects-search-submit {
+        flex-basis: 2.1rem;
+        width: 2.1rem;
+    }
+
+    #projects .projects-search-input,
+    #projects .projects-search-ghost {
+        font-size: 0.84rem;
+    }
+}
