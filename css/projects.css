@@ -22,6 +22,12 @@ html {
     scrollbar-gutter: stable;
 }
 
+
+body:has(#projects.section.active) #liquid-glow {
+    opacity: 0;
+}
+
+
 #projects {
     --project-ink: var(--text-color, #0a0a0a);
     --project-muted: var(--secondary-text-color, #505050);

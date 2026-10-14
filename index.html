@@ -956,10 +956,12 @@
     // LIQUID AURORA EFFECT
     const glow = document.getElementById('liquid-glow');
     const gameSection = document.getElementById('game');
+    const projectSection = document.getElementById('projects')
 
     document.addEventListener('mousemove', (e) => {
         // Don't move the glow while the game is active — it's distracting during play
         if (gameSection && gameSection.classList.contains('active')) return;
+        if (projectSection && projectSection.classList.contains('active')) return;
 
         const x = e.clientX;
         const y = e.clientY;
