@@ -213,15 +213,38 @@
                 ? `<p class="project-tech-line">${escapeHTML(tech.join('  ·  '))}</p>`
                 : '';
 
-            const links = [
-                demo
-                    ? `<a class="project-link" href="${escapeHTML(demo)}" target="_blank" rel="noopener noreferrer">View live ${ICONS.arrow}</a>`
-                    : '',
-                demo && github ? '<span class="project-link-divider" aria-hidden="true"></span>' : '',
-                github
-                    ? `<a class="project-link project-link--secondary" href="${escapeHTML(github)}" target="_blank" rel="noopener noreferrer">${ICONS.github} Source</a>`
-                    : ''
-            ].filter(Boolean).join('');
+            const askTwinLink = `
+    <a
+        class="project-link project-link--ask-twin"
+        href="#twin"
+        data-ask-project
+        data-project-title="${escapeHTML(project.title || 'this project')}"
+        data-project-tech="${escapeHTML(tech.join(', '))}"
+    >
+        Ask about this project from my AI Twin
+        <span aria-hidden="true">↗</span>
+    </a>
+`;
+
+const links = [
+    demo
+        ? `<a class="project-link" href="${escapeHTML(demo)}" target="_blank" rel="noopener noreferrer">View live ${ICONS.arrow}</a>`
+        : '',
+
+    demo && github
+        ? '<span class="project-link-divider" aria-hidden="true"></span>'
+        : '',
+
+    github
+        ? `<a class="project-link project-link--secondary" href="${escapeHTML(github)}" target="_blank" rel="noopener noreferrer">${ICONS.github} Source</a>`
+        : '',
+
+    demo || github
+        ? '<span class="project-link-divider" aria-hidden="true"></span>'
+        : '',
+
+    askTwinLink
+].filter(Boolean).join('');
 
             const indexLabel = String(index + 1).padStart(2, '0');
 
@@ -399,7 +422,21 @@
             }, SEARCH_DEBOUNCE_MS);
         }
 
-        // Manual category filters.
+        // Prepare a project-specific prompt before navigating to the Digital Twin.
+list.addEventListener('click', event => {
+    const link = event.target.closest('a[data-ask-project]');
+    if (!link) return;
+
+    const title = link.dataset.projectTitle || 'this project';
+    const tech = link.dataset.projectTech || 'its tech stack';
+
+    const prompt =
+        `Tell me about ${title} project, including what it does`;
+
+    window.pendingDigitalTwinPrompt = prompt.slice(0, 200);
+});
+
+// Manual category filters.
         filters.addEventListener('click', event => {
             const button = event.target.closest('button[data-category]');
             if (!button) return;

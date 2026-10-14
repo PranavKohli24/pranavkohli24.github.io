@@ -1054,3 +1054,13 @@ body:has(#projects.section.active) #liquid-glow {
         font-size: 0.82rem;
     }
 }
+
+#projects .project-row-links {
+    flex-wrap: wrap;
+}
+
+#projects .project-link--ask-twin {
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+}

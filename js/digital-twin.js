@@ -585,7 +585,19 @@ let history = [];
         const observer = new MutationObserver(() => {
 
             // Focus the chat input whenever the Digital Twin section becomes active.
+            // Focus the input and prefill any project-specific prompt.
             if (isDigitalTwinSectionActive() && chatInput) {
+                const pendingPrompt = window.pendingDigitalTwinPrompt;
+
+                if (typeof pendingPrompt === 'string' && pendingPrompt.trim()) {
+                    chatInput.value = pendingPrompt.trim().slice(0, 200);
+
+                    delete window.pendingDigitalTwinPrompt;
+
+                    autoResizeInput();
+                    updateActionButton();
+                }
+
                 requestAnimationFrame(() => {
                     focusInputWithoutKeyboard();
                 });
