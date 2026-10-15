@@ -73,7 +73,7 @@ window.projects = [
         id: 'foodly',
         title: 'Foodly',
         description: 'A full-stack food delivery mobile app with 10+ screens including cart, debounced search, and seamless navigation using React Navigation and Expo Router.',
-        image: '/src/images/projects/foodly.webp',
+        image: '/src/images/projects/foodly.png',
         imageAlt: 'Foodly app interface',
         tech_categories: ['React Native', 'Redux', 'Zustand', 'Firebase', 'Expo'],
         github: 'https://github.com/PranavKohli24/Foodly',
