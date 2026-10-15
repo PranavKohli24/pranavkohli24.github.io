@@ -20,6 +20,22 @@
  * - Only the very first paint fades rows in on scroll. Re-renders caused
  *   by filtering/search swap content instantly with no animation, so the
  *   page never visibly "jumps" while someone is typing.
+ *
+ * Video preview/player behaviour (optional, per project):
+ * - Set `video` on a project in projects-data.js and nothing else is
+ *   required — the row automatically gets a hover-preview + click-to-play
+ *   player. Leave it unset/empty and that project behaves exactly as
+ *   before (static thumbnail only).
+ * - Desktop hover: silent, muted preview plays once from the start.
+ *   Moving the cursor away reverts to the thumbnail and resets the clip.
+ * - Click/tap (desktop or mobile): the same video is promoted in place
+ *   to a real player — unmuted, native controls — and keeps playing
+ *   regardless of cursor movement, the way clicking a YouTube thumbnail
+ *   hands you a real player instead of just a hover preview.
+ * - Only one video (preview or active) plays anywhere on the page at a
+ *   time; starting any other immediately stops and resets the last one.
+ * - When a video finishes, on its own, it always reverts to the static
+ *   thumbnail — whether it was a hover preview or a fully-watched clip.
  */
 (function () {
     'use strict';
@@ -107,7 +123,8 @@
 
     const ICONS = {
         github: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>',
-        arrow: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>'
+        arrow: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>',
+        play: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>'
     };
 
     // Kaggle's and Google's own "Open in Kaggle" / "Open in Colab"
@@ -375,6 +392,91 @@
                 filters.scrollLeft >= maxScrollLeft - EDGE_THRESHOLD
             );
         }
+
+        // ---- Video preview / player ----
+        // Only one video (preview or active/clicked) plays anywhere on
+        // the page at a time. This tracks whichever element is
+        // currently "live" so a new hover or click can cleanly stop it.
+        let activeVideoEl = null;
+
+        function resetVideoStage(videoEl) {
+            if (!videoEl) return;
+
+            const stage = videoEl.closest('[data-video-stage]');
+
+            videoEl.pause();
+            videoEl.currentTime = 0;
+            videoEl.muted = true;
+            videoEl.removeAttribute('controls');
+
+            if (stage) {
+                stage.classList.remove('is-previewing', 'is-active');
+            }
+
+            if (activeVideoEl === videoEl) {
+                activeVideoEl = null;
+            }
+        }
+
+        function stopActiveVideo() {
+            if (activeVideoEl) resetVideoStage(activeVideoEl);
+        }
+
+        function startPreview(videoEl) {
+            if (!videoEl) return;
+
+            // Already the active element and already previewing or
+            // playing — nothing to do, avoids restarting on repeated
+            // mouseover noise from child-element boundaries.
+            const stage = videoEl.closest('[data-video-stage]');
+            if (stage && (stage.classList.contains('is-previewing') || stage.classList.contains('is-active'))) {
+                return;
+            }
+
+            if (activeVideoEl && activeVideoEl !== videoEl) stopActiveVideo();
+
+            activeVideoEl = videoEl;
+            videoEl.muted = true;
+            videoEl.removeAttribute('controls');
+            videoEl.currentTime = 0;
+
+            if (stage) stage.classList.add('is-previewing');
+
+            const playPromise = videoEl.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(() => {
+                    // Autoplay can be blocked in rare cases — fall back
+                    // to just showing the thumbnail, no error surfaced.
+                    resetVideoStage(videoEl);
+                });
+            }
+        }
+
+        function startFullPlayback(videoEl) {
+            if (!videoEl) return;
+
+            const stage = videoEl.closest('[data-video-stage]');
+
+            if (activeVideoEl && activeVideoEl !== videoEl) stopActiveVideo();
+
+            activeVideoEl = videoEl;
+            videoEl.muted = false;
+            videoEl.setAttribute('controls', '');
+
+            if (stage) {
+                stage.classList.remove('is-previewing');
+                stage.classList.add('is-active');
+            }
+
+            const playPromise = videoEl.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(() => {
+                    // If unmuted autoplay is blocked, the native controls
+                    // are already visible, so the person can just press
+                    // play themselves — nothing further to do here.
+                });
+            }
+        }
     
         function renderRow(project, index, highlightTerms) {
             const title = escapeHTML(project.title || 'Untitled project');
@@ -385,6 +487,7 @@
             const alt = escapeHTML(
                 project.imageAlt || `${project.title || 'Project'} thumbnail`
             );
+            const video = safeURL(project.video);
 
             const allTags = Array.isArray(project.tech_categories)
                 ? project.tech_categories
@@ -417,6 +520,31 @@
                         <span>Thumbnail coming soon</span>
                     </div>
                 `;
+
+            // Video is entirely optional — a project with no `video` in
+            // projects-data.js renders exactly the plain thumbnail, no
+            // extra markup, no behaviour change.
+            const media = video
+                ? `
+                    <div class="project-media-stage" data-video-stage>
+                        ${thumbnail}
+                        <video
+                            class="project-preview-video"
+                            src="${escapeHTML(video)}"
+                            data-project-video
+                            muted
+                            playsinline
+                            preload="none"
+                        ></video>
+                        <button
+                            type="button"
+                            class="project-play-btn"
+                            data-play-video
+                            aria-label="Play video of ${title}"
+                        >${ICONS.play}</button>
+                    </div>
+                `
+                : thumbnail;
 
             const terms = Array.isArray(highlightTerms) ? highlightTerms : [];
 
@@ -471,7 +599,7 @@ const links = [
 
             return `
                 <article class="project-row" data-project-id="${escapeHTML(project.id || '')}">
-                    <div class="project-row-media">${thumbnail}</div>
+                    <div class="project-row-media">${media}</div>
 
                     <div class="project-row-content">
                         <h2 class="project-row-title">${title}</h2>
@@ -490,6 +618,7 @@ const links = [
         }
 
         let revealObserver = null;
+        let offscreenPauseObserver = null;
 
         // Only the very first paint fades rows in on scroll. This is
         // called once, right after the first render, never again — so
@@ -519,7 +648,31 @@ const links = [
             rows.forEach(row => revealObserver.observe(row));
         }
 
+        // A playing video (preview or active) that scrolls out of view
+        // is paused and reset — nothing keeps playing silently below
+        // the fold while someone keeps scrolling.
+        function watchVideosForOffscreenPause() {
+            if (offscreenPauseObserver) offscreenPauseObserver.disconnect();
+
+            const videos = list.querySelectorAll('[data-project-video]');
+            if (!videos.length || !('IntersectionObserver' in window)) return;
+
+            offscreenPauseObserver = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting && !entry.target.paused) {
+                        resetVideoStage(entry.target);
+                    }
+                });
+            }, { threshold: 0 });
+
+            videos.forEach(videoEl => offscreenPauseObserver.observe(videoEl));
+        }
+
         function renderProjects() {
+            // A fresh render replaces every row, so whatever video was
+            // playing is about to be torn down with it.
+            activeVideoEl = null;
+
             const allProjects = Array.isArray(window.projects)
                 ? window.projects
                 : [];
@@ -625,6 +778,7 @@ const links = [
 
             renderFilters(parsed);
             updateFilterEdges();
+            watchVideosForOffscreenPause();
 
             if (!hasRenderedOnce) {
                 hasRenderedOnce = true;
@@ -716,6 +870,64 @@ list.addEventListener('click', event => {
 
     window.pendingDigitalTwinPrompt = prompt.slice(0, 200);
 });
+
+// ---- Video preview / player wiring ----
+// Delegated on the list so it keeps working across re-renders
+// (filtering/search rebuild the DOM, individual listeners would not
+// survive that).
+
+// mouseover/mouseout + a relatedTarget check stands in for
+// mouseenter/mouseleave here, since delegation needs bubbling events
+// and mouseenter/mouseleave don't bubble.
+list.addEventListener('mouseover', event => {
+    const stage = event.target.closest('[data-video-stage]');
+    if (!stage || stage.contains(event.relatedTarget)) return;
+
+    const videoEl = stage.querySelector('[data-project-video]');
+    startPreview(videoEl);
+});
+
+list.addEventListener('mouseout', event => {
+    const stage = event.target.closest('[data-video-stage]');
+    if (!stage || stage.contains(event.relatedTarget)) return;
+
+    const videoEl = stage.querySelector('[data-project-video]');
+    if (!videoEl) return;
+
+    // Only a silent hover-preview is interrupted by the cursor
+    // leaving. Once someone has clicked into the real player, it
+    // keeps playing regardless of where the mouse goes.
+    if (stage.classList.contains('is-previewing')) {
+        resetVideoStage(videoEl);
+    }
+});
+
+// Click/tap promotes the same video to a real, controllable player.
+// Once that's happened the stage carries .is-active and the native
+// <video controls> receives its own clicks directly (play/pause/
+// seek/volume), so this handler steps aside for it.
+list.addEventListener('click', event => {
+    const stage = event.target.closest('[data-video-stage]');
+    if (!stage || stage.classList.contains('is-active')) return;
+
+    // Clicking a link inside the content area (demo/source/ask-twin)
+    // should behave normally — this only concerns the media stage.
+    const videoEl = stage.querySelector('[data-project-video]');
+    if (!videoEl) return;
+
+    event.preventDefault();
+    startFullPlayback(videoEl);
+});
+
+// A video that finishes on its own — preview or fully watched —
+// always settles back to the static thumbnail, ready to be replayed
+// from the start next time.
+list.addEventListener('ended', event => {
+    const videoEl = event.target;
+    if (!videoEl || !videoEl.matches('[data-project-video]')) return;
+
+    resetVideoStage(videoEl);
+}, true);
 
 // Manual category filters.
         filters.addEventListener('click', event => {

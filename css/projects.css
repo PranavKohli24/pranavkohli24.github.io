@@ -432,6 +432,116 @@ body:has(#projects.section.active) #liquid-glow {
     transform: scale(1.045);
 }
 
+/* =========================================
+   VIDEO PREVIEW / PLAYER
+   Only present when a project defines a
+   `video`. Image and video sit stacked in the
+   same box and crossfade between each other —
+   nothing resizes, nothing jumps.
+
+   Three states, toggled by classes JS adds to
+   .project-media-stage:
+   - default: thumbnail only, a quiet play icon
+     on top so people know a clip exists.
+   - .is-previewing: hover-triggered, muted,
+     no controls — a silent preview.
+   - .is-active: click/tap-triggered, unmuted,
+     native controls — a real inline player.
+   ========================================= */
+
+#projects .project-media-stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#projects .project-preview-video {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    padding: 0.6rem;
+    box-sizing: border-box;
+    object-fit: contain;
+    background: transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 280ms ease;
+}
+
+#projects .project-media-stage.is-previewing .project-preview-video,
+#projects .project-media-stage.is-active .project-preview-video {
+    opacity: 1;
+}
+
+/* Once a real player (controls visible), the video needs to receive
+   its own clicks again — scrubbing, pause, volume. */
+#projects .project-media-stage.is-active .project-preview-video {
+    pointer-events: auto;
+}
+
+/* The thumbnail fades out underneath rather than disappearing, so the
+   crossfade reads as one continuous motion, not a hard swap. */
+#projects .project-media-stage.is-previewing .project-thumbnail,
+#projects .project-media-stage.is-active .project-thumbnail {
+    opacity: 0;
+}
+
+#projects .project-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(10, 10, 10, 0.55);
+    color: #fff;
+    cursor: pointer;
+    transform: translate(-50%, -50%) scale(0.92);
+    opacity: 0;
+    transition: opacity 220ms ease, transform 220ms ease, background-color var(--transition-speed, 0.3s) ease;
+}
+
+#projects .project-play-btn svg {
+    transform: translateX(1px);
+}
+
+/* Visible on hover (desktop) so people know a clip exists before they
+   commit to hovering long enough to trigger the preview. */
+#projects .project-row:hover .project-play-btn {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#projects .project-play-btn:hover {
+    background: var(--project-accent-strong);
+}
+
+/* Once the preview or the real player has taken over, the button gets
+   out of the way — a playing preview has nothing left to "press",
+   and an active player needs its own controls to receive clicks. */
+#projects .project-media-stage.is-previewing .project-play-btn,
+#projects .project-media-stage.is-active .project-play-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Touch devices have no hover, so the button stays visible by default
+   — it's the only cue that a clip exists until someone taps it. */
+@media (pointer: coarse) {
+    #projects .project-play-btn {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
 #projects .project-thumbnail--empty {
     display: flex;
     align-items: center;

@@ -3,6 +3,14 @@
  * Add, remove, or edit projects here. The renderer and filters update automatically.
  *
  * image: path to a thumbnail in your public/root assets, e.g. '/src/images/projects/rasoi-bazaar.webp'
+ * video: OPTIONAL. Path to a short demo clip, e.g. '/src/images/projects/rasoi-bazaar-demo.mp4'.
+ *   Leave unset (or '') and the project just shows the static thumbnail, same as always —
+ *   nothing else to configure. When set, the row automatically gets:
+ *     - a muted hover preview on desktop (plays once from the start, reverts to the
+ *       thumbnail if the cursor leaves or the clip ends)
+ *     - a click/tap-to-play real player (unmuted, native controls) on desktop and mobile
+ *   Keep clips short (a few seconds) and silent-friendly — they play muted by default.
+ *   Any standard web video format works; .mp4 (H.264) has the widest browser support.
  * tech_categories: combined list of category tags (must match FILTER_CATEGORIES in
  *   projects-renderer.js: iOS, React Native, Deep Learning, React, Backend, DSA) and tech stack.
  *   List each item once — no need to repeat a category that's also a technology.
@@ -15,6 +23,7 @@ window.projects = [
         description: 'A full-stack AI chat assistant simulating my personal knowledge and communication style - remembers past conversations, shares links with previews, reacts to messages with emojis, and sends photos and voice notes.',
         image: '/src/images/projects/digital_twin.png',
         imageAlt: 'Digital Twin chat interface',
+        // video: '/src/images/projects/digital-twin-demo.mp4',
         tech_categories: ['React', 'Backend', 'Node.js', 'NLP', 'RAG'],
         github: '',
         demo: 'https://pranavkohli24.github.io/#twin'
@@ -25,6 +34,7 @@ window.projects = [
         description: 'An Indian cuisine recipe generator with 500+ dishes, attracting and retaining 10,000+ users. Features text + image search, a "cook what you have" mode, Swiggy/Instamart ordering via MCP, and an AI cooking companion that answers context-aware questions about the dish you\'re making.',
         image: '/src/images/projects/rasoi-bazaar.png',
         imageAlt: 'Rasoi Bazaar recipe discovery interface',
+        video: '/src/images/projects/rasoi-demo.mp4',
         tech_categories: ['React', 'Backend', 'Node.js', 'Elastic Search', 'NLP', 'RAG'],
         github: '',
         demo: 'http://rasoi-bazaar.vercel.app/'
