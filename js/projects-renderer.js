@@ -29,9 +29,9 @@
     const SEARCH_PLACEHOLDERS = [
         'Show me iOS projects',
         'Have you worked on React projects?',
-        'Find React Native projects you have built',
-        'Show me backend projects',
-        'What have I built with AI?',
+        'Find React Native projects',
+        'Show me your backend projects',
+        'What have you built with AI?',
         'Do you have any DSA projects?',
         'Show me AI projects you worked on'
     ];
@@ -566,7 +566,7 @@ const links = [
                         // to empty mid-word.
                         if (searchHint) {
                             searchHint.textContent =
-                                'Keep typing — search by project, technology, or category.';
+                                'Keep typing - search by project, technology, or category.';
                         }
                         return;
                     }
