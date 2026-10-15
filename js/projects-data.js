@@ -63,7 +63,7 @@ window.projects = [
         id: 'post-away',
         title: 'PostAway',
         description: 'A social media backend with secure JWT authentication for signup, login, and logout. Built a comment/like/post system tested with 200+ queries, and documented the full API with Swagger UI for easy exploration and testing.',
-        image: '/src/images/projects/post-away.webp',
+        image: '/src/images/projects/postaway.png',
         imageAlt: 'PostAway backend API',
         tech_categories: ['Backend', 'Node.js', 'MongoDB', 'RESTful API'],
         github: 'https://github.com/PranavKohli24/PostAway_Social',
