@@ -40,16 +40,23 @@
     const PLACEHOLDER_ROTATE_MS = 3000;
 
     // Check longer/overlapping category phrases before shorter ones.
+    // Only matches the category's OWN name (and trivial spelling
+    // variants like "React.js" / "ReactNative"). No tech-word synonyms
+    // like "express", "node", "api", "mongodb" — those are real
+    // technologies, so they're matched by the tech whole-word search
+    // instead, against each project's actual `tech` list. That's what
+    // keeps "express" from pulling in every Backend-tagged project
+    // regardless of whether it really uses Express.
     const CATEGORY_RULES = [
         {
             category: 'React Native',
-            pattern: /\breact[\s.-]*native\b|\breactnative\b|\brn\b|\bexpo\b/gi,
-            strip: /\breact[\s.-]*native\b|\breactnative\b|\brn\b/gi
+            pattern: /\breact[\s.-]*native\b|\breactnative\b/gi,
+            strip: /\breact[\s.-]*native\b|\breactnative\b/gi
         },
         {
             category: 'iOS',
-            pattern: /\bios(?:\s+development)?\b|\biphone\b|\bipad\b|\bswiftui\b|\bswift\b|\bapple\s+apps?\b/gi,
-            strip: /\bios(?:\s+development)?\b|\biphone\b|\bipad\b|\bapple\s+apps?\b/gi
+            pattern: /\bios\b/gi,
+            strip: /\bios\b/gi
         },
         {
             category: 'Angular',
@@ -58,14 +65,13 @@
         },
         {
             category: 'DSA',
-            pattern: /\bdsa\b|\bdata\s+structures?\b|\balgorithms?\b|\bleetcode\b|\bcodeforces\b|\bcompetitive\s+programming\b/gi,
-            strip: /\bdsa\b|\bdata\s+structures?\b|\balgorithms?\b|\bleetcode\b|\bcodeforces\b|\bcompetitive\s+programming\b/gi
+            pattern: /\bdsa\b/gi,
+            strip: /\bdsa\b/gi
         },
         {
             category: 'Backend',
-            pattern: /\bback[\s-]?end\b|\bapis?\b|\bnode(?:[\s.-]*js)?\b|\bexpress(?:[\s.-]*js)?\b|\bservers?\b|\bcloudflare\b|\bmongodb\b|\bmysql\b|\bdatabases?\b|\brest(?:ful)?\b/gi,
-            // Keep specific technologies in the remaining query as keywords.
-            strip: /\bback[\s-]?end\b|\bservers?\b/gi
+            pattern: /\bback[\s-]?end\b/gi,
+            strip: /\bback[\s-]?end\b/gi
         },
         {
             category: 'React',
@@ -94,6 +100,7 @@
         let appliedQuery = '';
         let debounceTimer = null;
         let hasRenderedOnce = false;
+        let lastQueryLength = 0; // tracks typing direction: growing vs shrinking
 
         const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({
             '&': '&amp;',
@@ -118,14 +125,22 @@
         // free-text keyword matching anymore. A query that names no
         // category returns an empty list, and the caller treats that
         // as "nothing to do".
+        const SEARCH_STOPWORDS = new Set([
+            'show', 'me', 'have', 'you', 'worked', 'on', 'find', 'do', 'i',
+            'any', 'projects', 'project', 'what', 'built', 'with', 'the',
+            'a', 'an', 'about', 'for', 'to', 'in', 'is', 'are', 'can', 'your',
+            'and', 'or'
+        ]);
+
         function parseSearch(query) {
-            const remaining = String(query || '')
+            let remaining = String(query || '')
                 .toLowerCase()
                 .replace(/[’']/g, '')
                 .replace(/[!?;,()[\]{}"“”]/g, ' ')
                 .replace(/\s+/g, ' ')
                 .trim();
 
+            const original = remaining;
             const categories = [];
 
             for (const rule of CATEGORY_RULES) {
@@ -133,15 +148,98 @@
 
                 if (detector.test(remaining)) {
                     categories.push(rule.category);
+                    // Strip the matched category phrase so it doesn't
+                    // also get treated as a free-text keyword below.
+                    remaining = remaining
+                        .replace(new RegExp(rule.strip.source, 'gi'), ' ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
                 }
             }
 
+            // Whatever's left is free text — matched dynamically against
+            // project titles and tech stacks (projects-data.js), never a
+            // hardcoded list here.
+            const keywords = remaining
+                .split(' ')
+                .map(word => word.trim())
+                .filter(word => word.length > 1 && !SEARCH_STOPWORDS.has(word));
+            // "react and backend" → both required. "react or backend",
+            // or no connector at all, → either is enough. Checked
+            // against the ORIGINAL text, before category phrases were
+            // stripped out of `remaining`.
+            const categoryMode = (categories.length > 1 && /\band\b/.test(original) && !/\bor\b/.test(original))
+                ? 'all'
+                : 'any';
+
             return {
                 categories,
-                categoryMode: 'any'
+                categoryMode,
+                keywords
             };
         }
 
+        // Reads straight from window.projects — adding or renaming a
+        // project or a tech entry in projects-data.js just works, no
+        // changes needed here.
+        // "rasoi" is 5 letters and should match "Rasoi Bazaar" as soon
+        // as it's fully typed. Anything shorter than this is too easy
+        // to misfire as a substring (e.g. "ai" inside half the
+        // alphabet), so short keywords fall back to requiring a full
+        // word match instead — same rule tech already follows always.
+        const SEARCH_SUBSTRING_MIN_LENGTH = 5;
+
+        function projectMatchesKeywords(project, keywords) {
+            if (!keywords.length) return false;
+
+            const titleText = String(project.title || '').toLowerCase();
+            const titleWords = new Set(
+                titleText.split(/[^a-z0-9]+/).filter(Boolean)
+            );
+
+            const techWords = new Set();
+
+            (Array.isArray(project.tech_categories) ? project.tech_categories : [])
+                .forEach(item => {            
+                    String(item)
+                        .toLowerCase()
+                        .split(/[^a-z0-9]+/)
+                        .forEach(word => {
+                            if (word) techWords.add(word);
+                        });
+                });
+
+            return keywords.some(keyword => {
+                // Long enough → substring match against the title only.
+                if (
+                    keyword.length >= SEARCH_SUBSTRING_MIN_LENGTH &&
+                    titleText.includes(keyword)
+                ) {
+                    return true;
+                }
+
+                // Otherwise (short keyword, or no substring hit) →
+                // must be a whole word, in title OR tech.
+                return titleWords.has(keyword) || techWords.has(keyword);
+            });
+        }
+        // Returns true only once the current query actually matches
+        // something — a recognized category, or a keyword that's
+        // really found in some project's title/tech. While the user
+        // is still mid-word (e.g. "sho") this stays false, so the
+        // grid is left untouched instead of flickering to empty.
+        function hasMatch(parsed) {
+            if (parsed.categories.length) return true;
+
+            if (!parsed.keywords.length) return false;
+
+            const allProjects = Array.isArray(window.projects) ? window.projects : [];
+
+            return allProjects.some(project =>
+                projectMatchesKeywords(project, parsed.keywords)
+            );
+        }
+    
         function renderFilters(parsed) {
             const activeCategories = parsed.categories.length
                 ? parsed.categories
@@ -174,14 +272,14 @@
                 project.imageAlt || `${project.title || 'Project'} thumbnail`
             );
 
-            const categories = Array.isArray(project.categories)
-                ? project.categories
+            const allTags = Array.isArray(project.tech_categories)
+                ? project.tech_categories
                 : [];
 
-            const tech = Array.isArray(project.tech)
-                ? project.tech
-                : [];
-
+            // Category pills are just whichever tags match the known
+            // filter list (FILTER_CATEGORIES) — everything else in the
+            // same array is displayed as tech, as-is, no dedupe needed.
+            const categories = allTags.filter(tag => FILTER_CATEGORIES.includes(tag));
             const github = safeURL(project.github);
             const demo = safeURL(project.demo);
 
@@ -205,21 +303,16 @@
                     </div>
                 `;
 
-            const eyebrow = categories.length
-                ? `<span class="project-eyebrow">${escapeHTML(categories.join(' / '))}</span>`
+            const techLine = allTags.length
+                ? `<p class="project-tech-line">${escapeHTML(allTags.join('  ·  '))}</p>`
                 : '';
-
-            const techLine = tech.length
-                ? `<p class="project-tech-line">${escapeHTML(tech.join('  ·  '))}</p>`
-                : '';
-
             const askTwinLink = `
     <a
         class="project-link project-link--ask-twin"
         href="#twin"
         data-ask-project
         data-project-title="${escapeHTML(project.title || 'this project')}"
-        data-project-tech="${escapeHTML(tech.join(', '))}"
+        data-project-tech="${escapeHTML(allTags.join(', '))}"
     >
         Ask about this project from my AI Twin
         <span aria-hidden="true">↗</span>
@@ -254,7 +347,6 @@ const links = [
 
                     <div class="project-row-content">
                         <span class="project-index" aria-hidden="true">${indexLabel}</span>
-                        ${eyebrow}
 
                         <h2 class="project-row-title">${title}</h2>
 
@@ -313,24 +405,33 @@ const links = [
             );
 
             const visibleProjects = allProjects.filter(project => {
-                const categories = (
-                    Array.isArray(project.categories) ? project.categories : []
-                ).map(category => String(category).toLowerCase());
+                const allTags = Array.isArray(project.tech_categories)
+                    ? project.tech_categories
+                    : [];
 
-                if (inferredCategories.length) {
-                    return parsed.categoryMode === 'any'
+                const categories = allTags
+                    .filter(tag => FILTER_CATEGORIES.includes(tag))
+                    .map(category => category.toLowerCase());
+
+                const categoryMatch = inferredCategories.length
+                    ? (parsed.categoryMode === 'any'
                         ? inferredCategories.some(category =>
                             categories.includes(category)
                         )
                         : inferredCategories.every(category =>
                             categories.includes(category)
-                        );
+                        ))
+                    : false;
+
+                const keywordMatch = projectMatchesKeywords(project, parsed.keywords);
+
+                if (inferredCategories.length || parsed.keywords.length) {
+                    return categoryMatch || keywordMatch;
                 }
 
                 return activeFilter === 'All'
                     || categories.includes(activeFilter.toLowerCase());
             });
-
             list.innerHTML = visibleProjects.length
                 ? visibleProjects.map((project, index) => renderRow(project, index)).join('')
                 : `
@@ -342,20 +443,28 @@ const links = [
                 `;
 
             if (searchHint) {
-                if (parsed.categories.length === 1) {
+                const hasCategories = parsed.categories.length > 0;
+                const hasKeywords = parsed.keywords.length > 0;
+
+                if (hasCategories && hasKeywords) {
+                    const joiner = parsed.categoryMode === 'any' ? ' or ' : ' and ';
+                    searchHint.textContent =
+                        `Matching ${parsed.categories.join(joiner)} projects mentioning "${parsed.keywords.join(' ')}".`;
+                } else if (parsed.categories.length === 1) {
                     searchHint.textContent =
                         `Showing projects categorised as ${parsed.categories[0]}.`;
                 } else if (parsed.categories.length > 1) {
                     const joiner = parsed.categoryMode === 'any' ? ' or ' : ' and ';
-
                     searchHint.textContent =
                         `Matching projects across ${parsed.categories.join(joiner)}.`;
+                } else if (hasKeywords) {
+                    searchHint.textContent =
+                        `Matching projects mentioning "${parsed.keywords.join(' ')}".`;
                 } else {
                     searchHint.textContent =
-                        'Search by category - try iOS, React, React Native, Angular, Backend, or DSA.';
+                        'Search by project name, technology, or category - try "Gemini", "React Native", or "Rasoi Bazaar".';
                 }
             }
-
             if (searchClear) {
                 searchClear.classList.toggle(
                     'is-hidden',
@@ -390,17 +499,37 @@ const links = [
         // is cleared, which resets to the active filter tab).
         function applyQuery(value) {
             const trimmed = value.trim();
-            const parsed = parseSearch(trimmed);
+            const isDeleting = trimmed.length < lastQueryLength;
 
-            if (trimmed && !parsed.categories.length) {
-                if (searchHint) {
-                    searchHint.textContent =
-                        'Search by category - try iOS, React, React Native, Angular, Backend, or DSA.';
+            lastQueryLength = trimmed.length;
+
+            if (trimmed) {
+                const parsed = parseSearch(trimmed);
+
+                if (!hasMatch(parsed)) {
+                    if (isDeleting) {
+                        // Backspaced into something that no longer
+                        // matches (e.g. "react" → "reac") — fall back
+                        // to showing everything instead of leaving the
+                        // old filtered results stuck on screen.
+                        appliedQuery = '';
+                    } else {
+                        // Still typing forward and nothing matches yet
+                        // — leave the grid exactly as-is, don't flicker
+                        // to empty mid-word.
+                        if (searchHint) {
+                            searchHint.textContent =
+                                'Keep typing — search by project, technology, or category.';
+                        }
+                        return;
+                    }
+                } else {
+                    appliedQuery = trimmed;
                 }
-                return;
+            } else {
+                appliedQuery = '';
             }
 
-            appliedQuery = trimmed;
             renderProjects();
         }
 

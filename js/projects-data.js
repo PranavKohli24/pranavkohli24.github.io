@@ -13,8 +13,11 @@ window.projects = [
         description: 'An interactive AI version of me that answers questions about my work, projects, and experience.',
         image: '/src/images/projects/digital-twin.webp',
         imageAlt: 'Digital Twin chat interface',
-        categories: ['React', 'Backend'],
-        tech: ['JavaScript', 'Cloudflare Workers AI', 'RAG', 'Vectorize'],
+        // Category tags (must match FILTER_CATEGORIES in
+        // projects-renderer.js) and tech stack live in one array.
+        // List each item once — no need to repeat a category that's
+        // also a technology.
+        tech_categories: ['React', 'Backend', 'JavaScript', 'Cloudflare Workers AI', 'RAG', 'Vectorize'],
         github: '',
         demo: 'https://pranavkohli24.github.io/#twin'
     },
@@ -24,8 +27,7 @@ window.projects = [
         description: 'A recipe discovery experience focused on helping people decide what to cook and explore dishes.',
         image: '/src/images/projects/rasoi-bazaar.webp',
         imageAlt: 'Rasoi Bazaar recipe discovery interface',
-        categories: ['React'],
-        tech: ['React', 'Google Gemini', 'Vercel'],
+        tech_categories: ['React', 'Google Gemini', 'Vercel'],
         github: '',
         demo: 'http://rasoi-bazaar.vercel.app/'
     },
@@ -35,8 +37,7 @@ window.projects = [
         description: 'A real-time chat application with AI-assisted message tagging.',
         image: '/src/images/projects/chatrify.webp',
         imageAlt: 'Chatrify real-time chat interface',
-        categories: ['React', 'Backend'],
-        tech: ['React', 'Node.js', 'Express', 'Socket.io', 'Gemini API'],
+        tech_categories: ['React', 'Backend', 'Node.js', 'Express', 'Socket.io', 'Gemini API'],
         github: '',
         demo: ''
     }
