@@ -13,7 +13,7 @@ window.projects = [
         id: 'digital-twin',
         title: 'Digital Twin',
         description: 'A full-stack AI chat assistant simulating my personal knowledge and communication style — remembers past conversations, shares links with previews, reacts to messages with emojis, and sends photos and voice notes.',
-        image: '/src/images/projects/digital-twin.png',
+        image: '/src/images/projects/digital_twin.png',
         imageAlt: 'Digital Twin chat interface',
         tech_categories: ['React', 'Backend', 'Node.js', 'NLP', 'RAG'],
         github: '',

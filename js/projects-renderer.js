@@ -450,34 +450,53 @@ const links = [
                 category.toLowerCase()
             );
 
-            const visibleProjects = allProjects.filter(project => {
+            // How many of the requested categories/keywords a project
+            // satisfies — used to rank "matches everything asked for"
+            // above "matches only one of several things", instead of
+            // a strict all-or-nothing filter.
+            function matchScore(project) {
                 const allTags = Array.isArray(project.tech_categories)
                     ? project.tech_categories
                     : [];
-
                 const categories = allTags
                     .filter(tag => FILTER_CATEGORIES.includes(tag))
                     .map(category => category.toLowerCase());
 
-                const categoryMatch = inferredCategories.length
-                    ? (parsed.categoryMode === 'any'
-                        ? inferredCategories.some(category =>
-                            categories.includes(category)
-                        )
-                        : inferredCategories.every(category =>
-                            categories.includes(category)
-                        ))
-                    : false;
+                const matchedCategoryCount = inferredCategories
+                    .filter(category => categories.includes(category)).length;
 
-                const keywordMatch = projectMatchesKeywords(project, parsed.keywords);
+                const matchedKeywordCount = parsed.keywords
+                    .filter(keyword => projectMatchesKeywords(project, [keyword])).length;
 
+                return matchedCategoryCount + matchedKeywordCount;
+            }
+
+            let visibleProjects = allProjects.filter(project => {
                 if (inferredCategories.length || parsed.keywords.length) {
-                    return categoryMatch || keywordMatch;
+                    return matchScore(project) > 0;
                 }
+
+                const allTags = Array.isArray(project.tech_categories)
+                    ? project.tech_categories
+                    : [];
+                const categories = allTags
+                    .filter(tag => FILTER_CATEGORIES.includes(tag))
+                    .map(category => category.toLowerCase());
 
                 return activeFilter === 'All'
                     || categories.includes(activeFilter.toLowerCase());
             });
+
+            // Projects satisfying more of the requested terms rank
+            // first — "react and backend" shows projects using both
+            // before projects using only one. Ties keep their
+            // original relative order (stable sort).
+            if (inferredCategories.length || parsed.keywords.length) {
+                visibleProjects = visibleProjects
+                    .map((project, index) => ({ project, index, score: matchScore(project) }))
+                    .sort((a, b) => b.score - a.score || a.index - b.index)
+                    .map(entry => entry.project);
+            }
             list.innerHTML = visibleProjects.length
                 ? visibleProjects.map((project, index) => renderRow(project, index)).join('')
                 : `
