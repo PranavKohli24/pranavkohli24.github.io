@@ -12,7 +12,7 @@ window.projects = [
     {
         id: 'digital-twin',
         title: 'Digital Twin',
-        description: 'A full-stack AI chat assistant simulating my personal knowledge and communication style — remembers past conversations, shares links with previews, reacts to messages with emojis, and sends photos and voice notes.',
+        description: 'A full-stack AI chat assistant simulating my personal knowledge and communication style - remembers past conversations, shares links with previews, reacts to messages with emojis, and sends photos and voice notes.',
         image: '/src/images/projects/digital_twin.png',
         imageAlt: 'Digital Twin chat interface',
         tech_categories: ['React', 'Backend', 'Node.js', 'NLP', 'RAG'],
@@ -32,8 +32,8 @@ window.projects = [
     {
         id: 'digital-locket',
         title: 'Locket',
-        description: 'Apple Swift Student Challenge winning project — a SwiftUI locket preserving 7 life memories, with procedural particle effects and Core Haptics for an interactive feel.',
-        image: '/src/images/projects/digital-locket.webp',
+        description: 'Apple Swift Student Challenge winning project - a SwiftUI locket preserving 7 life memories, with procedural particle effects and Core Haptics for an interactive feel.',
+        image: '/src/images/projects/Locket.png',
         imageAlt: 'Locket iOS app interface',
         tech_categories: ['iOS', 'Swift', 'SwiftUI', 'Core Haptics', 'MVVM'],
         github: 'https://github.com/PranavKohli24/Digital_Locket',
@@ -42,7 +42,7 @@ window.projects = [
     {
         id: 'movie-nest',
         title: 'Movie Nest',
-        description: 'A complete movie listing app built with UIKit — AutoLayout, collection views, nav controllers, Combine, and unit tests — integrated with the Studio Ghibli API, using MVVM architecture.',
+        description: 'A complete movie listing app built with UIKit - AutoLayout, collection views, nav controllers, Combine, and unit tests - integrated with the Studio Ghibli API, using MVVM architecture.',
         image: '/src/images/projects/movie-nest.webp',
         imageAlt: 'Movie Nest app interface',
         tech_categories: ['iOS', 'Swift', 'UIKit', 'MVVM', 'Combine'],

@@ -437,8 +437,11 @@ body:has(#projects.section.active) #liquid-glow {
 
 #projects .project-row-media {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex: 0 0 min(23rem, 42%);
-    aspect-ratio: 4 / 3;
+    max-height: 22rem;
     overflow: hidden;
     background: #efebe2;
     border-radius: 10px;
@@ -447,8 +450,9 @@ body:has(#projects.section.active) #liquid-glow {
 #projects .project-thumbnail {
     display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    max-height: 22rem;
+    object-fit: contain;
     object-position: center;
     transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -456,11 +460,12 @@ body:has(#projects.section.active) #liquid-glow {
 #projects .project-row:hover .project-thumbnail:not(.project-thumbnail--empty) {
     transform: scale(1.035);
 }
-
 #projects .project-thumbnail--empty {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    min-height: 14rem;
     padding: 1.2rem;
     color: #928c7f;
     background:
@@ -668,7 +673,7 @@ body:has(#projects.section.active) #liquid-glow {
 
     #projects .project-row-media {
         flex-basis: auto;
-        aspect-ratio: 16 / 10;
+        max-height: 18rem;
     }
 
     #projects .project-row-title {
