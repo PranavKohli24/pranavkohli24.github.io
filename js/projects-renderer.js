@@ -129,7 +129,7 @@
             'show', 'me', 'have', 'you', 'worked', 'on', 'find', 'do', 'i',
             'any', 'projects', 'project', 'what', 'built', 'with', 'the',
             'a', 'an', 'about', 'for', 'to', 'in', 'is', 'are', 'can', 'your',
-            'and', 'or'
+            'and', 'or', 'which', 'that', 'whose', 'where', 'who', 'this'
         ]);
 
         function parseSearch(query) {
@@ -222,6 +222,43 @@
                 // must be a whole word, in title OR tech.
                 return titleWords.has(keyword) || techWords.has(keyword);
             });
+        }
+        // Returns only the keywords that actually matched at least one
+        // project — not every token left over after stopword removal.
+        // This is what the hint text should reflect; a keyword that
+        // matched nothing (a stray "which", a typo, anything not yet
+        // in SEARCH_STOPWORDS) has no business being displayed as if
+        // it drove the results.
+        function keywordsThatMatched(keywords, projects) {
+            if (!keywords.length) return [];
+
+            return keywords.filter(keyword =>
+                projects.some(project => {
+                    const titleText = String(project.title || '').toLowerCase();
+
+                    if (
+                        keyword.length >= SEARCH_SUBSTRING_MIN_LENGTH &&
+                        titleText.includes(keyword)
+                    ) {
+                        return true;
+                    }
+
+                    const titleWords = new Set(
+                        titleText.split(/[^a-z0-9]+/).filter(Boolean)
+                    );
+
+                    if (titleWords.has(keyword)) return true;
+
+                    const techWords = new Set();
+                    (Array.isArray(project.tech_categories) ? project.tech_categories : [])
+                        .forEach(item => {
+                            String(item).toLowerCase().split(/[^a-z0-9]+/)
+                                .forEach(word => { if (word) techWords.add(word); });
+                        });
+
+                    return techWords.has(keyword);
+                })
+            );
         }
         // Returns true only once the current query actually matches
         // something — a recognized category, or a keyword that's
@@ -439,13 +476,14 @@ const links = [
                 `;
 
             if (searchHint) {
+                const matchedKeywords = keywordsThatMatched(parsed.keywords, allProjects);
                 const hasCategories = parsed.categories.length > 0;
-                const hasKeywords = parsed.keywords.length > 0;
+                const hasKeywords = matchedKeywords.length > 0;
 
                 if (hasCategories && hasKeywords) {
                     const joiner = parsed.categoryMode === 'any' ? ' or ' : ' and ';
                     searchHint.textContent =
-                        `Matching ${parsed.categories.join(joiner)} projects mentioning "${parsed.keywords.join(' ')}".`;
+                        `Matching ${parsed.categories.join(joiner)} projects mentioning "${matchedKeywords.join(' ')}".`;
                 } else if (parsed.categories.length === 1) {
                     searchHint.textContent =
                         `Showing projects categorised as ${parsed.categories[0]}.`;
@@ -455,7 +493,7 @@ const links = [
                         `Matching projects across ${parsed.categories.join(joiner)}.`;
                 } else if (hasKeywords) {
                     searchHint.textContent =
-                        `Matching projects mentioning "${parsed.keywords.join(' ')}".`;
+                        `Matching projects mentioning "${matchedKeywords.join(' ')}".`;
                 } else {
                     searchHint.textContent =
                         'Search by project name, technology, or category - try "Gemini", "React Native", or "Rasoi Bazaar".';
