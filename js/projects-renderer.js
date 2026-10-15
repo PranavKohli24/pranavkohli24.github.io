@@ -124,8 +124,18 @@
     const ICONS = {
         github: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>',
         arrow: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>',
-        play: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>'
+        play: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>',
+        pause: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"></path></svg>',
+        volumeOn: '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M5 9v6h4l5 5V4L9 9H5zm13.5 3A4.5 4.5 0 0 0 16 7.97v8.06A4.5 4.5 0 0 0 18.5 12z"></path></svg>',
+        volumeOff: '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a9 9 0 0 0 3.69-1.81L19.73 21 21 19.73 4.27 3zM19 12a7 7 0 0 0-4-6.32v2.06A5 5 0 0 1 17 12c0 .62-.12 1.21-.33 1.75l1.46 1.46C18.68 14.21 19 13.14 19 12zM12 4 9.91 6.09 12 8.18V4z"></path></svg>',
+        fullscreenEnter: '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M5 14H3v7h7v-2H5v-5zM3 10h2V5h5V3H3v7zm16 9h-5v2h7v-7h-2v5zM14 3v2h5v5h2V3h-7z"></path></svg>',
+        fullscreenExit: '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"></path></svg>'
     };
+
+    // Cycled on each click of the speed button — same cheap
+    // next-in-list pattern as the native players this is standing in
+    // for, just presented as a small text pill instead of a menu.
+    const SPEED_STEPS = [1, 1.5, 2, 0.5];
 
     // Kaggle's and Google's own "Open in Kaggle" / "Open in Colab"
     // badge assets — the exact images they publish for embedding in
@@ -399,6 +409,61 @@
         // currently "live" so a new hover or click can cleanly stop it.
         let activeVideoEl = null;
 
+        function updateMuteIcon(stage, isMuted) {
+            if (!stage) return;
+
+            const muteBtn = stage.querySelector('[data-video-mute]');
+            if (!muteBtn) return;
+
+            muteBtn.innerHTML = isMuted ? ICONS.volumeOff : ICONS.volumeOn;
+            muteBtn.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
+        }
+
+        function updatePlayIcon(stage, isPaused) {
+            if (!stage) return;
+
+            const toggleBtn = stage.querySelector('[data-video-toggle]');
+            if (!toggleBtn) return;
+
+            toggleBtn.innerHTML = isPaused ? ICONS.play : ICONS.pause;
+            toggleBtn.setAttribute('aria-label', isPaused ? 'Play' : 'Pause');
+        }
+
+        function updateSpeedLabel(stage, rate) {
+            if (!stage) return;
+
+            const speedBtn = stage.querySelector('[data-video-speed]');
+            if (!speedBtn) return;
+
+            speedBtn.textContent = `${rate}x`;
+        }
+
+        function updateFullscreenIcon(stage, isFullscreen) {
+            if (!stage) return;
+
+            const fsBtn = stage.querySelector('[data-video-fullscreen]');
+            if (!fsBtn) return;
+
+            fsBtn.innerHTML = isFullscreen ? ICONS.fullscreenExit : ICONS.fullscreenEnter;
+            fsBtn.setAttribute('aria-label', isFullscreen ? 'Exit full screen' : 'Full screen');
+        }
+
+        function exitFullscreenIfActive(stage) {
+            const fsEl = document.fullscreenElement
+                || document.webkitFullscreenElement
+                || document.mozFullScreenElement
+                || document.msFullscreenElement;
+
+            if (fsEl && fsEl === stage) {
+                const exit = document.exitFullscreen
+                    || document.webkitExitFullscreen
+                    || document.mozCancelFullScreen
+                    || document.msExitFullscreen;
+
+                if (exit) exit.call(document);
+            }
+        }
+
         function resetVideoStage(videoEl) {
             if (!videoEl) return;
 
@@ -407,10 +472,19 @@
             videoEl.pause();
             videoEl.currentTime = 0;
             videoEl.muted = true;
-            videoEl.removeAttribute('controls');
+            videoEl.playbackRate = 1;
 
             if (stage) {
+                exitFullscreenIfActive(stage);
+
                 stage.classList.remove('is-previewing', 'is-active');
+
+                const fill = stage.querySelector('[data-video-progress-fill]');
+                if (fill) fill.style.width = '0%';
+
+                updatePlayIcon(stage, true);
+                updateMuteIcon(stage, true);
+                updateSpeedLabel(stage, 1);
             }
 
             if (activeVideoEl === videoEl) {
@@ -437,7 +511,6 @@
 
             activeVideoEl = videoEl;
             videoEl.muted = true;
-            videoEl.removeAttribute('controls');
             videoEl.currentTime = 0;
 
             if (stage) stage.classList.add('is-previewing');
@@ -461,21 +534,32 @@
 
             activeVideoEl = videoEl;
             videoEl.muted = false;
-            videoEl.setAttribute('controls', '');
 
             if (stage) {
                 stage.classList.remove('is-previewing');
                 stage.classList.add('is-active');
+                updateMuteIcon(stage, false);
+                updatePlayIcon(stage, false);
             }
 
             const playPromise = videoEl.play();
             if (playPromise && typeof playPromise.catch === 'function') {
                 playPromise.catch(() => {
-                    // If unmuted autoplay is blocked, the native controls
-                    // are already visible, so the person can just press
-                    // play themselves — nothing further to do here.
+                    // If unmuted autoplay is blocked, our own controls are
+                    // already visible, so the person can just press play
+                    // themselves — reflect the paused state on the button.
+                    if (stage) updatePlayIcon(stage, true);
                 });
             }
+        }
+
+        function seekFromPointer(videoEl, progressEl, clientX) {
+            if (!videoEl || !progressEl || !isFinite(videoEl.duration) || videoEl.duration <= 0) return;
+
+            const rect = progressEl.getBoundingClientRect();
+            const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+
+            videoEl.currentTime = ratio * videoEl.duration;
         }
     
         function renderRow(project, index, highlightTerms) {
@@ -535,6 +619,8 @@
                             muted
                             playsinline
                             preload="none"
+                            disablepictureinpicture
+                            controlslist="nodownload noremoteplayback noplaybackrate"
                         ></video>
                         <button
                             type="button"
@@ -542,6 +628,43 @@
                             data-play-video
                             aria-label="Play video of ${title}"
                         >${ICONS.play}</button>
+
+                        <!-- Our own minimal controls — shown only once
+                             someone has clicked into the full player.
+                             No native browser chrome, no PiP button. -->
+                        <div class="project-video-controls" data-video-controls>
+                            <button
+                                type="button"
+                                class="project-video-toggle"
+                                data-video-toggle
+                                aria-label="Pause"
+                            >${ICONS.pause}</button>
+
+                            <div class="project-video-progress" data-video-progress>
+                                <div class="project-video-progress-fill" data-video-progress-fill></div>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="project-video-speed"
+                                data-video-speed
+                                aria-label="Playback speed"
+                            >1x</button>
+
+                            <button
+                                type="button"
+                                class="project-video-mute"
+                                data-video-mute
+                                aria-label="Mute"
+                            >${ICONS.volumeOn}</button>
+
+                            <button
+                                type="button"
+                                class="project-video-fullscreen"
+                                data-video-fullscreen
+                                aria-label="Full screen"
+                            >${ICONS.fullscreenEnter}</button>
+                        </div>
                     </div>
                 `
                 : thumbnail;
@@ -902,10 +1025,113 @@ list.addEventListener('mouseout', event => {
     }
 });
 
-// Click/tap promotes the same video to a real, controllable player.
-// Once that's happened the stage carries .is-active and the native
-// <video controls> receives its own clicks directly (play/pause/
-// seek/volume), so this handler steps aside for it.
+// Our own control bar: play/pause toggle, a click-to-seek progress
+// bar, and a mute toggle. Handled first so they don't also trigger
+// the "click the stage to enter full playback" behaviour below.
+list.addEventListener('click', event => {
+    const toggleBtn = event.target.closest('[data-video-toggle]');
+    if (toggleBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const stage = toggleBtn.closest('[data-video-stage]');
+        const videoEl = stage && stage.querySelector('[data-project-video]');
+        if (!videoEl) return;
+
+        if (videoEl.paused) videoEl.play();
+        else videoEl.pause();
+        return;
+    }
+
+    const muteBtn = event.target.closest('[data-video-mute]');
+    if (muteBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const stage = muteBtn.closest('[data-video-stage]');
+        const videoEl = stage && stage.querySelector('[data-project-video]');
+        if (!videoEl) return;
+
+        videoEl.muted = !videoEl.muted;
+        updateMuteIcon(stage, videoEl.muted);
+        return;
+    }
+
+    const progressEl = event.target.closest('[data-video-progress]');
+    if (progressEl) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const stage = progressEl.closest('[data-video-stage]');
+        const videoEl = stage && stage.querySelector('[data-project-video]');
+        if (videoEl) seekFromPointer(videoEl, progressEl, event.clientX);
+        return;
+    }
+
+    const speedBtn = event.target.closest('[data-video-speed]');
+    if (speedBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const stage = speedBtn.closest('[data-video-stage]');
+        const videoEl = stage && stage.querySelector('[data-project-video]');
+        if (!videoEl) return;
+
+        const currentIndex = SPEED_STEPS.indexOf(videoEl.playbackRate);
+        const nextRate = SPEED_STEPS[(currentIndex + 1) % SPEED_STEPS.length];
+
+        videoEl.playbackRate = nextRate;
+        speedBtn.textContent = `${nextRate}x`;
+        return;
+    }
+
+    const fsBtn = event.target.closest('[data-video-fullscreen]');
+    if (fsBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const stage = fsBtn.closest('[data-video-stage]');
+        if (!stage) return;
+
+        const fsEl = document.fullscreenElement
+            || document.webkitFullscreenElement
+            || document.mozFullScreenElement
+            || document.msFullscreenElement;
+
+        if (fsEl === stage) {
+            const exit = document.exitFullscreen
+                || document.webkitExitFullscreen
+                || document.mozCancelFullScreen
+                || document.msExitFullscreen;
+            if (exit) exit.call(document);
+        } else {
+            const request = stage.requestFullscreen
+                || stage.webkitRequestFullscreen
+                || stage.mozRequestFullScreen
+                || stage.msRequestFullscreen;
+            if (request) request.call(stage);
+        }
+        return;
+    }
+});
+
+// Keeps the fullscreen icon correct even when someone exits via Esc
+// or a system gesture rather than our own button.
+['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(eventName => {
+    document.addEventListener(eventName, () => {
+        const fsEl = document.fullscreenElement
+            || document.webkitFullscreenElement
+            || document.mozFullScreenElement
+            || document.msFullscreenElement;
+
+        list.querySelectorAll('[data-video-stage]').forEach(stage => {
+            updateFullscreenIcon(stage, stage === fsEl);
+        });
+    });
+});
+
+// Click/tap promotes the same video to a real, controllable player —
+// our own control bar takes over from here, not the browser's.
 list.addEventListener('click', event => {
     const stage = event.target.closest('[data-video-stage]');
     if (!stage || stage.classList.contains('is-active')) return;
@@ -918,6 +1144,35 @@ list.addEventListener('click', event => {
     event.preventDefault();
     startFullPlayback(videoEl);
 });
+
+// Keep the progress bar and play/pause icon in sync with real
+// playback state (covers seeking, buffering, autoplay getting
+// blocked, etc. — not just clicks on our own buttons).
+list.addEventListener('timeupdate', event => {
+    const videoEl = event.target;
+    if (!videoEl || !videoEl.matches('[data-project-video]')) return;
+
+    const stage = videoEl.closest('[data-video-stage]');
+    const fill = stage && stage.querySelector('[data-video-progress-fill]');
+
+    if (fill && isFinite(videoEl.duration) && videoEl.duration > 0) {
+        fill.style.width = `${(videoEl.currentTime / videoEl.duration) * 100}%`;
+    }
+}, true);
+
+list.addEventListener('play', event => {
+    const videoEl = event.target;
+    if (!videoEl || !videoEl.matches('[data-project-video]')) return;
+
+    updatePlayIcon(videoEl.closest('[data-video-stage]'), false);
+}, true);
+
+list.addEventListener('pause', event => {
+    const videoEl = event.target;
+    if (!videoEl || !videoEl.matches('[data-project-video]')) return;
+
+    updatePlayIcon(videoEl.closest('[data-video-stage]'), true);
+}, true);
 
 // A video that finishes on its own — preview or fully watched —
 // always settles back to the static thumbnail, ready to be replayed

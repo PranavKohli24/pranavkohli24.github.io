@@ -423,8 +423,10 @@ body:has(#projects.section.active) #liquid-glow {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    padding: 0.6rem;
+    object-fit: contain;
     object-position: center;
+    box-sizing: border-box;
     transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -540,6 +542,135 @@ body:has(#projects.section.active) #liquid-glow {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
     }
+}
+
+/* Our own minimal control bar — never the browser's native <video
+   controls>, so there's no download/remote-playback/Picture-in-Picture
+   chrome at all, and the look matches the rest of the site instead of
+   borrowing a platform's default player skin. */
+#projects .project-video-controls {
+    position: absolute;
+    left: 0.65rem;
+    right: 0.65rem;
+    bottom: 0.65rem;
+    z-index: 3;
+    display: none;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.4rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(10, 10, 10, 0.6);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 220ms ease, transform 220ms ease;
+}
+
+#projects .project-media-stage.is-active .project-video-controls {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#projects .project-video-toggle,
+#projects .project-video-mute,
+#projects .project-video-fullscreen {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 160ms ease;
+}
+
+#projects .project-video-toggle:hover,
+#projects .project-video-mute:hover,
+#projects .project-video-fullscreen:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+#projects .project-video-speed {
+    flex: 0 0 auto;
+    min-width: 2.1rem;
+    height: 1.8rem;
+    padding: 0 0.4rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: background-color 160ms ease, color 160ms ease;
+}
+
+#projects .project-video-speed:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: var(--project-accent, #c7b2f7);
+}
+
+#projects .project-video-progress {
+    position: relative;
+    flex: 1 1 auto;
+    height: 1.1rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+#projects .project-video-progress::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 0.28rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#projects .project-video-progress-fill {
+    position: relative;
+    height: 0.28rem;
+    width: 0%;
+    border-radius: 999px;
+    background: var(--project-accent, #c7b2f7);
+    pointer-events: none;
+}
+
+/* Full screen: the stage fills the viewport, the video keeps its
+   full-picture (contain) sizing, and the same control bar rides along
+   at the bottom rather than being swapped for anything native. */
+#projects .project-media-stage:fullscreen,
+#projects .project-media-stage:-webkit-full-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+}
+
+#projects .project-media-stage:fullscreen .project-preview-video,
+#projects .project-media-stage:-webkit-full-screen .project-preview-video {
+    padding: 0;
+}
+
+#projects .project-media-stage:fullscreen .project-video-controls,
+#projects .project-media-stage:-webkit-full-screen .project-video-controls {
+    left: 1.2rem;
+    right: 1.2rem;
+    bottom: 1.2rem;
+    padding: 0.55rem 0.7rem;
 }
 
 #projects .project-thumbnail--empty {
