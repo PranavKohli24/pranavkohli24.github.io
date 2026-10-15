@@ -482,6 +482,15 @@
                 const fill = stage.querySelector('[data-video-progress-fill]');
                 if (fill) fill.style.width = '0%';
 
+                // In case a reset (scrolled off-screen, finished, etc.)
+                // happens mid-drag, make sure the bar doesn't get stuck
+                // thinking it's still being scrubbed.
+                const progressEl = stage.querySelector('[data-video-progress]');
+                if (progressEl) {
+                    scrubbingBars.delete(progressEl);
+                    progressEl.classList.remove('is-scrubbing');
+                }
+
                 updatePlayIcon(stage, true);
                 updateMuteIcon(stage, true);
                 updateSpeedLabel(stage, 1);
@@ -560,7 +569,19 @@
             const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
 
             videoEl.currentTime = ratio * videoEl.duration;
+
+            // Updated directly rather than waiting on the next
+            // 'timeupdate' tick, so the thumb tracks the pointer with
+            // no visible lag while dragging.
+            const fill = progressEl.querySelector('[data-video-progress-fill]');
+            if (fill) fill.style.width = `${ratio * 100}%`;
         }
+
+        // Scrubbing state: which progress bar (if any) is currently
+        // being dragged, and which video it belongs to. Pointer
+        // capture means pointermove/pointerup keep firing on the bar
+        // itself even once the cursor/finger drifts outside it.
+        const scrubbingBars = new WeakMap();
     
         function renderRow(project, index, highlightTerms) {
             const title = escapeHTML(project.title || 'Untitled project');
@@ -1057,16 +1078,10 @@ list.addEventListener('click', event => {
         return;
     }
 
-    const progressEl = event.target.closest('[data-video-progress]');
-    if (progressEl) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const stage = progressEl.closest('[data-video-stage]');
-        const videoEl = stage && stage.querySelector('[data-project-video]');
-        if (videoEl) seekFromPointer(videoEl, progressEl, event.clientX);
-        return;
-    }
+    // Plain clicks (no drag) on the bar are handled by pointerdown/up
+    // below, which covers both tap-to-seek and drag-to-seek in one
+    // path — this click handler intentionally does nothing for the
+    // progress bar itself.
 
     const speedBtn = event.target.closest('[data-video-speed]');
     if (speedBtn) {
@@ -1114,6 +1129,51 @@ list.addEventListener('click', event => {
         return;
     }
 });
+
+// Drag-to-seek on the progress bar — pointerdown starts the drag and
+// seeks immediately (so a plain tap still works exactly like before),
+// pointermove keeps scrubbing live while held, pointerup/cancel ends
+// it. Works the same way for mouse and touch since it's all Pointer
+// Events, no separate touch handling needed.
+list.addEventListener('pointerdown', event => {
+    const progressEl = event.target.closest('[data-video-progress]');
+    if (!progressEl) return;
+
+    const stage = progressEl.closest('[data-video-stage]');
+    const videoEl = stage && stage.querySelector('[data-project-video]');
+    if (!videoEl) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    scrubbingBars.set(progressEl, videoEl);
+    progressEl.classList.add('is-scrubbing');
+
+    if (progressEl.setPointerCapture) {
+        progressEl.setPointerCapture(event.pointerId);
+    }
+
+    seekFromPointer(videoEl, progressEl, event.clientX);
+});
+
+list.addEventListener('pointermove', event => {
+    const progressEl = event.target.closest('[data-video-progress]');
+    const videoEl = progressEl && scrubbingBars.get(progressEl);
+    if (!videoEl) return;
+
+    seekFromPointer(videoEl, progressEl, event.clientX);
+});
+
+function endScrub(event) {
+    const progressEl = event.target.closest('[data-video-progress]');
+    if (!progressEl || !scrubbingBars.has(progressEl)) return;
+
+    scrubbingBars.delete(progressEl);
+    progressEl.classList.remove('is-scrubbing');
+}
+
+list.addEventListener('pointerup', endScrub);
+list.addEventListener('pointercancel', endScrub);
 
 // Keeps the fullscreen icon correct even when someone exits via Esc
 // or a system gesture rather than our own button.

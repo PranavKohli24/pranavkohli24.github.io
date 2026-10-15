@@ -624,6 +624,10 @@ body:has(#projects.section.active) #liquid-glow {
     display: flex;
     align-items: center;
     cursor: pointer;
+    /* Dragging is handled via Pointer Events; this just stops the
+       browser's own touch-scroll/selection gestures from fighting
+       the drag on touch devices. */
+    touch-action: none;
 }
 
 #projects .project-video-progress::before {
@@ -634,6 +638,7 @@ body:has(#projects.section.active) #liquid-glow {
     height: 0.28rem;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.3);
+    transition: height 120ms ease;
 }
 
 #projects .project-video-progress-fill {
@@ -643,6 +648,35 @@ body:has(#projects.section.active) #liquid-glow {
     border-radius: 999px;
     background: var(--project-accent, #c7b2f7);
     pointer-events: none;
+    transition: height 120ms ease;
+}
+
+/* A small draggable-looking thumb at the current position — hidden
+   until hover/drag so the bar stays minimal at rest. */
+#projects .project-video-progress-fill::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: -0.32rem;
+    width: 0.62rem;
+    height: 0.62rem;
+    border-radius: 50%;
+    background: var(--project-accent, #c7b2f7);
+    box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.45);
+    transform: translateY(-50%) scale(0);
+    transition: transform 150ms ease;
+}
+
+#projects .project-video-progress:hover .project-video-progress-fill::after,
+#projects .project-video-progress.is-scrubbing .project-video-progress-fill::after {
+    transform: translateY(-50%) scale(1);
+}
+
+/* While actively dragging, the track and fill thicken slightly for a
+   more confident grab target and clearer feedback. */
+#projects .project-video-progress.is-scrubbing::before,
+#projects .project-video-progress.is-scrubbing .project-video-progress-fill {
+    height: 0.36rem;
 }
 
 /* Full screen: the stage fills the viewport, the video keeps its
