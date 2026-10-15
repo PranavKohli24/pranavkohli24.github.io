@@ -378,29 +378,48 @@ body:has(#projects.section.active) #liquid-glow {
     align-items: center;
     gap: 3.6rem;
     padding: 3.2rem 0;
-    border-bottom: 1px solid var(--project-border);
+    border-bottom: none;
     opacity: 0;
     transition: opacity 520ms ease;
 }
 
-/* A quiet diamond mark centered on the hairline, instead of a bare
-   flat rule — still a thin separator, just a touch more deliberate. */
+/* A real separator, not a faint hairline — a gradient rule that's
+   darkest in the center and fades at the edges, so it reads as a
+   deliberate break between two distinct projects rather than a
+   leftover default border. */
+#projects .project-row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--project-faint) 18%,
+        #8a8373 50%,
+        var(--project-faint) 82%,
+        transparent 100%
+    );
+}
+
+/* Diamond mark, now bigger and darker so it actually registers as a
+   divider mark rather than a decorative crumb. */
 #projects .project-row::after {
     content: "";
     position: absolute;
     left: 50%;
-    bottom: -4px;
-    width: 7px;
-    height: 7px;
-    background: var(--project-faint);
+    bottom: -5px;
+    width: 9px;
+    height: 9px;
+    background: #8a8373;
     border-radius: 1px;
     transform: translateX(-50%) rotate(45deg);
+    box-shadow: 0 0 0 4px var(--card-surface, #fff);
 }
 
-#projects .project-row:last-child {
-    border-bottom: none;
-}
-
+#projects .project-row:last-child::before,
 #projects .project-row:last-child::after {
     display: none;
 }
