@@ -383,6 +383,28 @@ body:has(#projects.section.active) #liquid-glow {
     transition: opacity 520ms ease;
 }
 
+/* A quiet diamond mark centered on the hairline, instead of a bare
+   flat rule — still a thin separator, just a touch more deliberate. */
+#projects .project-row::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -4px;
+    width: 7px;
+    height: 7px;
+    background: var(--project-faint);
+    border-radius: 1px;
+    transform: translateX(-50%) rotate(45deg);
+}
+
+#projects .project-row:last-child {
+    border-bottom: none;
+}
+
+#projects .project-row:last-child::after {
+    display: none;
+}
+
 /* Fires once, on first paint (scroll-triggered). Re-renders from
    filtering/search add this class immediately with no transition,
    so nothing ever visibly jumps while someone is typing. */
