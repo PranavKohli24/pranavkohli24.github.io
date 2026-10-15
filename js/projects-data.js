@@ -30,7 +30,7 @@ window.projects = [
         demo: 'http://rasoi-bazaar.vercel.app/'
     },
     {
-        id: 'locket',
+        id: 'digital-locket',
         title: 'Locket',
         description: 'Apple Swift Student Challenge winning project — a SwiftUI locket preserving 7 life memories, with procedural particle effects and Core Haptics for an interactive feel.',
         image: '/src/images/projects/digital-locket.webp',
@@ -48,5 +48,65 @@ window.projects = [
         tech_categories: ['iOS', 'Swift', 'UIKit', 'MVVM', 'Combine'],
         github: 'https://github.com/PranavKohli24/Movie-App',
         demo: ''
+    },
+    {
+        id: 'market-connect',
+        title: 'MarketConnect',
+        description: 'A marketplace web app connecting users with local shopkeepers for live product listings and price updates. Includes a price comparison feature across 10+ retailers and a pre-order/quick-pickup system that cut average wait time by 70% (15 to 5 minutes) during testing.',
+        image: '/src/images/projects/market-connect.webp',
+        imageAlt: 'MarketConnect interface',
+        tech_categories: ['React', 'Backend', 'Node.js', 'Express', 'MongoDB'],
+        github: 'https://github.com/PranavKohli24/MarketConnect',
+        demo: ''
+    },
+    {
+        id: 'post-away',
+        title: 'PostAway',
+        description: 'A social media backend with secure JWT authentication for signup, login, and logout. Built a comment/like/post system tested with 200+ queries, and documented the full API with Swagger UI for easy exploration and testing.',
+        image: '/src/images/projects/post-away.webp',
+        imageAlt: 'PostAway backend API',
+        tech_categories: ['Backend', 'Node.js', 'MongoDB', 'RESTful API'],
+        github: 'https://github.com/PranavKohli24/PostAway_Social',
+        demo: ''
+    },
+    {
+        id: 'foodly',
+        title: 'Foodly',
+        description: 'A full-stack food delivery mobile app with 10+ screens including cart, debounced search, and seamless navigation using React Navigation and Expo Router.',
+        image: '/src/images/projects/foodly.webp',
+        imageAlt: 'Foodly app interface',
+        tech_categories: ['React Native', 'Redux', 'Zustand', 'Firebase', 'Expo'],
+        github: 'https://github.com/PranavKohli24/Foodly',
+        demo: ''
+    },
+    {
+        id: 'mocktails',
+        title: 'Velvet Pour',
+        description: 'A scroll-synced mocktail shop app that enhances engagement through adaptive visual storytelling.',
+        image: '/src/images/projects/mocktails.webp',
+        imageAlt: 'Velvet Pour mocktail shop interface',
+        tech_categories: ['React', 'Redux', 'GSAP'],
+        github: 'https://github.com/PranavKohli24/mocktails',
+        demo: 'https://www.sipwithpranav.app'
+    },
+    {
+        id: 'grateful-moments',
+        title: 'Grateful Moments',
+        description: 'A gratitude journaling app built with SwiftUI and SwiftData, featuring custom hexagonal UI components and local photo storage.',
+        image: '/src/images/projects/grateful-moments.webp',
+        imageAlt: 'Grateful Moments journaling app interface',
+        tech_categories: ['iOS', 'Swift', 'SwiftUI', 'SwiftData'],
+        github: 'https://github.com/PranavKohli24/iOS_GratefulMoments',
+        demo: ''
+    },
+    {
+        id: 'chatrify',
+        title: 'Chatrify',
+        description: 'A real-time chat website with onboarding and encrypted, persistent communication for 100+ users. Integrated the Gemini API for AI message tagging and in-chat AI Q&A for intelligent 1:1 conversations.',
+        image: '/src/images/projects/chatrify.webp',
+        imageAlt: 'Chatrify real-time chat interface',
+        tech_categories: ['React', 'Backend', 'Next.js', 'Node.js', 'Express', 'MongoDB', 'Socket.io'],
+        github: '',
+        demo: 'https://youtu.be/aN6EdAvwAhQ'
     }
 ];
