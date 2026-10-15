@@ -109,6 +109,20 @@
         arrow: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>'
     };
 
+    // Kaggle's and Google's own "Open in Kaggle" / "Open in Colab"
+    // badge assets — the exact images they publish for embedding in
+    // READMEs and notebooks — rather than a hand-drawn stand-in icon.
+    const DEMO_BADGES = {
+        kaggle: {
+            src: 'https://kaggle.com/static/images/open-in-kaggle.svg',
+            alt: 'Open In Kaggle'
+        },
+        colab: {
+            src: 'https://colab.research.google.com/assets/colab-badge.svg',
+            alt: 'Open In Colab'
+        }
+    };
+
     function initProjects() {
         const list = document.getElementById('projectsGrid');
         const filters = document.getElementById('projectsFilters');
@@ -143,6 +157,33 @@
             } catch (_) {
                 return '';
             }
+        };
+
+        // Picks the icon/label/placement for a demo link based on its
+        // host. Falls back to the plain "View live" treatment for
+        // anything that isn't Kaggle or Colab — adding a new provider
+        // here is just one more hostname check, no renderRow changes
+        // needed.
+        const getDemoMeta = url => {
+            if (!url) return null;
+
+            let hostname = '';
+
+            try {
+                hostname = new URL(url).hostname.toLowerCase();
+            } catch (_) {
+                hostname = '';
+            }
+
+            if (hostname.includes('kaggle.com')) {
+                return { type: 'badge', ...DEMO_BADGES.kaggle };
+            }
+
+            if (hostname.includes('colab.research.google.com')) {
+                return { type: 'badge', ...DEMO_BADGES.colab };
+            }
+
+            return { type: 'text', icon: ICONS.arrow, label: 'View live' };
         };
 
         // Only ever extracts recognised categories — there is no
@@ -332,6 +373,7 @@
             const categories = allTags.filter(tag => FILTER_CATEGORIES.includes(tag));
             const github = safeURL(project.github);
             const demo = safeURL(project.demo);
+            const demoMeta = demo ? getDemoMeta(demo) : null;
 
             const thumbnail = image
                 ? `
@@ -382,7 +424,11 @@
 
 const links = [
     demo
-        ? `<a class="project-link" href="${escapeHTML(demo)}" target="_blank" rel="noopener noreferrer">View live ${ICONS.arrow}</a>`
+        ? `<a class="project-link${demoMeta.type === 'badge' ? ' project-link--badge' : ''}" href="${escapeHTML(demo)}" target="_blank" rel="noopener noreferrer">${
+            demoMeta.type === 'badge'
+                ? `<img class="project-link-badge" src="${escapeHTML(demoMeta.src)}" alt="${escapeHTML(demoMeta.alt)}" loading="lazy" style="height:20px;width:auto;display:block;">`
+                : `${demoMeta.label} ${demoMeta.icon}`
+        }</a>`
         : '',
 
     demo && github

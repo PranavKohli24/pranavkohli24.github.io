@@ -112,8 +112,8 @@ window.projects = [
     {
         id: 'gpt-transformer-architecture',
         title: 'GPT Transformer Architecture',
-        description: 'An in-depth study and hands-on exploration of "Attention Is All You Need," the research paper that introduced the Transformer architecture underlying ChatGPT.',
-        image: '/src/images/projects/gpt-transformer-architecture.webp',
+        description: 'Studied in-depth about the famous Attention Is All You Need" research paper that introduced the Transformer architecture behind ChatGPT. Studied the complete RNN, problems with RNN, LSTM, Attention mechanism, and self attention.',
+        image: '/src/images/projects/gpt_arch.jpeg',
         imageAlt: 'GPT Transformer Architecture project',
         tech_categories: ['DSA', 'Python', 'NLP', 'Deep Learning', 'LLM'],
         github: '',
