@@ -29,11 +29,11 @@
     const SEARCH_PLACEHOLDERS = [
         'Show me iOS projects',
         'Have you worked on React projects?',
-        'Find React Native projects',
+        'Find React Native projects you have built',
         'Show me backend projects',
-        'What have I built with Gemini?',
-        'Do I have any DSA projects?',
-        'Show me Angular projects'
+        'What have I built with AI?',
+        'Do you have any DSA projects?',
+        'Show me AI projects you worked on'
     ];
 
     const SEARCH_DEBOUNCE_MS = 320;
@@ -79,6 +79,30 @@
             strip: /\breact(?:[\s.-]*js)?\b/gi
         }
     ];
+    // Maps a typed word to related terms that actually exist in
+    // projects-data.js (title or tech_categories). Only add an entry
+    // here if something real would match it.
+    const SYNONYMS = {
+        mobile: ['ios', 'react native', 'swift', 'swiftui'],
+        app: ['ios', 'react native'],
+        android: ['react native'],
+        ai: ['nlp', 'rag'],
+        ml: ['nlp', 'rag'],
+        genai: ['nlp', 'rag'],
+        db: ['mongodb'],
+        database: ['mongodb'],
+        node: ['node.js'],
+        nodejs: ['node.js'],
+        api: ['restful api'],
+        rest: ['restful api'],
+        socket: ['socket.io'],
+        sockets: ['socket.io'],
+        realtime: ['socket.io'],
+        animation: ['gsap', 'core haptics'],
+        animations: ['gsap', 'core haptics'],
+        state: ['redux', 'zustand'],
+        nextjs: ['next.js']
+    };
 
     const ICONS = {
         github: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>',
@@ -210,17 +234,30 @@
                 });
 
             return keywords.some(keyword => {
-                // Long enough → substring match against the title only.
-                if (
-                    keyword.length >= SEARCH_SUBSTRING_MIN_LENGTH &&
-                    titleText.includes(keyword)
-                ) {
-                    return true;
-                }
+                const terms = [keyword, ...(SYNONYMS[keyword] || [])];
 
-                // Otherwise (short keyword, or no substring hit) →
-                // must be a whole word, in title OR tech.
-                return titleWords.has(keyword) || techWords.has(keyword);
+                return terms.some(term => {
+                    // Multi-word synonym (e.g. "react native") → phrase match.
+                    if (term.includes(' ')) {
+                        return titleText.includes(term) ||
+                            Array.from(techWords).join(' ').includes(term) ||
+                            (Array.isArray(project.tech_categories)
+                                ? project.tech_categories.some(t => String(t).toLowerCase().includes(term))
+                                : false);
+                    }
+
+                    // Long enough → substring match against the title only.
+                    if (
+                        term.length >= SEARCH_SUBSTRING_MIN_LENGTH &&
+                        titleText.includes(term)
+                    ) {
+                        return true;
+                    }
+
+                    // Otherwise (short term, or no substring hit) →
+                    // must be a whole word, in title OR tech.
+                    return titleWords.has(term) || techWords.has(term);
+                });
             });
         }
         // Returns only the keywords that actually matched at least one
@@ -233,31 +270,7 @@
             if (!keywords.length) return [];
 
             return keywords.filter(keyword =>
-                projects.some(project => {
-                    const titleText = String(project.title || '').toLowerCase();
-
-                    if (
-                        keyword.length >= SEARCH_SUBSTRING_MIN_LENGTH &&
-                        titleText.includes(keyword)
-                    ) {
-                        return true;
-                    }
-
-                    const titleWords = new Set(
-                        titleText.split(/[^a-z0-9]+/).filter(Boolean)
-                    );
-
-                    if (titleWords.has(keyword)) return true;
-
-                    const techWords = new Set();
-                    (Array.isArray(project.tech_categories) ? project.tech_categories : [])
-                        .forEach(item => {
-                            String(item).toLowerCase().split(/[^a-z0-9]+/)
-                                .forEach(word => { if (word) techWords.add(word); });
-                        });
-
-                    return techWords.has(keyword);
-                })
+                projects.some(project => projectMatchesKeywords(project, [keyword]))
             );
         }
         // Returns true only once the current query actually matches
@@ -496,7 +509,7 @@ const links = [
                         `Matching projects mentioning "${matchedKeywords.join(' ')}".`;
                 } else {
                     searchHint.textContent =
-                        'Search by project name, technology, or category - try "Gemini", "React Native", or "Rasoi Bazaar".';
+                        'Search by project name, technology, or category - try "iOS", "React Native", or "Rasoi Bazaar".';
                 }
             }
             if (searchClear) {
