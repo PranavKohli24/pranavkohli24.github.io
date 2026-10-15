@@ -1159,3 +1159,11 @@ body:has(#projects.section.active) #liquid-glow {
     white-space: normal;
     text-align: left;
 }
+
+
+/* Nudge even-row images slightly toward the text */
+@media (min-width: 769px) {
+    #projects .project-row:nth-child(even) .project-row-media {
+        transform: translateX(-10rem);
+    }
+}
