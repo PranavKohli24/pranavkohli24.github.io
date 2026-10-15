@@ -653,26 +653,68 @@ body:has(#projects.section.active) #liquid-glow {
         scrollbar-width: none;
         -webkit-overflow-scrolling: touch;
 
-        /* Fades both edges so the bar hints there's more to scroll,
-           instead of cutting the pills off abruptly. */
+        --filter-edge: 28px;
+
+        /* Default / pre-JS state: fade both sides. Once JS knows the
+           real scroll position it adds .is-at-start / .is-at-end,
+           which override this below. */
         -webkit-mask-image: linear-gradient(
             to right,
             transparent 0,
-            black 28px,
-            black calc(100% - 28px),
+            black var(--filter-edge),
+            black calc(100% - var(--filter-edge)),
             transparent 100%
         );
         mask-image: linear-gradient(
             to right,
             transparent 0,
-            black 28px,
-            black calc(100% - 28px),
+            black var(--filter-edge),
+            black calc(100% - var(--filter-edge)),
             transparent 100%
         );
     }
 
     #projects .projects-filters::-webkit-scrollbar {
         display: none;
+    }
+
+    /* Already at the extreme left — nothing behind to hint at. */
+    #projects .projects-filters.is-at-start {
+        -webkit-mask-image: linear-gradient(
+            to right,
+            black 0,
+            black calc(100% - var(--filter-edge)),
+            transparent 100%
+        );
+        mask-image: linear-gradient(
+            to right,
+            black 0,
+            black calc(100% - var(--filter-edge)),
+            transparent 100%
+        );
+    }
+
+    /* At (or within a small gap of) the extreme right — nothing more
+       ahead to hint at. */
+    #projects .projects-filters.is-at-end {
+        -webkit-mask-image: linear-gradient(
+            to right,
+            transparent 0,
+            black var(--filter-edge),
+            black 100%
+        );
+        mask-image: linear-gradient(
+            to right,
+            transparent 0,
+            black var(--filter-edge),
+            black 100%
+        );
+    }
+
+    /* Everything already fits — no fade on either side. */
+    #projects .projects-filters.is-at-start.is-at-end {
+        -webkit-mask-image: none;
+        mask-image: none;
     }
 
     #projects .project-filter {

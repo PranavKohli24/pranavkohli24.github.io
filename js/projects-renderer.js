@@ -354,6 +354,28 @@
             }).join('');
         }
 
+        // Toggles which edge fade shows based on real scroll position.
+        // EDGE_THRESHOLD is the "leave some gap" tolerance — without
+        // it, sub-pixel scroll rounding can leave the bar stuck a
+        // fraction short of "the end" forever, so the right fade
+        // never clears even once the last pill is fully in view.
+        function updateFilterEdges() {
+            const maxScrollLeft = filters.scrollWidth - filters.clientWidth;
+
+            if (maxScrollLeft <= 1) {
+                filters.classList.add('is-at-start', 'is-at-end');
+                return;
+            }
+
+            const EDGE_THRESHOLD = 4;
+
+            filters.classList.toggle('is-at-start', filters.scrollLeft <= EDGE_THRESHOLD);
+            filters.classList.toggle(
+                'is-at-end',
+                filters.scrollLeft >= maxScrollLeft - EDGE_THRESHOLD
+            );
+        }
+    
         function renderRow(project, index, highlightTerms) {
             const title = escapeHTML(project.title || 'Untitled project');
             const description = escapeHTML(
@@ -602,6 +624,7 @@ const links = [
             }
 
             renderFilters(parsed);
+            updateFilterEdges();
 
             if (!hasRenderedOnce) {
                 hasRenderedOnce = true;
@@ -707,7 +730,13 @@ list.addEventListener('click', event => {
 
             applyQueryNow('');
         });
+        filters.addEventListener('scroll', () => {
+            window.requestAnimationFrame(updateFilterEdges);
+        }, { passive: true });
 
+        window.addEventListener('resize', () => {
+            window.requestAnimationFrame(updateFilterEdges);
+        });
         if (searchForm && searchInput) {
             // Submit applies instantly, bypassing the debounce.
             searchForm.addEventListener('submit', event => {
