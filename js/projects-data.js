@@ -4,7 +4,7 @@
  *
  * image: path to a thumbnail in your public/root assets, e.g. '/src/images/projects/rasoi-bazaar.webp'
  * tech_categories: combined list of category tags (must match FILTER_CATEGORIES in
- *   projects-renderer.js: iOS, React Native, Angular, React, Backend, DSA) and tech stack.
+ *   projects-renderer.js: iOS, React Native, Deep Learning, React, Backend, DSA) and tech stack.
  *   List each item once — no need to repeat a category that's also a technology.
  * github and demo are optional. Leave them as empty strings to hide their buttons.
  */

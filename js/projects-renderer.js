@@ -24,7 +24,7 @@
 (function () {
     'use strict';
 
-    const FILTER_CATEGORIES = ['iOS', 'React Native', 'Angular', 'React', 'Backend', 'DSA'];
+    const FILTER_CATEGORIES = ['iOS', 'React Native', 'Deep Learning', 'React', 'Backend', 'DSA'];
 
     const SEARCH_PLACEHOLDERS = [
         'Show me iOS projects',
@@ -59,9 +59,9 @@
             strip: /\bios\b/gi
         },
         {
-            category: 'Angular',
-            pattern: /\bangular(?:[\s.-]*js)?\b/gi,
-            strip: /\bangular(?:[\s.-]*js)?\b/gi
+            category: 'Deep Learning',
+            pattern: /\bdeep[\s.-]*learning\b/gi,
+            strip: /\bdeep[\s.-]*learning\b/gi
         },
         {
             category: 'DSA',
@@ -86,9 +86,10 @@
         mobile: ['ios', 'react native', 'swift', 'swiftui'],
         app: ['ios', 'react native'],
         android: ['react native'],
-        ai: ['nlp', 'rag'],
-        ml: ['nlp', 'rag'],
-        genai: ['nlp', 'rag'],
+        ai: ['nlp', 'rag', 'deep learning'],
+        ml: ['nlp', 'rag', 'deep learning'],
+        genai: ['nlp', 'rag', 'deep learning'],
+        'machine learning': ['nlp', 'rag', 'deep learning'],
         db: ['mongodb'],
         database: ['mongodb'],
         node: ['node.js'],
