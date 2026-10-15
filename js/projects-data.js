@@ -83,7 +83,7 @@ window.projects = [
         id: 'mocktails',
         title: 'Velvet Pour',
         description: 'A scroll-synced mocktail shop app that enhances engagement through adaptive visual storytelling.',
-        image: '/src/images/projects/mocktails.webp',
+        image: '/src/images/projects/mocktails.png',
         imageAlt: 'Velvet Pour mocktail shop interface',
         tech_categories: ['React', 'Redux', 'GSAP'],
         github: 'https://github.com/PranavKohli24/mocktails',

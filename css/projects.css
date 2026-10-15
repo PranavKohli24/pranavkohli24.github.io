@@ -589,9 +589,7 @@ body:has(#projects.section.active) #liquid-glow {
 }
 
 #projects .project-link--ask-twin {
-    width: 100%;
     max-width: 100%;
-    margin-top: 0.4rem;
     white-space: normal;
     text-align: left;
 }
