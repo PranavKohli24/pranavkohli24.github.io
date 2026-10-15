@@ -32,7 +32,7 @@ window.projects = [
     {
         id: 'digital-locket',
         title: 'Locket',
-        description: 'Apple Swift Student Challenge winning project - a SwiftUI locket preserving 7 life memories, with procedural particle effects and Core Haptics for an interactive feel.',
+        description: 'Apple Swift Student Challenge 2026 winning project - a SwiftUI locket preserving 7 life memories, with procedural particle effects and Core Haptics for an interactive feel.',
         image: '/src/images/projects/Locket.png',
         imageAlt: 'Locket iOS app interface',
         tech_categories: ['iOS', 'Swift', 'SwiftUI', 'Core Haptics', 'MVVM'],
@@ -113,7 +113,7 @@ window.projects = [
         id: 'gpt-transformer-architecture',
         title: 'GPT Transformer Architecture',
         description: 'Studied in-depth about the famous Attention Is All You Need" research paper that introduced the Transformer architecture behind ChatGPT. Studied the complete RNN, problems with RNN, LSTM, Attention mechanism, and self attention.',
-        image: '/src/images/projects/gpt_arch.jpeg',
+        image: '/src/images/projects/gpt_arch.png',
         imageAlt: 'GPT Transformer Architecture project',
         tech_categories: ['DSA', 'Python', 'NLP', 'Deep Learning', 'LLM'],
         github: '',
