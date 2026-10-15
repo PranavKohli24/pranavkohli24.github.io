@@ -53,7 +53,7 @@ window.projects = [
         id: 'market-connect',
         title: 'MarketConnect',
         description: 'A marketplace web app connecting users with local shopkeepers for live product listings and price updates. Includes a price comparison feature across 10+ retailers and a pre-order/quick-pickup system that cut average wait time by 70% (15 to 5 minutes) during testing.',
-        image: '/src/images/projects/market-connect.webp',
+        image: '/src/images/projects/market-connect.png',
         imageAlt: 'MarketConnect interface',
         tech_categories: ['React', 'Backend', 'Node.js', 'Express', 'MongoDB'],
         github: 'https://github.com/PranavKohli24/MarketConnect',
