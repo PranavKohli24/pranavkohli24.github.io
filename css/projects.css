@@ -443,16 +443,6 @@ body:has(#projects.section.active) #liquid-glow {
     min-width: 0;
 }
 
-#projects .project-index {
-    display: block;
-    margin-bottom: 1.1rem;
-    color: var(--project-faint);
-    font-size: 0.92rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    font-variant-numeric: tabular-nums;
-}
-
 #projects .project-eyebrow {
     display: block;
     margin-bottom: 0.85rem;
@@ -633,11 +623,6 @@ body:has(#projects.section.active) #liquid-glow {
     #projects .project-row-media {
         flex-basis: auto;
         aspect-ratio: 16 / 10;
-    }
-
-    #projects .project-index {
-        margin-bottom: 0.9rem;
-        font-size: 0.82rem;
     }
 
     #projects .project-row-title {

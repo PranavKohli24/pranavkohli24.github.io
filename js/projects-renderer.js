@@ -339,15 +339,11 @@ const links = [
     askTwinLink
 ].filter(Boolean).join('');
 
-            const indexLabel = String(index + 1).padStart(2, '0');
-
             return `
                 <article class="project-row" data-project-id="${escapeHTML(project.id || '')}">
                     <div class="project-row-media">${thumbnail}</div>
 
                     <div class="project-row-content">
-                        <span class="project-index" aria-hidden="true">${indexLabel}</span>
-
                         <h2 class="project-row-title">${title}</h2>
 
                         <p class="project-row-description">${description}</p>
