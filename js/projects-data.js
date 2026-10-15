@@ -87,7 +87,7 @@ window.projects = [
         imageAlt: 'Velvet Pour mocktail shop interface',
         tech_categories: ['React', 'Redux', 'GSAP'],
         github: 'https://github.com/PranavKohli24/mocktails',
-        demo: 'https://www.sipwithpranav.app'
+        demo: 'https://sipbypranav.vercel.app/'
     },
     {
         id: 'grateful-moments',
@@ -108,5 +108,25 @@ window.projects = [
         tech_categories: ['React', 'Backend', 'Next.js', 'Node.js', 'Express', 'MongoDB', 'Socket.io'],
         github: '',
         demo: 'https://youtu.be/aN6EdAvwAhQ'
+    },
+    {
+        id: 'gpt-transformer-architecture',
+        title: 'GPT Transformer Architecture',
+        description: 'An in-depth study and hands-on exploration of "Attention Is All You Need," the research paper that introduced the Transformer architecture underlying ChatGPT.',
+        image: '/src/images/projects/gpt-transformer-architecture.webp',
+        imageAlt: 'GPT Transformer Architecture project',
+        tech_categories: ['DSA', 'Python', 'NLP', 'Deep Learning', 'LLM'],
+        github: '',
+        demo: 'https://colab.research.google.com/drive/1r-Wum3YDymHeanmgQVAdqAm3x_IJkCDn?usp=sharing'
+    },
+    {
+        id: 'scratch-neural-network',
+        title: 'Scratch NeuralNetwork',
+        description: 'A neural network built entirely from scratch in NumPy (no TensorFlow/PyTorch) for MNIST digit classification - a 2-layer feedforward net with ReLU/Softmax, He initialization, and SGD, reaching 80% test accuracy.',
+        image: '/src/images/projects/scratch_neuralnet.png',
+        imageAlt: 'Scratch NeuralNetwork project',
+        tech_categories: ['DSA', 'Python', 'NumPy', 'Deep Learning'],
+        github: '',
+        demo: 'https://www.kaggle.com/code/pranavkohli2410/implementing-neural-networks-mnist'
     }
 ];
