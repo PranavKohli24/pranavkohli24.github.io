@@ -66,7 +66,7 @@ window.projects = [
         image: '/src/images/projects/market-connect.png',
         imageAlt: 'MarketConnect interface',
         tech_categories: ['React', 'Backend', 'Node.js', 'Express', 'MongoDB'],
-        github: 'https://github.com/PranavKohli24/MarketConnect',
+        github: 'https://github.com/PranavKohli24/MarketConnect/tree/new_branch',
         demo: ''
     },
     {

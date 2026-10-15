@@ -162,6 +162,17 @@
 
         if (!list || !filters) return;
 
+        function focusInputWithoutKeyboard() {
+            if (!searchInput) return;
+
+            searchInput.setAttribute('readonly', 'readonly');
+            searchInput.focus();
+
+            setTimeout(() => {
+                searchInput.removeAttribute('readonly');
+            }, 50);
+        }
+
         let activeFilter = 'All';
         let appliedQuery = '';
         let debounceTimer = null;
@@ -1393,6 +1404,25 @@ list.addEventListener('ended', event => {
         renderProjects();
         startPlaceholderRotation();
         updateGhostVisibility();
+
+        const projectsSection = document.getElementById('projects');
+
+        if (projectsSection) {
+            const focusProjectsSearch = () => {
+                if (!projectsSection.classList.contains('active')) return;
+
+                requestAnimationFrame(() => {
+                    focusInputWithoutKeyboard();
+                });
+            };
+
+            new MutationObserver(focusProjectsSearch).observe(projectsSection, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+
+            focusProjectsSearch();
+        }
     }
 
     if (document.readyState === 'loading') {
