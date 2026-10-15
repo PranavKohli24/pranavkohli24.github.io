@@ -103,7 +103,7 @@ window.projects = [
         id: 'chatrify',
         title: 'Chatrify',
         description: 'A real-time chat website with onboarding and encrypted, persistent communication for 100+ users. Integrated the Gemini API for AI message tagging and in-chat AI Q&A for intelligent 1:1 conversations.',
-        image: '/src/images/projects/chatrify.webp',
+        image: '/src/images/projects/chatrify.png',
         imageAlt: 'Chatrify real-time chat interface',
         tech_categories: ['React', 'Backend', 'Next.js', 'Node.js', 'Express', 'MongoDB', 'Socket.io'],
         github: '',
