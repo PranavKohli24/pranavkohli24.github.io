@@ -767,6 +767,7 @@ body:has(#projects.section.active) #liquid-glow {
     letter-spacing: -0.02em;
 
     display: -webkit-box;
+    line-clamp: 2; 
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
