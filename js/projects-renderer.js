@@ -312,7 +312,7 @@
             }).join('');
         }
 
-        function renderRow(project, index) {
+        function renderRow(project, index, highlightTerms) {
             const title = escapeHTML(project.title || 'Untitled project');
             const description = escapeHTML(
                 project.description || 'More details coming soon.'
@@ -353,8 +353,19 @@
                     </div>
                 `;
 
+            const terms = Array.isArray(highlightTerms) ? highlightTerms : [];
+
             const techLine = allTags.length
-                ? `<p class="project-tech-line">${escapeHTML(allTags.join('  ·  '))}</p>`
+                ? `<p class="project-tech-line">${
+                    allTags.map(tag => {
+                        const tagLower = String(tag).toLowerCase();
+                        const isMatch = terms.some(term => tagLower === term || tagLower.includes(term));
+
+                        return isMatch
+                            ? `<span class="project-tech-tag--matched">${escapeHTML(tag)}</span>`
+                            : escapeHTML(tag);
+                    }).join('  ·  ')
+                }</p>`
                 : '';
             const askTwinLink = `
     <a
@@ -497,8 +508,13 @@ const links = [
                     .sort((a, b) => b.score - a.score || a.index - b.index)
                     .map(entry => entry.project);
             }
+            const highlightTerms = [
+                ...inferredCategories,
+                ...parsed.keywords.flatMap(k => [k, ...(SYNONYMS[k] || [])])
+            ];
+
             list.innerHTML = visibleProjects.length
-                ? visibleProjects.map((project, index) => renderRow(project, index)).join('')
+                ? visibleProjects.map((project, index) => renderRow(project, index, highlightTerms)).join('')
                 : `
                     <div class="projects-empty-state">
                         <span class="projects-empty-icon" aria-hidden="true">⌕</span>

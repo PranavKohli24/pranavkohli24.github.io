@@ -522,6 +522,11 @@ body:has(#projects.section.active) #liquid-glow {
     line-height: 1.7;
 }
 
+.project-tech-tag--matched {
+    color: var(--text-primary, #111);
+    font-weight: 600;
+}
+
 /* Links — same horizontal-slide motion as the site's own nav
    links, so the interaction language matches throughout. */
 
