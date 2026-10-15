@@ -27,6 +27,9 @@ body:has(#projects.section.active) #liquid-glow {
        white so it reads as a quiet tint, never the full laser hue. */
     --project-accent: color-mix(in srgb, var(--highlight-color, #5d00f7) 34%, white);
     --project-accent-soft: color-mix(in srgb, var(--highlight-color, #5d00f7) 8%, white);
+    /* A deeper lavender for text/icon hover states, where the pastel
+       underline tint reads too faint against white to stay legible. */
+    --project-accent-strong: color-mix(in srgb, var(--highlight-color, #5d00f7) 62%, white);
 
     /* Shared elevation tokens — used by the search field and the
        project cards so hover/focus states feel like one system. */
@@ -125,7 +128,7 @@ body:has(#projects.section.active) #liquid-glow {
 }
 
 #projects .projects-search-field:focus-within .projects-search-icon {
-    color: var(--highlight-color);
+    color: var(--project-accent-strong);
 }
 
 #projects .projects-search-input-wrap {
@@ -260,9 +263,10 @@ body:has(#projects.section.active) #liquid-glow {
 }
 
 #projects .projects-search-submit:hover {
-    background: var(--highlight-color);
+    background: var(--project-accent-strong);
+    color: #fff;
     transform: translateY(-1px);
-    box-shadow: 0 8px 18px -6px rgba(93, 0, 247, 0.45);
+    box-shadow: 0 8px 18px -6px rgba(93, 0, 247, 0.35);
 }
 
 #projects .projects-search-submit:active {
@@ -560,7 +564,7 @@ body:has(#projects.section.active) #liquid-glow {
 }
 
 #projects .project-link:hover {
-    color: var(--highlight-color);
+    color: var(--project-accent-strong);
     transform: translateX(4px);
 }
 
