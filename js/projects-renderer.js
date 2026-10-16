@@ -1410,6 +1410,19 @@ list.addEventListener('pointercancel', endScrub);
             updateFullscreenIcon(stage, isFullscreen);
             stage.classList.toggle('is-fullscreen', isFullscreen);
         });
+
+        // Mobile only, and only where supported (mainly Android
+        // Chrome — iOS Safari has no orientation-lock API, so this
+        // silently does nothing there and the person just rotates
+        // manually). Never blocks or breaks fullscreen itself if the
+        // lock call fails or isn't available.
+        if (fsEl && screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => {});
+        } else if (!fsEl && screen.orientation && screen.orientation.unlock) {
+            try {
+                screen.orientation.unlock();
+            } catch (_) {}
+        }
     });
 });
 
