@@ -754,12 +754,21 @@ body:has(#projects.section.active) #liquid-glow {
 #projects .project-video-time {
     flex: 0 0 auto;
     padding: 0 0.15rem;
+    border: 0;
+    background: transparent;
     color: #fff;
+    font: inherit;
     font-size: 0.66rem;
     font-weight: 700;
     letter-spacing: 0.01em;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+    cursor: pointer;
+    transition: color 160ms ease;
+}
+
+#projects .project-video-time:hover {
+    color: var(--project-accent, #c7b2f7);
 }
 
 #projects .project-video-progress::before {

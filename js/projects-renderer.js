@@ -689,6 +689,7 @@
 
         const idleTimers = new WeakMap();
 const clickTimers = new WeakMap();
+const showRemainingTime = new WeakMap();
 let lastActiveStage = null;
 
 function formatTime(seconds) {
@@ -737,7 +738,13 @@ function updateTimeDisplay(stage, videoEl) {
     const timeEl = stage && stage.querySelector('[data-video-time]');
     if (!timeEl || !videoEl) return;
     const duration = isFinite(videoEl.duration) ? videoEl.duration : 0;
-    timeEl.textContent = `${formatTime(videoEl.currentTime)} / ${formatTime(duration)}`;
+
+    if (stage && showRemainingTime.get(stage)) {
+        const remaining = Math.max(0, duration - videoEl.currentTime);
+        timeEl.textContent = `-${formatTime(remaining)} / ${formatTime(duration)}`;
+    } else {
+        timeEl.textContent = `${formatTime(videoEl.currentTime)} / ${formatTime(duration)}`;
+    }
 }
 
 function updateBuffered(stage, videoEl) {
@@ -895,7 +902,13 @@ function wakeControls(stage) {
                                 </div>
                             </div>
 
-                            <span class="project-video-time" data-video-time>0:00 / 0:00</span>
+                            <button
+                                type="button"
+                                class="project-video-time"
+                                data-video-time
+                                data-video-time-toggle
+                                aria-label="Toggle remaining time"
+                            >0:00 / 0:00</button>
 
                             <button
                                 type="button"
@@ -1325,6 +1338,19 @@ list.addEventListener('click', event => {
         return;
     }
 
+    const timeToggle = event.target.closest('[data-video-time-toggle]');
+    if (timeToggle) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const stage = timeToggle.closest('[data-video-stage]');
+        const videoEl = stage && stage.querySelector('[data-project-video]');
+        if (!stage || !videoEl) return;
+
+        showRemainingTime.set(stage, !showRemainingTime.get(stage));
+        updateTimeDisplay(stage, videoEl);
+        return;
+    }
     const backBtn = event.target.closest('[data-video-back-projects]');
     if (backBtn) {
         event.preventDefault();
