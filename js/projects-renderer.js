@@ -825,7 +825,7 @@ function wakeControls(stage) {
                             data-project-video
                             muted
                             playsinline
-                            preload="none"
+                            preload="metadata"
                             disablepictureinpicture
                             controlslist="nodownload noremoteplayback noplaybackrate"
                         ></video>
@@ -1212,6 +1212,21 @@ list.addEventListener('click', event => {
 // Delegated on the list so it keeps working across re-renders
 // (filtering/search rebuild the DOM, individual listeners would not
 // survive that).
+
+// Prime the video as soon as the cursor enters the card — before it
+// reaches the actual video stage — so buffering has a head start by
+// the time startPreview() fires.
+list.addEventListener('mouseover', event => {
+    const row = event.target.closest('.project-row');
+    if (!row || row.contains(event.relatedTarget)) return;
+
+    const videoEl = row.querySelector('[data-project-video]');
+    if (!videoEl || videoEl.dataset.primed) return;
+
+    videoEl.dataset.primed = 'true';
+    videoEl.preload = 'auto';
+    videoEl.load();
+});
 
 // mouseover/mouseout + a relatedTarget check stands in for
 // mouseenter/mouseleave here, since delegation needs bubbling events
