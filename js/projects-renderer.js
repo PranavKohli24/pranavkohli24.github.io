@@ -1380,6 +1380,7 @@ list.addEventListener('pointerdown', event => {
 
     scrubbingBars.set(progressEl, videoEl);
     progressEl.classList.add('is-scrubbing');
+    if (stage) stage.classList.remove('is-buffering');
 
     if (progressEl.setPointerCapture) {
         progressEl.setPointerCapture(event.pointerId);
@@ -1639,12 +1640,20 @@ list.addEventListener('progress', event => {
     updateBuffered(videoEl.closest('[data-video-stage]'), videoEl);
 }, true);
 
-// Buffering spinner — only while actually in full playback.
+// Buffering spinner — only while actually in full playback, and
+// never while someone is still mid-drag on the progress bar (every
+// seek during a scrub briefly fires 'waiting', which would otherwise
+// flash the spinner on each drag step before they've even let go).
 list.addEventListener('waiting', event => {
     const videoEl = event.target;
     if (!videoEl || !videoEl.matches('[data-project-video]')) return;
     const stage = videoEl.closest('[data-video-stage]');
-    if (stage && stage.classList.contains('is-active')) stage.classList.add('is-buffering');
+    if (!stage || !stage.classList.contains('is-active')) return;
+
+    const progressEl = stage.querySelector('[data-video-progress]');
+    if (progressEl && progressEl.classList.contains('is-scrubbing')) return;
+
+    stage.classList.add('is-buffering');
 }, true);
 
 list.addEventListener('playing', event => {
