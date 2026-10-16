@@ -729,7 +729,7 @@ function wakeControls(stage) {
                             type="button"
                             class="project-video-back-projects"
                             data-video-back-projects
-                        >Back to projects!</button>
+                        >Back to all projects</button>
 
                         ${thumbnail}
                         <video
