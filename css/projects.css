@@ -672,6 +672,34 @@ body:has(#projects.section.active) #liquid-glow {
     transform: translateY(-50%) scale(1);
 }
 
+/* AFTER — new block */
+#projects .project-seek-flash {
+    position: absolute;
+    top: 50%;
+    z-index: 4;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(10, 10, 10, 0.6);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-50%) scale(0.92);
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+#projects .project-seek-flash.is-visible {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+}
+
+#projects .project-seek-flash--forward { right: 18%; }
+#projects .project-seek-flash--backward { left: 18%; }
+
 /* While actively dragging, the track and fill thicken slightly for a
    more confident grab target and clearer feedback. */
 #projects .project-video-progress.is-scrubbing::before,

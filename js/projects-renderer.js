@@ -1203,17 +1203,49 @@ list.addEventListener('pointercancel', endScrub);
 
 // Click/tap promotes the same video to a real, controllable player —
 // our own control bar takes over from here, not the browser's.
+// AFTER — insert this right below it:
 list.addEventListener('click', event => {
     const stage = event.target.closest('[data-video-stage]');
     if (!stage || stage.classList.contains('is-active')) return;
+    const videoEl = stage.querySelector('[data-project-video]');
+    if (!videoEl) return;
+    event.preventDefault();
+    startFullPlayback(videoEl);
+});
 
-    // Clicking a link inside the content area (demo/source/ask-twin)
-    // should behave normally — this only concerns the media stage.
+function flashSeek(stage, direction) {
+    if (!stage) return;
+
+    const flash = document.createElement('div');
+    flash.className = `project-seek-flash project-seek-flash--${direction}`;
+    flash.textContent = direction === 'forward' ? '+5s' : '-5s';
+    stage.appendChild(flash);
+
+    requestAnimationFrame(() => flash.classList.add('is-visible'));
+    setTimeout(() => flash.remove(), 500);
+}
+
+// Double-tap/double-click left or right half of an ACTIVE player to
+// seek ±5s, YouTube-style. Only applies once in full playback — the
+// first tap/click is already spent promoting the stage to active.
+list.addEventListener('dblclick', event => {
+    const stage = event.target.closest('[data-video-stage]');
+    if (!stage || !stage.classList.contains('is-active')) return;
+
     const videoEl = stage.querySelector('[data-project-video]');
     if (!videoEl) return;
 
     event.preventDefault();
-    startFullPlayback(videoEl);
+    event.stopPropagation();
+
+    const rect = stage.getBoundingClientRect();
+    const isRightHalf = (event.clientX - rect.left) > rect.width / 2;
+    const delta = isRightHalf ? 5 : -5;
+    const max = isFinite(videoEl.duration) ? videoEl.duration : Infinity;
+
+    videoEl.currentTime = Math.min(Math.max(0, videoEl.currentTime + delta), max);
+
+    flashSeek(stage, isRightHalf ? 'forward' : 'backward');
 });
 
 // Keep the progress bar and play/pause icon in sync with real
