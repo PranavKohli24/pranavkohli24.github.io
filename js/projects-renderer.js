@@ -685,6 +685,7 @@
         // capture means pointermove/pointerup keep firing on the bar
         // itself even once the cursor/finger drifts outside it.
         const scrubbingBars = new WeakMap();
+        const wasPlayingBeforeScrub = new WeakMap();
 
         const idleTimers = new WeakMap();
 const clickTimers = new WeakMap();
@@ -1383,6 +1384,12 @@ list.addEventListener('pointerdown', event => {
     progressEl.classList.remove('is-touch-ended');
     if (stage) stage.classList.remove('is-buffering');
 
+    // Pause while dragging so the frame only moves in response to the
+    // scrub itself, not also advancing on its own underneath it.
+    // Resume (only if it was actually playing) once the drag ends.
+    wasPlayingBeforeScrub.set(progressEl, !videoEl.paused);
+    videoEl.pause();
+
     if (progressEl.setPointerCapture) {
         progressEl.setPointerCapture(event.pointerId);
     }
@@ -1453,8 +1460,15 @@ function endScrub(event) {
     const progressEl = event.target.closest('[data-video-progress]');
     if (!progressEl || !scrubbingBars.has(progressEl)) return;
 
+    const videoEl = scrubbingBars.get(progressEl);
+
     scrubbingBars.delete(progressEl);
     progressEl.classList.remove('is-scrubbing');
+
+    if (videoEl && wasPlayingBeforeScrub.get(progressEl)) {
+        videoEl.play();
+    }
+    wasPlayingBeforeScrub.delete(progressEl);
 
     // Touch/pen has no real hover state to fall back on once the
     // finger lifts, so force the tooltip closed immediately instead
