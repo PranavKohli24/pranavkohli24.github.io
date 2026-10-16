@@ -512,6 +512,58 @@ body:has(#projects.section.active) #liquid-glow {
 #projects .project-play-btn svg {
     transform: translateX(1px);
 }
+/* Center play/pause flash — our own rounded-square glow badge
+   (not YouTube's circle), pulsing briefly on every toggle. */
+#projects .project-video-center-flash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.6rem;
+    height: 3.6rem;
+    border-radius: 20px;
+    background: rgba(10, 10, 10, 0.55);
+    color: #fff;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.82);
+    transition: opacity 260ms ease, transform 260ms ease, box-shadow 400ms ease;
+}
+
+#projects .project-video-center-flash.is-visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 0 10px rgba(93, 0, 247, 0), 0 0 24px -4px var(--project-accent-strong);
+    transition: opacity 180ms ease, transform 180ms ease, box-shadow 500ms ease;
+}
+
+#projects .project-video-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 5;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 2.5px solid rgba(255, 255, 255, 0.28);
+    border-top-color: var(--project-accent, #c7b2f7);
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity 180ms ease;
+    animation: project-spin 850ms linear infinite;
+}
+
+#projects .project-media-stage.is-buffering .project-video-spinner {
+    opacity: 1;
+}
+
+@keyframes project-spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
 
 /* Visible on hover (desktop) so people know a clip exists before they
    commit to hovering long enough to trigger the preview. */
@@ -569,6 +621,15 @@ body:has(#projects.section.active) #liquid-glow {
     display: flex;
     opacity: 1;
     transform: translateY(0);
+}
+#projects .project-media-stage.is-active.is-idle .project-video-controls {
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+}
+
+#projects .project-media-stage.is-idle {
+    cursor: none;
 }
 
 #projects .project-video-toggle,
@@ -628,6 +689,55 @@ body:has(#projects.section.active) #liquid-glow {
        browser's own touch-scroll/selection gestures from fighting
        the drag on touch devices. */
     touch-action: none;
+}
+#projects .project-video-progress-buffered {
+    position: absolute;
+    left: 0;
+    height: 0.28rem;
+    width: 0%;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    transition: width 200ms ease, height 120ms ease;
+}
+
+#projects .project-video-progress.is-scrubbing .project-video-progress-buffered {
+    height: 0.36rem;
+}
+
+#projects .project-video-tooltip {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    z-index: 2;
+    padding: 0.15rem 0.45rem;
+    border-radius: 7px;
+    background: rgba(10, 10, 10, 0.78);
+    color: #fff;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-50%) translateY(2px);
+    transition: opacity 140ms ease, transform 140ms ease;
+}
+
+#projects .project-video-progress:hover .project-video-tooltip,
+#projects .project-video-progress.is-scrubbing .project-video-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+#projects .project-video-time {
+    flex: 0 0 auto;
+    padding: 0 0.15rem;
+    color: #fff;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 
 #projects .project-video-progress::before {
@@ -695,6 +805,7 @@ body:has(#projects.section.active) #liquid-glow {
 #projects .project-seek-flash.is-visible {
     opacity: 1;
     transform: translateY(-50%) scale(1);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 22px -2px var(--project-accent-strong);
 }
 
 #projects .project-seek-flash--forward { right: 18%; }

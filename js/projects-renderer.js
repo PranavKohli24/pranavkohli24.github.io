@@ -487,11 +487,17 @@
 
             if (stage) {
                 exitFullscreenIfActive(stage);
-
-                stage.classList.remove('is-previewing', 'is-active');
+                stage.classList.remove('is-previewing', 'is-active', 'is-idle', 'is-buffering');
+                clearTimeout(idleTimers.get(stage));
 
                 const fill = stage.querySelector('[data-video-progress-fill]');
                 if (fill) fill.style.width = '0%';
+
+                const bufferedEl = stage.querySelector('[data-video-buffered]');
+                if (bufferedEl) bufferedEl.style.width = '0%';
+
+                const timeEl = stage.querySelector('[data-video-time]');
+                if (timeEl) timeEl.textContent = '0:00 / 0:00';
 
                 // In case a reset (scrolled off-screen, finished, etc.)
                 // happens mid-drag, make sure the bar doesn't get stuck
@@ -506,6 +512,8 @@
                 updateMuteIcon(stage, true);
                 updateSpeedLabel(stage, 1);
             }
+
+            if (lastActiveStage === stage) lastActiveStage = null;
 
             if (activeVideoEl === videoEl) {
                 activeVideoEl = null;
@@ -560,6 +568,8 @@
                 stage.classList.add('is-active');
                 updateMuteIcon(stage, false);
                 updatePlayIcon(stage, false);
+                lastActiveStage = stage;
+                wakeControls(stage);
             }
 
             const playPromise = videoEl.play();
@@ -578,21 +588,93 @@
 
             const rect = progressEl.getBoundingClientRect();
             const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+            const seekTime = ratio * videoEl.duration;
 
-            videoEl.currentTime = ratio * videoEl.duration;
+            videoEl.currentTime = seekTime;
 
-            // Updated directly rather than waiting on the next
-            // 'timeupdate' tick, so the thumb tracks the pointer with
-            // no visible lag while dragging.
             const fill = progressEl.querySelector('[data-video-progress-fill]');
             if (fill) fill.style.width = `${ratio * 100}%`;
-        }
 
+            const tooltip = progressEl.querySelector('[data-video-tooltip]');
+            if (tooltip) {
+                tooltip.textContent = formatTime(seekTime);
+                tooltip.style.left = `${ratio * 100}%`;
+            }
+
+            updateTimeDisplay(progressEl.closest('[data-video-stage]'), videoEl);
+        }
+    
         // Scrubbing state: which progress bar (if any) is currently
         // being dragged, and which video it belongs to. Pointer
         // capture means pointermove/pointerup keep firing on the bar
         // itself even once the cursor/finger drifts outside it.
         const scrubbingBars = new WeakMap();
+
+        const idleTimers = new WeakMap();
+const clickTimers = new WeakMap();
+let lastActiveStage = null;
+
+function formatTime(seconds) {
+    if (!isFinite(seconds) || seconds < 0) seconds = 0;
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${String(secs).padStart(2, '0')}`;
+}
+
+function updateTimeDisplay(stage, videoEl) {
+    const timeEl = stage && stage.querySelector('[data-video-time]');
+    if (!timeEl || !videoEl) return;
+    const duration = isFinite(videoEl.duration) ? videoEl.duration : 0;
+    timeEl.textContent = `${formatTime(videoEl.currentTime)} / ${formatTime(duration)}`;
+}
+
+function updateBuffered(stage, videoEl) {
+    const bufferedEl = stage && stage.querySelector('[data-video-buffered]');
+    if (!bufferedEl || !videoEl || !isFinite(videoEl.duration) || videoEl.duration <= 0) return;
+    const ranges = videoEl.buffered;
+    if (!ranges.length) return;
+    const end = ranges.end(ranges.length - 1);
+    bufferedEl.style.width = `${Math.min(100, (end / videoEl.duration) * 100)}%`;
+}
+
+function showCenterFlash(stage, type) {
+    if (!stage) return;
+    const flashEl = stage.querySelector('[data-video-center-flash]');
+    if (!flashEl) return;
+
+    flashEl.innerHTML = type === 'play' ? ICONS.play : ICONS.pause;
+    flashEl.classList.remove('is-visible');
+    void flashEl.offsetWidth; // restart animation on rapid re-toggles
+    flashEl.classList.add('is-visible');
+
+    clearTimeout(flashEl._hideTimer);
+    flashEl._hideTimer = setTimeout(() => flashEl.classList.remove('is-visible'), 500);
+}
+
+function togglePlayback(stage, videoEl) {
+    if (!videoEl) return;
+
+    if (videoEl.paused) {
+        videoEl.play();
+        showCenterFlash(stage, 'pause');
+    } else {
+        videoEl.pause();
+        showCenterFlash(stage, 'play');
+    }
+}
+
+// Controls auto-hide while actively playing — any pointer movement
+// or a pause brings them straight back.
+function wakeControls(stage) {
+    if (!stage) return;
+    stage.classList.remove('is-idle');
+    clearTimeout(idleTimers.get(stage));
+
+    const videoEl = stage.querySelector('[data-project-video]');
+    if (!stage.classList.contains('is-active') || !videoEl || videoEl.paused) return;
+
+    idleTimers.set(stage, setTimeout(() => stage.classList.add('is-idle'), 2500));
+}
     
         function renderRow(project, index, highlightTerms) {
             const title = escapeHTML(project.title || 'Untitled project');
@@ -661,6 +743,9 @@
                             aria-label="Play video of ${title}"
                         >${ICONS.play}</button>
 
+                        <div class="project-video-spinner" data-video-spinner aria-hidden="true"></div>
+                        <div class="project-video-center-flash" data-video-center-flash aria-hidden="true"></div>
+
                         <!-- Our own minimal controls — shown only once
                              someone has clicked into the full player.
                              No native browser chrome, no PiP button. -->
@@ -673,8 +758,12 @@
                             >${ICONS.pause}</button>
 
                             <div class="project-video-progress" data-video-progress>
+                                <div class="project-video-progress-buffered" data-video-buffered></div>
                                 <div class="project-video-progress-fill" data-video-progress-fill></div>
+                                <div class="project-video-tooltip" data-video-tooltip>0:00</div>
                             </div>
+
+                            <span class="project-video-time" data-video-time>0:00 / 0:00</span>
 
                             <button
                                 type="button"
@@ -1174,6 +1263,35 @@ list.addEventListener('pointermove', event => {
 
     seekFromPointer(videoEl, progressEl, event.clientX);
 });
+// Hover-preview tooltip — shows the time at the pointer position
+// even before anyone starts dragging.
+list.addEventListener('pointermove', event => {
+    const progressEl = event.target.closest('[data-video-progress]');
+    if (!progressEl || scrubbingBars.has(progressEl)) return;
+
+    const stage = progressEl.closest('[data-video-stage]');
+    const videoEl = stage && stage.querySelector('[data-project-video]');
+    if (!videoEl || !isFinite(videoEl.duration) || videoEl.duration <= 0) return;
+
+    const rect = progressEl.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+    const tooltip = progressEl.querySelector('[data-video-tooltip]');
+    if (tooltip) {
+        tooltip.textContent = formatTime(ratio * videoEl.duration);
+        tooltip.style.left = `${ratio * 100}%`;
+    }
+}, { passive: true });
+
+// Wakes the control bar on any pointer activity over an active stage.
+list.addEventListener('pointermove', event => {
+    const stage = event.target.closest('[data-video-stage]');
+    if (stage) wakeControls(stage);
+}, { passive: true });
+
+list.addEventListener('pointerdown', event => {
+    const stage = event.target.closest('[data-video-stage]');
+    if (stage) wakeControls(stage);
+}, { passive: true });
 
 function endScrub(event) {
     const progressEl = event.target.closest('[data-video-progress]');
@@ -1201,16 +1319,90 @@ list.addEventListener('pointercancel', endScrub);
     });
 });
 
+// Space/K toggle, arrows seek ±5s, M mutes, F toggles full screen —
+// scoped to whichever video is currently the active player.
+document.addEventListener('keydown', event => {
+    if (!lastActiveStage || !lastActiveStage.classList.contains('is-active')) return;
+
+    const tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+    const videoEl = lastActiveStage.querySelector('[data-project-video]');
+    if (!videoEl) return;
+
+    switch (event.key) {
+        case ' ':
+        case 'k':
+        case 'K':
+            event.preventDefault();
+            togglePlayback(lastActiveStage, videoEl);
+            wakeControls(lastActiveStage);
+            break;
+        case 'ArrowRight': {
+            const max = isFinite(videoEl.duration) ? videoEl.duration : Infinity;
+            videoEl.currentTime = Math.min(videoEl.currentTime + 5, max);
+            flashSeek(lastActiveStage, 'forward');
+            wakeControls(lastActiveStage);
+            break;
+        }
+        case 'ArrowLeft':
+            videoEl.currentTime = Math.max(videoEl.currentTime - 5, 0);
+            flashSeek(lastActiveStage, 'backward');
+            wakeControls(lastActiveStage);
+            break;
+        case 'm':
+        case 'M':
+            videoEl.muted = !videoEl.muted;
+            updateMuteIcon(lastActiveStage, videoEl.muted);
+            wakeControls(lastActiveStage);
+            break;
+        case 'f':
+        case 'F': {
+            const fsEl = document.fullscreenElement || document.webkitFullscreenElement
+                || document.mozFullScreenElement || document.msFullscreenElement;
+            if (fsEl === lastActiveStage) {
+                const exit = document.exitFullscreen || document.webkitExitFullscreen
+                    || document.mozCancelFullScreen || document.msExitFullscreen;
+                if (exit) exit.call(document);
+            } else {
+                const request = lastActiveStage.requestFullscreen || lastActiveStage.webkitRequestFullscreen
+                    || lastActiveStage.mozRequestFullScreen || lastActiveStage.msRequestFullscreen;
+                if (request) request.call(lastActiveStage);
+            }
+            break;
+        }
+        default:
+            return;
+    }
+});
+
 // Click/tap promotes the same video to a real, controllable player —
 // our own control bar takes over from here, not the browser's.
 // AFTER — insert this right below it:
 list.addEventListener('click', event => {
     const stage = event.target.closest('[data-video-stage]');
-    if (!stage || stage.classList.contains('is-active')) return;
+    if (!stage) return;
+
     const videoEl = stage.querySelector('[data-project-video]');
     if (!videoEl) return;
+
+    if (!stage.classList.contains('is-active')) {
+        event.preventDefault();
+        startFullPlayback(videoEl);
+        return;
+    }
+
+    // Already playing: a plain click toggles play/pause, delayed
+    // briefly so a second click (a double-click/tap) can cancel it
+    // and hand off to the seek behaviour below instead.
+    if (event.target.closest('[data-video-controls]')) return;
+
     event.preventDefault();
-    startFullPlayback(videoEl);
+    clearTimeout(clickTimers.get(stage));
+    clickTimers.set(stage, setTimeout(() => {
+        clickTimers.delete(stage);
+        togglePlayback(stage, videoEl);
+    }, 220));
 });
 
 function flashSeek(stage, direction) {
@@ -1234,9 +1426,11 @@ list.addEventListener('dblclick', event => {
 
     const videoEl = stage.querySelector('[data-project-video]');
     if (!videoEl) return;
-
     event.preventDefault();
     event.stopPropagation();
+
+    clearTimeout(clickTimers.get(stage));
+    clickTimers.delete(stage);
 
     const rect = stage.getBoundingClientRect();
     const isRightHalf = (event.clientX - rect.left) > rect.width / 2;
@@ -1261,20 +1455,55 @@ list.addEventListener('timeupdate', event => {
     if (fill && isFinite(videoEl.duration) && videoEl.duration > 0) {
         fill.style.width = `${(videoEl.currentTime / videoEl.duration) * 100}%`;
     }
+
+    updateTimeDisplay(stage, videoEl);
+    updateBuffered(stage, videoEl);
+}, true);
+
+list.addEventListener('loadedmetadata', event => {
+    const videoEl = event.target;
+    if (!videoEl || !videoEl.matches('[data-project-video]')) return;
+    updateTimeDisplay(videoEl.closest('[data-video-stage]'), videoEl);
+}, true);
+
+list.addEventListener('progress', event => {
+    const videoEl = event.target;
+    if (!videoEl || !videoEl.matches('[data-project-video]')) return;
+    updateBuffered(videoEl.closest('[data-video-stage]'), videoEl);
+}, true);
+
+// Buffering spinner — only while actually in full playback.
+list.addEventListener('waiting', event => {
+    const videoEl = event.target;
+    if (!videoEl || !videoEl.matches('[data-project-video]')) return;
+    const stage = videoEl.closest('[data-video-stage]');
+    if (stage && stage.classList.contains('is-active')) stage.classList.add('is-buffering');
+}, true);
+
+list.addEventListener('playing', event => {
+    const videoEl = event.target;
+    if (!videoEl || !videoEl.matches('[data-project-video]')) return;
+    const stage = videoEl.closest('[data-video-stage]');
+    if (stage) stage.classList.remove('is-buffering');
 }, true);
 
 list.addEventListener('play', event => {
     const videoEl = event.target;
     if (!videoEl || !videoEl.matches('[data-project-video]')) return;
-
-    updatePlayIcon(videoEl.closest('[data-video-stage]'), false);
+    const stage = videoEl.closest('[data-video-stage]');
+    updatePlayIcon(stage, false);
+    wakeControls(stage);
 }, true);
 
 list.addEventListener('pause', event => {
     const videoEl = event.target;
     if (!videoEl || !videoEl.matches('[data-project-video]')) return;
-
-    updatePlayIcon(videoEl.closest('[data-video-stage]'), true);
+    const stage = videoEl.closest('[data-video-stage]');
+    updatePlayIcon(stage, true);
+    if (stage) {
+        stage.classList.remove('is-idle');
+        clearTimeout(idleTimers.get(stage));
+    }
 }, true);
 
 // A video that finishes on its own — preview or fully watched —
