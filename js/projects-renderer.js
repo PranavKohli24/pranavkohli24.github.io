@@ -725,6 +725,12 @@ function wakeControls(stage) {
             const media = video
                 ? `
                     <div class="project-media-stage" data-video-stage>
+                        <button
+                            type="button"
+                            class="project-video-back-projects"
+                            data-video-back-projects
+                        >Back to projects!</button>
+
                         ${thumbnail}
                         <video
                             class="project-preview-video"
@@ -1200,6 +1206,14 @@ list.addEventListener('click', event => {
         return;
     }
 
+    const backBtn = event.target.closest('[data-video-back-projects]');
+    if (backBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+        exitFullscreenIfActive(backBtn.closest('[data-video-stage]'));
+        return;
+    }
+
     const fsBtn = event.target.closest('[data-video-fullscreen]');
     if (fsBtn) {
         event.preventDefault();
@@ -1314,7 +1328,10 @@ list.addEventListener('pointercancel', endScrub);
             || document.msFullscreenElement;
 
         list.querySelectorAll('[data-video-stage]').forEach(stage => {
-            updateFullscreenIcon(stage, stage === fsEl);
+            const isFullscreen = stage === fsEl;
+
+            updateFullscreenIcon(stage, isFullscreen);
+            stage.classList.toggle('is-fullscreen', isFullscreen);
         });
     });
 });

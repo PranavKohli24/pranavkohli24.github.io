@@ -1337,3 +1337,51 @@ body:has(#projects.section.active) #liquid-glow {
         padding: 0;
     }
 }
+
+#projects .project-video-back-projects {
+    display: none !important;
+}
+
+#projects .project-media-stage:fullscreen .project-video-back-projects,
+#projects .project-media-stage:-webkit-full-screen .project-video-back-projects {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 1.25rem);
+    left: calc(env(safe-area-inset-left, 0px) + 1.25rem);
+    z-index: 10;
+
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.15rem;
+
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 999px;
+    background: linear-gradient(
+        135deg,
+        var(--project-accent-strong),
+        var(--project-accent)
+    );
+    color: #21133b;
+
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    box-shadow: 0 8px 26px rgba(20, 8, 50, 0.35);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+
+    transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+#projects .project-media-stage:fullscreen .project-video-back-projects:hover,
+#projects .project-media-stage:-webkit-full-screen .project-video-back-projects:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(20, 8, 50, 0.45);
+}
+
+#projects .project-video-back-projects:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 4px;
+}
