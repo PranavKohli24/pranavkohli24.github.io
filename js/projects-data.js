@@ -34,7 +34,7 @@ window.projects = [
         description: 'An Indian cuisine recipe generator with 500+ dishes, attracting and retaining 10,000+ users. Features text + image search, a "cook what you have" mode, Swiggy/Instamart ordering via MCP, and an AI cooking companion that answers context-aware questions about the dish you\'re making.',
         image: '/src/images/projects/rasoi-bazaar.png',
         imageAlt: 'Rasoi Bazaar recipe discovery interface',
-        video: '/src/images/projects/rasoi-demo.mp4',
+        // video: '/src/images/projects/rasoi-demo.mp4',
         tech_categories: ['React', 'Backend', 'Node.js', 'Elastic Search', 'NLP', 'RAG'],
         github: '',
         demo: 'http://rasoi-bazaar.vercel.app/'
@@ -115,6 +115,7 @@ window.projects = [
         description: 'A real-time chat website with onboarding and encrypted, persistent communication for 100+ users. Integrated the Gemini API for AI message tagging and in-chat AI Q&A for intelligent 1:1 conversations.',
         image: '/src/images/projects/chatrify.png',
         imageAlt: 'Chatrify real-time chat interface',
+        video: '/src/images/projects/chatrify-demo.mp4',
         tech_categories: ['React', 'Backend', 'Next.js', 'Node.js', 'Express', 'MongoDB', 'Socket.io'],
         github: '',
         demo: 'https://youtu.be/aN6EdAvwAhQ'
