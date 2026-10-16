@@ -128,6 +128,7 @@
 
         // AI and machine learning
         ai: ['nlp', 'rag', 'deep learning', 'llm'],
+        artificial:  ['nlp', 'rag', 'deep learning', 'llm'],
         ml: ['nlp', 'rag', 'deep learning'],
         genai: ['nlp', 'rag', 'deep learning', 'llm'],
         learning: ['deep learning', 'nlp', 'rag'],
@@ -138,7 +139,7 @@
         transformers: ['gpt transformer architecture'],
         attention: ['gpt transformer architecture'],
         ann: ['gpt transformer architecture', 'scratch neuralnetwork'],
-        rnn: ['gpt transformer architecture', 'Scratch neuralnetwork'],
+        rnn: ['gpt transformer architecture', 'scratch neuralnetwork'],
         lstm: ['gpt transformer architecture'],
         neural: ['scratch neuralnetwork', 'gpt transformer architecture'],
         neuralnetwork: ['scratch neuralnetwork', 'gpt transformer architecture'],
@@ -205,7 +206,47 @@
         memories: ['locket'],
         memory: ['locket'],
         keepsake: ['locket'],
-        voice: ['digital twin']
+        hackathon: ['locket'],
+        voice: ['digital twin'],
+
+        // Backend, authentication and API documentation
+        auth: ['postaway'],
+        authentication: ['postaway'],
+        jwt: ['postaway'],
+        swagger: ['postaway'],
+        comments: ['postaway'],
+        likes: ['postaway'],
+        social: ['postaway'],
+
+        // Rasoi Bazaar — integrations and discovery
+        mcp: ['rasoi bazaar'],
+        instamart: ['rasoi bazaar'],
+        dish: ['rasoi bazaar'],
+        dishes: ['rasoi bazaar'],
+
+        // MarketConnect — marketplace features
+        preorder: ['marketconnect'],
+        pickup: ['marketconnect'],
+        shopkeeper: ['marketconnect'],
+        shopkeepers: ['marketconnect'],
+        'quick-pickup': ['marketconnect'],
+        'price-updates': ['marketconnect'],
+
+        // Chatrify — communication and security
+        encrypted: ['chatrify'],
+        encryption: ['chatrify'],
+        persistent: ['chatrify'],
+        'real-time': ['socket'],
+
+        // Photos and personal memories
+        photo: ['digital twin', 'grateful moments'],
+        photos: ['digital twin', 'grateful moments'],
+        particle: ['locket'],
+        particles: ['locket'],
+
+        // Movie Nest
+        autolayout: ['ios'],
+        'unit-testing': ['movie nest']
     };
 
     const ICONS = {
