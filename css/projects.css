@@ -1381,14 +1381,14 @@ body:has(#projects.section.active) #liquid-glow {
 #projects .project-media-stage:fullscreen .project-video-back-projects,
 #projects .project-media-stage:-webkit-full-screen .project-video-back-projects {
     position: absolute;
-    top: calc(env(safe-area-inset-top, 0px) + 1.25rem);
-    left: calc(env(safe-area-inset-left, 0px) + 1.25rem);
+    top: calc(env(safe-area-inset-top, 0px) + 1rem);
+    left: calc(env(safe-area-inset-left, 0px) + 1rem);
     z-index: 10;
 
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    padding: 0.65rem 1rem;
+    padding: 0.4rem 0.75rem;
 
     border: 1px solid rgba(255, 255, 255, 0.65);
     border-radius: 999px;
@@ -1401,7 +1401,7 @@ body:has(#projects.section.active) #liquid-glow {
     color: #35264d;
 
     font: inherit;
-    font-size: 0.875rem;
+    font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: -0.01em;
 
