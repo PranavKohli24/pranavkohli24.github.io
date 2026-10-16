@@ -425,7 +425,18 @@ body:has(#projects.section.active) #liquid-glow {
     height: 100%;
     object-fit: cover;
     object-position: center;
-    transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity: 0;
+    transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1), opacity 420ms ease;
+}
+
+#projects .project-thumbnail.is-loaded {
+    opacity: 1;
+}
+
+/* The empty-state placeholder has no load event to key off of, so it
+   should just always be visible — only real <img> thumbnails fade in. */
+#projects .project-thumbnail--empty {
+    opacity: 1;
 }
 
 #projects .project-row:hover .project-thumbnail:not(.project-thumbnail--empty) {

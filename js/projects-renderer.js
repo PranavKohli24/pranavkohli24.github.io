@@ -1157,10 +1157,19 @@ const links = [
                     !(searchInput && searchInput.value.trim())
                 );
             }
-
             renderFilters(parsed);
             updateFilterEdges();
             watchVideosForOffscreenPause();
+
+            // An image already in the browser cache can finish
+            // loading (and skip firing 'load') before this listener
+            // ever attaches to it — catch that case explicitly so
+            // cached thumbnails don't stay stuck at opacity:0.
+            list.querySelectorAll('img.project-thumbnail').forEach(img => {
+                if (img.complete && img.naturalWidth > 0) {
+                    img.classList.add('is-loaded');
+                }
+            });
 
             if (!hasRenderedOnce) {
                 hasRenderedOnce = true;
@@ -1468,6 +1477,22 @@ list.addEventListener('pointermove', event => {
     if (stage) wakeControls(stage);
 }, { passive: true });
 
+// Thumbnails start at opacity:0 (see CSS) and fade in once actually
+// decoded — this avoids the abrupt "pop" when a slow-loading image
+// finally renders. Covers both a fresh load and the case where the
+// image was already cached by the time this listener attaches.
+list.addEventListener('load', event => {
+    const image = event.target;
+
+    if (
+        !(image instanceof HTMLImageElement) ||
+        !image.classList.contains('project-thumbnail')
+    ) {
+        return;
+    }
+
+    image.classList.add('is-loaded');
+}, true);
 // pointerdown fires before our click handler further down, so we
 // remember whether controls were hidden at the moment of touch —
 // the click handler needs that original state, not the post-wake
