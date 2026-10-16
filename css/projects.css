@@ -872,7 +872,7 @@ body:has(#projects.section.active) #liquid-glow {
 
 #projects .project-media-stage:fullscreen .project-video-progress,
 #projects .project-media-stage:-webkit-full-screen .project-video-progress {
-    height: 1.4rem;
+    height: 3rem;
 }
 
 /* Lifted further still on narrow/mobile screens, clear of the zone
