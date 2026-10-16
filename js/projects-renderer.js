@@ -222,7 +222,7 @@
     // Cycled on each click of the speed button — same cheap
     // next-in-list pattern as the native players this is standing in
     // for, just presented as a small text pill instead of a menu.
-    const SPEED_STEPS = [1, 1.5, 2, 0.5];
+    const SPEED_STEPS = [0.5, 1, 1.25, 1.5, 1.75, 2];
 
     // Kaggle's and Google's own "Open in Kaggle" / "Open in Colab"
     // badge assets — the exact images they publish for embedding in
