@@ -1397,6 +1397,16 @@ list.addEventListener('pointermove', event => {
 
     seekFromPointer(videoEl, progressEl, event.clientX);
 });
+
+// Long-press (mobile) or right-click (desktop) on the video would
+// otherwise open the native context menu with a "Download video"
+// option — block it entirely since we have our own controls.
+list.addEventListener('contextmenu', event => {
+    if (event.target.closest('[data-project-video]')) {
+        event.preventDefault();
+    }
+});
+
 // Hover-preview tooltip — shows the time at the pointer position
 // even before anyone starts dragging.
 list.addEventListener('pointermove', event => {

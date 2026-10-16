@@ -468,6 +468,11 @@ body:has(#projects.section.active) #liquid-glow {
     opacity: 0;
     pointer-events: none;
     transition: opacity 280ms ease;
+    /* Disables iOS's long-press callout menu (Save Video / Share /
+       Copy), which is separate from the contextmenu event the JS
+       blocks — this is iOS Safari's own touch-and-hold behavior. */
+    -webkit-touch-callout: none;
+    user-select: none;
 }
 
 #projects .project-media-stage.is-previewing .project-preview-video,
