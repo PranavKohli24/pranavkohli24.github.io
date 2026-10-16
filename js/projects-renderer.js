@@ -1380,6 +1380,7 @@ list.addEventListener('pointerdown', event => {
 
     scrubbingBars.set(progressEl, videoEl);
     progressEl.classList.add('is-scrubbing');
+    progressEl.classList.remove('is-touch-ended');
     if (stage) stage.classList.remove('is-buffering');
 
     if (progressEl.setPointerCapture) {
@@ -1444,6 +1445,13 @@ function endScrub(event) {
 
     scrubbingBars.delete(progressEl);
     progressEl.classList.remove('is-scrubbing');
+
+    // Touch/pen has no real hover state to fall back on once the
+    // finger lifts, so force the tooltip closed immediately instead
+    // of leaving it visually "stuck" open.
+    if (event.pointerType && event.pointerType !== 'mouse') {
+        progressEl.classList.add('is-touch-ended');
+    }
 }
 
 list.addEventListener('pointerup', endScrub);

@@ -737,6 +737,15 @@ body:has(#projects.section.active) #liquid-glow {
     transform: translateX(-50%) translateY(0);
 }
 
+/* Forces the tooltip closed right after a touch/pen drag ends, since
+   touch has no real :hover to naturally clear — without this, some
+   mobile browsers leave :hover "stuck" on the last-touched element
+   until something else is tapped. */
+#projects .project-video-progress.is-touch-ended .project-video-tooltip {
+    opacity: 0 !important;
+    transform: translateX(-50%) translateY(2px) !important;
+}
+
 #projects .project-video-time {
     flex: 0 0 auto;
     padding: 0 0.15rem;
