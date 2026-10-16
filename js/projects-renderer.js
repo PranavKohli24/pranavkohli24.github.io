@@ -1370,9 +1370,18 @@ list.addEventListener('pointermove', event => {
     if (stage) wakeControls(stage);
 }, { passive: true });
 
+// pointerdown fires before our click handler further down, so we
+// remember whether controls were hidden at the moment of touch —
+// the click handler needs that original state, not the post-wake
+// state, to decide whether this tap should also toggle playback.
+const tapStartedIdle = new WeakMap();
+
 list.addEventListener('pointerdown', event => {
     const stage = event.target.closest('[data-video-stage]');
-    if (stage) wakeControls(stage);
+    if (!stage) return;
+
+    tapStartedIdle.set(stage, stage.classList.contains('is-idle'));
+    wakeControls(stage);
 }, { passive: true });
 
 function endScrub(event) {
@@ -1475,11 +1484,14 @@ list.addEventListener('click', event => {
 
     event.preventDefault();
 
-    // Controls hidden: first tap only reveals them (and resumes a
-    // paused video) — it never pauses a video that's playing.
-    // Matches YouTube's tap-to-reveal behaviour.
-    if (stage.classList.contains('is-idle')) {
-        wakeControls(stage);
+    // Controls were hidden at the moment this tap started (before our
+    // own pointerdown handler revealed them). Checking the live class
+    // here would be wrong, since pointerdown has already removed
+    // is-idle by the time click fires.
+    const wasIdle = tapStartedIdle.get(stage);
+    tapStartedIdle.delete(stage);
+
+    if (wasIdle) {
         if (videoEl.paused) videoEl.play();
         return;
     }
