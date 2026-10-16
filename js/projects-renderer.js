@@ -137,13 +137,14 @@
         transformer: ['gpt transformer architecture'],
         transformers: ['gpt transformer architecture'],
         attention: ['gpt transformer architecture'],
-        rnn: ['gpt transformer architecture'],
+        ann: ['gpt transformer architecture', 'scratch neuralnetwork'],
+        rnn: ['gpt transformer architecture', 'Scratch neuralnetwork'],
         lstm: ['gpt transformer architecture'],
-        neural: ['scratch neuralnetwork'],
-        neuralnetwork: ['scratch neuralnetwork'],
+        neural: ['scratch neuralnetwork', 'gpt transformer architecture'],
+        neuralnetwork: ['scratch neuralnetwork', 'gpt transformer architecture'],
         mnist: ['scratch neuralnetwork'],
         chatbot: ['digital twin', 'chatrify'],
-        assistant: ['digital twin', 'chatrify'],
+        assistant: ['digital twin'],
         gemini: ['chatrify'],
 
         // Databases and backend technologies
