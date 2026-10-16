@@ -613,18 +613,15 @@ body:has(#projects.section.active) #liquid-glow {
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     opacity: 0;
-    transform: translateY(4px);
-    transition: opacity 220ms ease, transform 220ms ease;
+    transition: opacity 220ms ease;
 }
 
 #projects .project-media-stage.is-active .project-video-controls {
     display: flex;
     opacity: 1;
-    transform: translateY(0);
 }
 #projects .project-media-stage.is-active.is-idle .project-video-controls {
     opacity: 0;
-    transform: translateY(6px);
     pointer-events: none;
 }
 

@@ -1247,8 +1247,7 @@ list.addEventListener('click', event => {
         const videoEl = stage && stage.querySelector('[data-project-video]');
         if (!videoEl) return;
 
-        if (videoEl.paused) videoEl.play();
-        else videoEl.pause();
+        togglePlayback(stage, videoEl);
         return;
     }
 
