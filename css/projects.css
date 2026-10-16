@@ -1396,6 +1396,8 @@ body:has(#projects.section.active) #liquid-glow {
     box-shadow: 0 4px 14px rgba(20, 8, 50, 0.16);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
+    user-select: none;
+    -webkit-touch-callout: none;
 
     transition:
         background 180ms ease,
