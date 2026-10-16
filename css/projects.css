@@ -706,6 +706,10 @@ body:has(#projects.section.active) #liquid-glow {
     position: absolute;
     bottom: calc(100% + 0.5rem);
     z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
     padding: 0.15rem 0.45rem;
     border-radius: 7px;
     background: rgba(10, 10, 10, 0.78);
@@ -718,6 +722,13 @@ body:has(#projects.section.active) #liquid-glow {
     opacity: 0;
     transform: translateX(-50%) translateY(2px);
     transition: opacity 140ms ease, transform 140ms ease;
+}
+
+#projects .project-video-sprite {
+    border-radius: 5px;
+    outline: 1px solid rgba(255, 255, 255, 0.25);
+    background-repeat: no-repeat;
+    image-rendering: -webkit-optimize-contrast;
 }
 
 #projects .project-video-progress:hover .project-video-tooltip,

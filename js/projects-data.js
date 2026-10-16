@@ -116,6 +116,12 @@ window.projects = [
         image: '/src/images/projects/chatrify.png',
         imageAlt: 'Chatrify real-time chat interface',
         video: '/src/images/projects/chatrify-demo.mp4',
+        spriteSheet: "src/images/projects/chatrify-sprite.jpg",
+        spriteInterval: 2,       // one frame every 2 seconds
+        spriteCols: 7,
+        spriteRows: 7,
+        spriteFrameWidth: 160,
+        spriteFrameHeight: 90,
         tech_categories: ['React', 'Backend', 'Next.js', 'Node.js', 'Express', 'MongoDB', 'Socket.io'],
         github: '',
         demo: 'https://youtu.be/aN6EdAvwAhQ'
@@ -141,3 +147,33 @@ window.projects = [
         demo: 'https://www.kaggle.com/code/pranavkohli2410/implementing-neural-networks-mnist'
     }
 ];
+
+
+
+/*
+ffmpeg -i src/images/projects/chatrify-demo.mp4 -c copy -movflags +faststart src/images/projects/chatrify-demo-fast.mp4
+Step 1 — Generate the sprite sheet for Chatrify
+
+Your video is ~93 seconds. At one frame every 2 seconds that’s ~47 frames, so a 7×7 grid (49 slots) covers it with room to spare.
+
+powershell
+cd src/images/projects
+ffmpeg -i chatrify-demo.mp4 -vf "fps=1/2,scale=160:-1,tile=7x7" -q:v 3 chatrify-sprite.jpg
+
+This creates chatrify-sprite.jpg — one small image, tens of KB, sitting right next to the video.
+
+Step 2 — Add sprite config to projects-data.js
+
+Find Chatrify’s entry and add these fields alongside video:
+
+js
+video: "src/images/projects/chatrify-demo.mp4",
+spriteSheet: "src/images/projects/chatrify-sprite.jpg",
+spriteInterval: 2,       // one frame every 2 seconds
+spriteCols: 7,
+spriteRows: 7,
+spriteFrameWidth: 160,
+spriteFrameHeight: 90,
+
+These are all optional — any project without spriteSheet just keeps the plain time-tooltip, exactly as it works today.
+*/

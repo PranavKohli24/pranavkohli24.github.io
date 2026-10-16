@@ -671,8 +671,10 @@
 
             const tooltip = progressEl.querySelector('[data-video-tooltip]');
             if (tooltip) {
-                tooltip.textContent = formatTime(seekTime);
+                const timeLabel = tooltip.querySelector('[data-video-tooltip-time]');
+                if (timeLabel) timeLabel.textContent = formatTime(seekTime);
                 tooltip.style.left = `${ratio * 100}%`;
+                updateSpritePreview(tooltip, seekTime);
             }
 
             updateTimeDisplay(progressEl.closest('[data-video-stage]'), videoEl);
@@ -693,6 +695,41 @@ function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${String(secs).padStart(2, '0')}`;
+}
+
+// Shows the right frame of a project's sprite sheet (if it has one)
+// for a given hover/scrub time, by shifting background-position on a
+// fixed-size box — no video decoding, just CSS math.
+function updateSpritePreview(tooltipEl, time) {
+    if (!tooltipEl) return;
+
+    const spriteSrc = tooltipEl.dataset.spriteSrc;
+    const spriteEl = tooltipEl.querySelector('[data-video-sprite]');
+    if (!spriteSrc || !spriteEl) return;
+
+    const cols = Number(tooltipEl.dataset.spriteCols) || 1;
+    const rows = Number(tooltipEl.dataset.spriteRows) || 1;
+    const frameW = Number(tooltipEl.dataset.spriteFrameW) || 0;
+    const frameH = Number(tooltipEl.dataset.spriteFrameH) || 0;
+    const interval = Number(tooltipEl.dataset.spriteInterval) || 2;
+
+    if (!frameW || !frameH) return;
+
+    // Set the image + sizing once per tooltip, not on every hover move.
+    if (spriteEl.dataset.ready !== 'true') {
+        spriteEl.style.width = `${frameW}px`;
+        spriteEl.style.height = `${frameH}px`;
+        spriteEl.style.backgroundImage = `url("${spriteSrc}")`;
+        spriteEl.style.backgroundSize = `${cols * frameW}px ${rows * frameH}px`;
+        spriteEl.dataset.ready = 'true';
+    }
+
+    const maxFrame = (cols * rows) - 1;
+    const frameIndex = Math.min(Math.max(Math.floor(time / interval), 0), maxFrame);
+    const col = frameIndex % cols;
+    const row = Math.floor(frameIndex / cols);
+
+    spriteEl.style.backgroundPosition = `-${col * frameW}px -${row * frameH}px`;
 }
 
 function updateTimeDisplay(stage, videoEl) {
@@ -840,7 +877,21 @@ function wakeControls(stage) {
                             <div class="project-video-progress" data-video-progress>
                                 <div class="project-video-progress-buffered" data-video-buffered></div>
                                 <div class="project-video-progress-fill" data-video-progress-fill></div>
-                                <div class="project-video-tooltip" data-video-tooltip>0:00</div>
+                                <div
+                                    class="project-video-tooltip"
+                                    data-video-tooltip
+                                    ${safeURL(project.spriteSheet) ? `
+                                        data-sprite-src="${escapeHTML(safeURL(project.spriteSheet))}"
+                                        data-sprite-interval="${Number(project.spriteInterval) || 2}"
+                                        data-sprite-cols="${Number(project.spriteCols) || 0}"
+                                        data-sprite-rows="${Number(project.spriteRows) || 0}"
+                                        data-sprite-frame-w="${Number(project.spriteFrameWidth) || 0}"
+                                        data-sprite-frame-h="${Number(project.spriteFrameHeight) || 0}"
+                                    ` : ''}
+                                >
+                                    ${safeURL(project.spriteSheet) ? '<div class="project-video-sprite" data-video-sprite></div>' : ''}
+                                    <span data-video-tooltip-time>0:00</span>
+                                </div>
                             </div>
 
                             <span class="project-video-time" data-video-time>0:00 / 0:00</span>
@@ -1356,10 +1407,13 @@ list.addEventListener('pointermove', event => {
 
     const rect = progressEl.getBoundingClientRect();
     const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+    const hoverTime = ratio * videoEl.duration;
     const tooltip = progressEl.querySelector('[data-video-tooltip]');
     if (tooltip) {
-        tooltip.textContent = formatTime(ratio * videoEl.duration);
+        const timeLabel = tooltip.querySelector('[data-video-tooltip-time]');
+        if (timeLabel) timeLabel.textContent = formatTime(hoverTime);
         tooltip.style.left = `${ratio * 100}%`;
+        updateSpritePreview(tooltip, hoverTime);
     }
 }, { passive: true });
 
