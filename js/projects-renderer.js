@@ -507,16 +507,6 @@
         // currently "live" so a new hover or click can cleanly stop it.
         let activeVideoEl = null;
 
-        function updateMuteIcon(stage, isMuted) {
-            if (!stage) return;
-
-            const muteBtn = stage.querySelector('[data-video-mute]');
-            if (!muteBtn) return;
-
-            muteBtn.innerHTML = isMuted ? ICONS.volumeOff : ICONS.volumeOn;
-            muteBtn.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
-        }
-
         function updatePlayIcon(stage, isPaused) {
             if (!stage) return;
 
@@ -594,9 +584,7 @@
                     scrubbingBars.delete(progressEl);
                     progressEl.classList.remove('is-scrubbing');
                 }
-
                 updatePlayIcon(stage, true);
-                updateMuteIcon(stage, true);
                 updateSpeedLabel(stage, 1);
             }
 
@@ -653,7 +641,6 @@
             if (stage) {
                 stage.classList.remove('is-previewing');
                 stage.classList.add('is-active');
-                updateMuteIcon(stage, false);
                 updatePlayIcon(stage, false);
                 lastActiveStage = stage;
                 wakeControls(stage);
@@ -864,13 +851,6 @@ function wakeControls(stage) {
                                 data-video-speed
                                 aria-label="Playback speed"
                             >1x</button>
-
-                            <button
-                                type="button"
-                                class="project-video-mute"
-                                data-video-mute
-                                aria-label="Mute"
-                            >${ICONS.volumeOn}</button>
 
                             <button
                                 type="button"
@@ -1272,20 +1252,6 @@ list.addEventListener('click', event => {
         return;
     }
 
-    const muteBtn = event.target.closest('[data-video-mute]');
-    if (muteBtn) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const stage = muteBtn.closest('[data-video-stage]');
-        const videoEl = stage && stage.querySelector('[data-project-video]');
-        if (!videoEl) return;
-
-        videoEl.muted = !videoEl.muted;
-        updateMuteIcon(stage, videoEl.muted);
-        return;
-    }
-
     // Plain clicks (no drag) on the bar are handled by pointerdown/up
     // below, which covers both tap-to-seek and drag-to-seek in one
     // path — this click handler intentionally does nothing for the
@@ -1469,12 +1435,6 @@ document.addEventListener('keydown', event => {
             flashSeek(lastActiveStage, 'backward');
             wakeControls(lastActiveStage);
             break;
-        case 'm':
-        case 'M':
-            videoEl.muted = !videoEl.muted;
-            updateMuteIcon(lastActiveStage, videoEl.muted);
-            wakeControls(lastActiveStage);
-            break;
         case 'f':
         case 'F': {
             const fsEl = document.fullscreenElement || document.webkitFullscreenElement
@@ -1511,12 +1471,22 @@ list.addEventListener('click', event => {
         return;
     }
 
-    // Already playing: a plain click toggles play/pause, delayed
-    // briefly so a second click (a double-click/tap) can cancel it
-    // and hand off to the seek behaviour below instead.
     if (event.target.closest('[data-video-controls]')) return;
 
     event.preventDefault();
+
+    // Controls hidden: first tap only reveals them (and resumes a
+    // paused video) — it never pauses a video that's playing.
+    // Matches YouTube's tap-to-reveal behaviour.
+    if (stage.classList.contains('is-idle')) {
+        wakeControls(stage);
+        if (videoEl.paused) videoEl.play();
+        return;
+    }
+
+    // Controls already visible: a plain click toggles play/pause,
+    // delayed briefly so a second click (a double-click/tap) can
+    // cancel it and hand off to the seek behaviour below instead.
     clearTimeout(clickTimers.get(stage));
     clickTimers.set(stage, setTimeout(() => {
         clickTimers.delete(stage);

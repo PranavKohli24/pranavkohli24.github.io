@@ -633,7 +633,6 @@ body:has(#projects.section.active) #liquid-glow {
 }
 
 #projects .project-video-toggle,
-#projects .project-video-mute,
 #projects .project-video-fullscreen {
     display: flex;
     flex: 0 0 auto;
