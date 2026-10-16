@@ -267,13 +267,16 @@
         'real-time': ['socket'],
 
         // Photos and personal memories
-        photo: ['digital twin', 'grateful moments'],
-        photos: ['digital twin', 'grateful moments'],
+        photo: ['digital twin', 'locket'],
+        photos: ['digital twin', 'locket'],
         particle: ['locket'],
         particles: ['locket'],
+        pictures: ['digital twin', 'locket'],
+        picture:  ['digital twin', 'locket'],
 
         // Movie Nest
         autolayout: ['ios'],
+        autolayouts: ['ios'],
         'unit-testing': ['movie nest'],
 
         //DSA
