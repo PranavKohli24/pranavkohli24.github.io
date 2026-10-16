@@ -99,26 +99,112 @@
     // projects-data.js (title or tech_categories). Only add an entry
     // here if something real would match it.
     const SYNONYMS = {
-        mobile: ['ios', 'react native', 'swift', 'swiftui'],
+        // Mobile development
+        mobile: ['ios', 'react native', 'swift', 'swiftui', 'uikit'],
         app: ['ios', 'react native'],
+        iphone: ['ios'],
+        ipad: ['ios'],
+        apple: ['ios'],
         android: ['react native'],
-        ai: ['nlp', 'rag', 'deep learning'],
+
+        // Frontend development
+        frontend: ['react', 'react native', 'swiftui', 'uikit'],
+        'front-end': ['react', 'react native', 'swiftui', 'uikit'],
+        front: ['react', 'react native', 'swiftui', 'uikit'],
+        'client-side': ['react', 'react native', 'swiftui', 'uikit'],
+        website: ['digital twin', 'rasoi bazaar', 'marketconnect', 'chatrify', 'velvet pour'],
+        websites: ['digital twin', 'rasoi bazaar', 'marketconnect', 'chatrify', 'velvet pour'],
+        web: ['digital twin', 'rasoi bazaar', 'marketconnect', 'chatrify', 'velvet pour'],
+
+        // Full-stack development
+        fullstack: ['digital twin', 'rasoi bazaar', 'marketconnect', 'chatrify'],
+        'full-stack': ['digital twin', 'rasoi bazaar', 'marketconnect', 'chatrify'],
+        full: ['digital twin', 'rasoi bazaar', 'marketconnect', 'chatrify'],
+        stack: ['digital twin', 'rasoi bazaar', 'marketconnect', 'chatrify'],
+
+        // Backend development
+        'server-side': ['backend'],
+        server: ['backend'],
+
+        // AI and machine learning
+        ai: ['nlp', 'rag', 'deep learning', 'llm'],
         ml: ['nlp', 'rag', 'deep learning'],
-        genai: ['nlp', 'rag', 'deep learning'],
-        'machine learning': ['nlp', 'rag', 'deep learning'],
-        db: ['mongodb'],
-        database: ['mongodb'],
-        node: ['node.js'],
-        nodejs: ['node.js'],
+        genai: ['nlp', 'rag', 'deep learning', 'llm'],
+        learning: ['deep learning', 'nlp', 'rag'],
+        llm: ['llm', 'gpt transformer architecture'],
+        llms: ['llm', 'gpt transformer architecture'],
+        gpt: ['gpt transformer architecture'],
+        transformer: ['gpt transformer architecture'],
+        transformers: ['gpt transformer architecture'],
+        attention: ['gpt transformer architecture'],
+        rnn: ['gpt transformer architecture'],
+        lstm: ['gpt transformer architecture'],
+        neural: ['scratch neuralnetwork'],
+        neuralnetwork: ['scratch neuralnetwork'],
+        mnist: ['scratch neuralnetwork'],
+        chatbot: ['digital twin', 'chatrify'],
+        assistant: ['digital twin', 'chatrify'],
+        gemini: ['chatrify'],
+
+        // Databases and backend technologies
+        db: ['mongodb', 'swiftdata'],
+        database: ['mongodb', 'swiftdata'],
+        mongo: ['mongodb'],
+        nosql: ['mongodb'],
+        nodejs: ['node'],
+        'node.js': ['node'],
+        nextjs: ['next'],
+        'next.js': ['next'],
         api: ['restful api'],
         rest: ['restful api'],
-        socket: ['socket.io'],
-        sockets: ['socket.io'],
-        realtime: ['socket.io'],
+        elasticsearch: ['elastic search'],
+        'elastic-search': ['elastic search'],
+
+        // Real-time communication
+        chat: ['chatrify', 'digital twin'],
+        chats: ['chatrify', 'digital twin'],
+        messaging: ['chatrify', 'digital twin'],
+        conversation: ['digital twin', 'chatrify'],
+        conversations: ['digital twin', 'chatrify'],
+        socket: ['socket'],
+        sockets: ['socket'],
+        realtime: ['socket'],
+        websocket: ['socket'],
+        websockets: ['socket'],
+        'socket.io': ['socket'],
+
+        // UI, animation and state management
         animation: ['gsap', 'core haptics'],
         animations: ['gsap', 'core haptics'],
+        motion: ['gsap', 'core haptics'],
         state: ['redux', 'zustand'],
-        nextjs: ['next.js']
+        navigation: ['react native', 'uikit'],
+
+        // Project-intent searches
+        recipe: ['rasoi bazaar'],
+        recipes: ['rasoi bazaar'],
+        cooking: ['rasoi bazaar'],
+        cuisine: ['rasoi bazaar'],
+        dishes: ['rasoi bazaar'],
+        swiggy: ['rasoi bazaar'],
+        food: ['foodly', 'rasoi bazaar'],
+        delivery: ['foodly'],
+        marketplace: ['marketconnect'],
+        retail: ['marketconnect'],
+        pricing: ['marketconnect'],
+        'price-comparison': ['marketconnect'],
+        movie: ['movie nest'],
+        movies: ['movie nest'],
+        film: ['movie nest'],
+        ghibli: ['movie nest'],
+        journal: ['grateful moments'],
+        journaling: ['grateful moments'],
+        diary: ['grateful moments'],
+        gratitude: ['grateful moments'],
+        memories: ['locket'],
+        memory: ['locket'],
+        keepsake: ['locket'],
+        voice: ['digital twin']
     };
 
     const ICONS = {
