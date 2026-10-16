@@ -115,6 +115,7 @@
         website: ['digital twin', 'rasoi bazaar', 'marketconnect', 'chatrify', 'velvet pour'],
         websites: ['digital twin', 'rasoi bazaar', 'marketconnect', 'chatrify', 'velvet pour'],
         web: ['digital twin', 'rasoi bazaar', 'marketconnect', 'chatrify', 'velvet pour'],
+        design: ['digital twin', 'rasoi bazaar', 'velvet pour'],
 
         // Full-stack development
         fullstack: ['digital twin', 'rasoi bazaar', 'marketconnect', 'chatrify'],
@@ -147,6 +148,15 @@
         chatbot: ['digital twin', 'chatrify'],
         assistant: ['digital twin'],
         gemini: ['chatrify'],
+        chatgpt: ['gpt transformer architecture'],
+        tensorflow : ['gpt transformer architecture'],
+        pytorch : ['gpt transformer architecture'],
+        keras: ['gpt transformer architecture'],
+        gradient: ['gpt transformer architecture'],
+        descent: ['gpt transformer architecture'],
+        intelligent: ['digital twin', 'gpt transformer architecture'],
+        intelligence: ['digital twin', 'gpt transformer architecture'],
+        smart: ['digital twin', 'gpt transformer architecture'],
 
         // Databases and backend technologies
         db: ['mongodb', 'swiftdata'],
@@ -161,10 +171,13 @@
         rest: ['restful api'],
         elasticsearch: ['elastic search'],
         'elastic-search': ['elastic search'],
+        debouncing: ['foodly',  'rasoi bazaar'],
+        debounced: ['foodly',  'rasoi bazaar'],
 
         // Real-time communication
         chat: ['chatrify', 'digital twin'],
         chats: ['chatrify', 'digital twin'],
+        message: ['chatrify', 'digital twin'],
         messaging: ['chatrify', 'digital twin'],
         conversation: ['digital twin', 'chatrify'],
         conversations: ['digital twin', 'chatrify'],
@@ -181,18 +194,31 @@
         motion: ['gsap', 'core haptics'],
         state: ['redux', 'zustand'],
         navigation: ['react native', 'uikit'],
+        storytelling : ['velvet pour'],
+        mocktail: ['velvet pour'],
+        cocktail: ['velvet pour'],
+        mocktails: ['velvet pour'],
+        cocktails: ['velvet pour'],
+        drink: ['velvet pour'],
+        drinks: ['velvet pour'],
+        juice: ['velvet pour'],
 
         // Project-intent searches
         recipe: ['rasoi bazaar'],
         recipes: ['rasoi bazaar'],
+        cook: ['rasoi bazaar'],
+        cooked: ['rasoi bazaar'],
         cooking: ['rasoi bazaar'],
         cuisine: ['rasoi bazaar'],
         dishes: ['rasoi bazaar'],
         swiggy: ['rasoi bazaar'],
         food: ['foodly', 'rasoi bazaar'],
-        delivery: ['foodly'],
+        foodtech: ['rasoi bazaar'],
+        delivery: ['foodly', 'rasoi bazaar'],
+        ordering: ['marketconnect' , 'rasoi bazaar'],
         marketplace: ['marketconnect'],
         retail: ['marketconnect'],
+        retailer: ['marketconnect'],
         pricing: ['marketconnect'],
         'price-comparison': ['marketconnect'],
         movie: ['movie nest'],
@@ -217,6 +243,8 @@
         comments: ['postaway'],
         likes: ['postaway'],
         social: ['postaway'],
+        login: ['postaway'],
+        logout: ['postaway'],
 
         // Rasoi Bazaar — integrations and discovery
         mcp: ['rasoi bazaar'],
@@ -246,7 +274,11 @@
 
         // Movie Nest
         autolayout: ['ios'],
-        'unit-testing': ['movie nest']
+        'unit-testing': ['movie nest'],
+
+        //DSA
+        algorithm : ['dsa'],
+        algorithms : ['dsa'],
     };
 
     const ICONS = {
