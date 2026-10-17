@@ -161,7 +161,14 @@ window.projects = [
         title: 'Scratch NeuralNetwork',
         description: 'A neural network built entirely from scratch in NumPy (no TensorFlow/PyTorch) for MNIST digit classification - a 2-layer feedforward net with ReLU/Softmax, He initialization, and SGD, reaching 80% test accuracy.',
         image: '/src/images/projects/scratch_neuralnet.png',
-        imageAlt: 'Scratch NeuralNetwork project',
+        imageAlt: 'Scratch NeuralNetwork project',        
+        video: 'src/images/projects/scratchneuralnet-demo.mp4',
+        spriteSheet: 'src/images/projects/scratchneuralnet-sprite.jpg',
+        spriteInterval: 2,
+        spriteCols: 5,
+        spriteRows: 4,
+        spriteFrameWidth: 160,
+        spriteFrameHeight: 90,
         tech_categories: ['DSA', 'Python', 'NumPy', 'Deep Learning'],
         github: '',
         demo: 'https://www.kaggle.com/code/pranavkohli2410/implementing-neural-networks-mnist'
@@ -217,3 +224,7 @@ window.projects = [
  *    If GitHub warns about file size again, the video wasn't
  *    compressed enough — redo step 1 with a higher -crf.
  */
+
+
+// or just write this command
+// PS C:\Users\kohli\OneDrive\Desktop\pranavkohli24.github.io\src\images\projects> .\process-video.ps1 -Name scratchneuralnet
