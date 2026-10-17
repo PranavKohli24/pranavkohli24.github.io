@@ -960,6 +960,7 @@ function wakeControls(stage) {
                         >${ICONS.play}</button>
 
                         <div class="project-video-spinner" data-video-spinner aria-hidden="true"></div>
+                        <div class="project-video-longpress-badge" data-video-longpress-badge aria-hidden="true">&raquo;&raquo; ${LONG_PRESS_RATE}x</div>
                         <button
                             type="button"
                             class="project-video-center-flash"
@@ -1607,6 +1608,15 @@ list.addEventListener('load', event => {
 // state, to decide whether this tap should also toggle playback.
 const tapStartedIdle = new WeakMap();
 
+const LONG_PRESS_MS = 500;
+const LONG_PRESS_RATE = 1.5;
+const longPressTimers = new WeakMap();
+const longPressActive = new WeakMap();
+const preLongPressRate = new WeakMap();
+const suppressNextTapToggle = new WeakMap();
+let pressedStage = null;
+let pressedVideo = null;
+
 list.addEventListener('pointerdown', event => {
     const stage = event.target.closest('[data-video-stage]');
     if (!stage) return;
@@ -1614,6 +1624,58 @@ list.addEventListener('pointerdown', event => {
     tapStartedIdle.set(stage, stage.classList.contains('is-idle'));
     wakeControls(stage);
 }, { passive: true });
+
+// Press-and-hold anywhere on an ACTIVE, PLAYING video speeds it up to
+// 1.5x while held — independent of the tap-to-toggle-controls logic,
+// and never touches controls visibility itself.
+list.addEventListener('pointerdown', event => {
+    const stage = event.target.closest('[data-video-stage]');
+    if (!stage || !stage.classList.contains('is-active')) return;
+    if (event.target.closest('[data-video-controls]')) return;
+
+    const videoEl = stage.querySelector('[data-project-video]');
+    if (!videoEl || videoEl.paused) return;
+
+    pressedStage = stage;
+    pressedVideo = videoEl;
+
+    clearTimeout(longPressTimers.get(stage));
+    const timer = setTimeout(() => {
+        if (pressedStage !== stage) return;
+
+        preLongPressRate.set(stage, videoEl.playbackRate);
+        videoEl.playbackRate = LONG_PRESS_RATE;
+        stage.classList.add('is-long-pressing');
+        longPressActive.set(stage, true);
+    }, LONG_PRESS_MS);
+
+    longPressTimers.set(stage, timer);
+}, { passive: true });
+
+function endLongPress() {
+    if (!pressedStage) return;
+
+    const stage = pressedStage;
+    const videoEl = pressedVideo;
+    clearTimeout(longPressTimers.get(stage));
+
+    if (longPressActive.get(stage)) {
+        videoEl.playbackRate = preLongPressRate.get(stage) || 1;
+        stage.classList.remove('is-long-pressing');
+        longPressActive.delete(stage);
+
+        // The release of a long-press would otherwise also fire a
+        // click, which the tap-to-toggle-controls logic would read as
+        // "hide controls" — suppress just that one upcoming click.
+        suppressNextTapToggle.set(stage, true);
+    }
+
+    pressedStage = null;
+    pressedVideo = null;
+}
+
+list.addEventListener('pointerup', endLongPress);
+list.addEventListener('pointercancel', endLongPress);
 
 function endScrub(event) {
     const progressEl = event.target.closest('[data-video-progress]');
@@ -1737,12 +1799,19 @@ list.addEventListener('click', event => {
         startFullPlayback(videoEl);
         return;
     }
-
     // Clicks on the control bar (scrubber, speed, fullscreen, the
     // center button itself) are handled by their own dedicated
     // handlers above — this generic stage-tap logic only governs
     // taps on the open video area.
     if (event.target.closest('[data-video-controls]')) return;
+
+    // A long-press just ended on release of this same click — consume
+    // it here so it doesn't also toggle controls visibility.
+    if (suppressNextTapToggle.get(stage)) {
+        suppressNextTapToggle.delete(stage);
+        event.preventDefault();
+        return;
+    }
 
     event.preventDefault();
 
