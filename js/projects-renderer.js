@@ -1416,7 +1416,7 @@ list.addEventListener('click', event => {
     const toggleBtn = event.target.closest('[data-video-toggle]');
     if (toggleBtn) {
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
 
         const stage = toggleBtn.closest('[data-video-stage]');
         const videoEl = stage && stage.querySelector('[data-project-video]');
@@ -1429,7 +1429,7 @@ list.addEventListener('click', event => {
     const centerBtn = event.target.closest('[data-video-center-flash]');
     if (centerBtn) {
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
 
         const stage = centerBtn.closest('[data-video-stage]');
         const videoEl = stage && stage.querySelector('[data-project-video]');
