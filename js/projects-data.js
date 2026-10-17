@@ -24,6 +24,12 @@ window.projects = [
         image: '/src/images/projects/digital_twin.png',
         imageAlt: 'Digital Twin chat interface',
         video: '/src/images/projects/digitaltwin-demo.mp4',
+        spriteSheet: "src/images/projects/digitaltwin-sprite.jpg",
+        spriteInterval: 2,
+        spriteCols: 8,
+        spriteRows: 7,
+        spriteFrameWidth: 160,
+        spriteFrameHeight: 90,
         tech_categories: ['React', 'Backend', 'Node.js', 'NLP', 'RAG'],
         github: '',
         demo: 'https://pranavkohli24.github.io/#twin'
