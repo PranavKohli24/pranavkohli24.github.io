@@ -734,10 +734,10 @@
             }
         }
 
-        function seekFromPointer(videoEl, progressEl, clientX) {
+        function seekFromPointer(videoEl, progressEl, clientX, cachedRect) {
             if (!videoEl || !progressEl || !isFinite(videoEl.duration) || videoEl.duration <= 0) return;
 
-            const rect = progressEl.getBoundingClientRect();
+            const rect = cachedRect || progressEl.getBoundingClientRect();
             const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
             const seekTime = ratio * videoEl.duration;
 
@@ -763,6 +763,7 @@
         // itself even once the cursor/finger drifts outside it.
         const scrubbingBars = new WeakMap();
         const wasPlayingBeforeScrub = new WeakMap();
+        const cachedProgressRects = new WeakMap();
 
         const idleTimers = new WeakMap();
 const clickTimers = new WeakMap();
@@ -1532,6 +1533,11 @@ list.addEventListener('pointerdown', event => {
     progressEl.classList.remove('is-touch-ended');
     if (stage) stage.classList.remove('is-buffering');
 
+    // Cache the bar's position once per drag — it doesn't resize
+    // mid-scrub, so re-querying it on every pointermove (which can
+    // force a layout recalc) is unnecessary work during fast drags.
+    cachedProgressRects.set(progressEl, progressEl.getBoundingClientRect());
+
     // Pause while dragging so the frame only moves in response to the
     // scrub itself, not also advancing on its own underneath it.
     // Resume (only if it was actually playing) once the drag ends.
@@ -1542,7 +1548,7 @@ list.addEventListener('pointerdown', event => {
         progressEl.setPointerCapture(event.pointerId);
     }
 
-    seekFromPointer(videoEl, progressEl, event.clientX);
+    seekFromPointer(videoEl, progressEl, event.clientX, cachedProgressRects.get(progressEl));
 });
 
 list.addEventListener('pointermove', event => {
@@ -1550,7 +1556,7 @@ list.addEventListener('pointermove', event => {
     const videoEl = progressEl && scrubbingBars.get(progressEl);
     if (!videoEl) return;
 
-    seekFromPointer(videoEl, progressEl, event.clientX);
+    seekFromPointer(videoEl, progressEl, event.clientX, cachedProgressRects.get(progressEl));
 });
 
 // Long-press (mobile) or right-click (desktop) on the video would
@@ -1572,7 +1578,16 @@ list.addEventListener('pointermove', event => {
     const videoEl = stage && stage.querySelector('[data-project-video]');
     if (!videoEl || !isFinite(videoEl.duration) || videoEl.duration <= 0) return;
 
-    const rect = progressEl.getBoundingClientRect();
+    // Cached per hover session — cleared on pointerleave below, so a
+    // long hover still re-measures if the layout genuinely changes
+    // between separate hover sessions, but doesn't re-measure on
+    // every single pixel of movement within one continuous hover.
+    let rect = cachedProgressRects.get(progressEl);
+    if (!rect) {
+        rect = progressEl.getBoundingClientRect();
+        cachedProgressRects.set(progressEl, rect);
+    }
+
     const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
     const hoverTime = ratio * videoEl.duration;
     const tooltip = progressEl.querySelector('[data-video-tooltip]');
@@ -1583,6 +1598,16 @@ list.addEventListener('pointermove', event => {
         updateSpritePreview(tooltip, hoverTime);
     }
 }, { passive: true });
+
+// Clears the hover-session rect cache once the pointer actually
+// leaves the bar, so the next hover re-measures fresh (covers cases
+// like the page being resized/scrolled between hovers).
+list.addEventListener('pointerleave', event => {
+    const progressEl = event.target.closest('[data-video-progress]');
+    if (progressEl && !scrubbingBars.has(progressEl)) {
+        cachedProgressRects.delete(progressEl);
+    }
+}, true);
 
 // Wakes the control bar on any pointer activity over an active stage.
 list.addEventListener('pointermove', event => {
@@ -1688,6 +1713,7 @@ function endScrub(event) {
     const videoEl = scrubbingBars.get(progressEl);
 
     scrubbingBars.delete(progressEl);
+    cachedProgressRects.delete(progressEl);
     progressEl.classList.remove('is-scrubbing');
 
     if (videoEl && wasPlayingBeforeScrub.get(progressEl)) {
