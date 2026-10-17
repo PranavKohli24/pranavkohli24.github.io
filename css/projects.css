@@ -687,7 +687,6 @@ body:has(#projects.section.active) #liquid-glow {
 }
 
 #projects .project-video-toggle:hover,
-#projects .project-video-mute:hover,
 #projects .project-video-fullscreen:hover {
     background: rgba(255, 255, 255, 0.16);
 }
@@ -922,8 +921,6 @@ body:has(#projects.section.active) #liquid-glow {
     box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.5);
 }
 
-#projects .project-media-stage:fullscreen .project-video-controls .project-video-toggle,
-#projects .project-media-stage:fullscreen .project-video-controls .project-video-mute,
 #projects .project-media-stage:fullscreen .project-video-controls .project-video-toggle,
 #projects .project-media-stage:fullscreen .project-video-controls .project-video-fullscreen,
 #projects .project-media-stage:-webkit-full-screen .project-video-controls .project-video-toggle,

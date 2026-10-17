@@ -860,6 +860,8 @@ function togglePlayback(stage, videoEl) {
 // Brief glow pulse on the center button, same visual as the old
 // flash — layered on top of the persistent button so it keeps
 // showing the correct icon/state throughout, not replaced by it.
+const pulseTimers = new WeakMap();
+
 function pulseCenterButton(stage) {
     if (!stage) return;
     const centerBtn = stage.querySelector('[data-video-center-flash]');
@@ -869,8 +871,8 @@ function pulseCenterButton(stage) {
     void centerBtn.offsetWidth; // restart animation on rapid re-toggles
     centerBtn.classList.add('is-pulsing');
 
-    clearTimeout(centerBtn._pulseTimer);
-    centerBtn._pulseTimer = setTimeout(() => centerBtn.classList.remove('is-pulsing'), 500);
+    clearTimeout(pulseTimers.get(centerBtn));
+    pulseTimers.set(centerBtn, setTimeout(() => centerBtn.classList.remove('is-pulsing'), 500));
 }
 
 // Controls auto-hide while actively playing — any pointer movement
@@ -1832,9 +1834,16 @@ list.addEventListener('click', event => {
 
     // Controls were already visible: a tap here means "hide them" —
     // playback is never touched by tapping the open video area, only
-    // by the center button itself.
-    clearTimeout(idleTimers.get(stage));
-    stage.classList.add('is-idle');
+    // by the center button itself. Delayed briefly so a second tap
+    // (a double-tap/double-click) can cancel this and hand off to the
+    // seek behaviour below instead, without the controls visibly
+    // flickering hidden-then-shown in between.
+    clearTimeout(clickTimers.get(stage));
+    clickTimers.set(stage, setTimeout(() => {
+        clickTimers.delete(stage);
+        clearTimeout(idleTimers.get(stage));
+        stage.classList.add('is-idle');
+    }, 220));
 });
 
 function flashSeek(stage, direction) {
