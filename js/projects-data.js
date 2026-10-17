@@ -154,39 +154,51 @@ window.projects = [
     }
 ];
 
-
-/*
-Ah, simple fix — ffmpeg can't write to the same file it's reading from. You need a different output filename, then swap it in like you did for Chatrify.
-
-```powershell
-cd src/images/projects
-ffmpeg -i digitaltwin-demo.mp4 -c copy -movflags +faststart digitaltwin-demo-fast.mp4
-```
-
-Then replace the original:
-
-```powershell
-del digitaltwin-demo.mp4
-ren digitaltwin-demo-fast.mp4 digitaltwin-demo.mp4
-```
-
-That's it — same two-step process as Chatrify. Once that's done, if you want the sprite-sheet scrub preview for this one too, the duration is **1:42 (102 seconds)**, so at one frame every 2 seconds that's ~51 frames — an 8×7 grid (56 slots) covers it:
-
-```powershell
-ffmpeg -i digitaltwin-demo.mp4 -vf "fps=1/2,scale=160:-1,tile=8x7" -q:v 3 digitaltwin-sprite.jpg
-```
-
-Then in `projects-data.js`, add to Digital Twin's entry:
-
-```js
-video: "src/images/projects/digitaltwin-demo.mp4",
-spriteSheet: "src/images/projects/digitaltwin-sprite.jpg",
-spriteInterval: 2,
-spriteCols: 8,
-spriteRows: 7,
-spriteFrameWidth: 160,
-spriteFrameHeight: 90,
-```
-
-One note: your source resolution here is 1306×802 (not quite 16:9 exactly, close to it) — the sprite frame height I gave (90px, matching a 160px-wide 16:9 frame) should still look fine since `scale=160:-1` auto-computes height from the actual aspect ratio. If the frame looks slightly off in the tooltip, let me know the actual output frame height (ffmpeg will print it) and I'll adjust `spriteFrameHeight` to match exactly.
-*/
+/**
+ * HOW TO ADD A NEW PROJECT VIDEO — run every time, in this order
+ * (run from: src/images/projects)
+ *
+ * 1. COMPRESS + FAST-START (one command does both)
+ *    ffmpeg -i <name>-demo.mp4 -c:v libx264 -crf 23 -preset slow -c:a aac -b:a 128k -movflags +faststart <name>-demo-fast.mp4
+ *
+ *    - Never overwrite the input file directly — ffmpeg can't write
+ *      to the same file it's reading. Always output to a "-fast"
+ *      suffixed file first.
+ *    - -crf 23 = near-lossless for screen recordings, usually a huge
+ *      size cut. If output looks soft/blocky anywhere, redo with
+ *      -crf 20 instead (bigger file, safer quality).
+ *    - Watch the FULL output video once before trusting it, not just
+ *      a quick skim — check any fast-motion/scrolling parts closely.
+ *
+ * 2. SWAP IT IN
+ *    del <name>-demo.mp4
+ *    ren <name>-demo-fast.mp4 <name>-demo.mp4
+ *
+ * 3. CHECK FILE SIZE — must stay under 50 MB (GitHub's limit)
+ *    dir <name>-demo.mp4
+ *    If still too big, re-run step 1 with a lower -crf... no wait,
+ *    HIGHER -crf number (24, 26, 28) = smaller file, more compression.
+ *
+ * 4. GENERATE THE SCRUB-PREVIEW SPRITE SHEET
+ *    First get exact duration:
+ *      ffprobe -i <name>-demo.mp4 -show_entries format=duration -v quiet -of csv="p=0"
+ *    Then pick a grid that covers (duration ÷ 2) frames, e.g. 93s → ~47 frames → 7x7 grid (49 slots).
+ *    Rule of thumb: cols x rows must be >= duration / 2.
+ *      ffmpeg -i <name>-demo.mp4 -vf "fps=1/2,scale=160:-1,tile=<cols>x<rows>" -q:v 3 <name>-sprite.jpg
+ *
+ * 5. ADD TO projects-data.js — inside that project's entry:
+ *    video: "src/images/projects/<name>-demo.mp4",
+ *    spriteSheet: "src/images/projects/<name>-sprite.jpg",
+ *    spriteInterval: 2,
+ *    spriteCols: <cols>,
+ *    spriteRows: <rows>,
+ *    spriteFrameWidth: 160,
+ *    spriteFrameHeight: 90,   // check ffmpeg's actual output height if video isn't ~16:9
+ *
+ * 6. COMMIT + PUSH
+ *    git add .
+ *    git commit -m "Add <name> demo video"
+ *    git push origin main
+ *    If GitHub warns about file size again, the video wasn't
+ *    compressed enough — redo step 1 with a higher -crf.
+ */
