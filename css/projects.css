@@ -1507,3 +1507,63 @@ body:has(#projects.section.active) #liquid-glow {
         font-size: 0.82rem;
     }
 }
+
+
+/* Hidden outside fullscreen, same as the back button. */
+#projects .project-video-fullscreen-title {
+    display: none !important;
+}
+
+/* Left-middle, visible/hidden in lockstep with the control bar — same
+   is-active / is-idle rule the controls themselves follow, so it
+   never needs its own timer and always matches their state exactly. */
+#projects .project-media-stage:fullscreen.is-active .project-video-fullscreen-title,
+#projects .project-media-stage:-webkit-full-screen.is-active .project-video-fullscreen-title {
+    position: absolute;
+    top: 50%;
+    left: calc(env(safe-area-inset-left, 0px) + 1.25rem);
+    z-index: 6;
+
+    display: inline-flex !important;
+    max-width: min(60%, 26rem);
+    padding: 0.45rem 0.9rem;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+
+    background: rgba(10, 10, 10, 0.4);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    color: #fff;
+
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    pointer-events: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+
+    opacity: 1;
+    transform: translateY(-50%);
+    transition: opacity 220ms ease;
+}
+
+#projects .project-media-stage:fullscreen.is-active.is-idle .project-video-fullscreen-title,
+#projects .project-media-stage:-webkit-full-screen.is-active.is-idle .project-video-fullscreen-title {
+    opacity: 0;
+}
+
+@media (max-width: 480px) {
+    #projects .project-media-stage:fullscreen.is-active .project-video-fullscreen-title,
+    #projects .project-media-stage:-webkit-full-screen.is-active .project-video-fullscreen-title {
+        left: calc(env(safe-area-inset-left, 0px) + 0.75rem);
+        font-size: 0.76rem;
+        padding: 0.35rem 0.75rem;
+        max-width: min(55%, 18rem);
+    }
+}

@@ -943,6 +943,8 @@ function wakeControls(stage) {
                             data-video-back-projects
                         >Back to all projects</button>
 
+                        <div class="project-video-fullscreen-title" data-video-fullscreen-title>${title}</div>
+
                         ${thumbnail}
                         <video
                             class="project-preview-video"
