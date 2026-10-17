@@ -101,6 +101,13 @@ window.projects = [
         description: 'A scroll-synced mocktail shop app that enhances engagement through adaptive visual storytelling.',
         image: '/src/images/projects/mocktails.png',
         imageAlt: 'Velvet Pour mocktail shop interface',
+        video: '/src/images/projects/velvetpour-demo.mp4',
+        spriteSheet: "src/images/projects/velvetpour-sprite.jpg",
+        spriteInterval: 2,
+        spriteCols: 8,
+        spriteRows: 7,
+        spriteFrameWidth: 160,
+        spriteFrameHeight: 90,
         tech_categories: ['React', 'Redux', 'GSAP'],
         github: 'https://github.com/PranavKohli24/mocktails',
         demo: 'https://sipbypranav.vercel.app/'
@@ -182,6 +189,7 @@ window.projects = [
  * 4. GENERATE THE SCRUB-PREVIEW SPRITE SHEET
  *    First get exact duration:
  *      ffprobe -i <name>-demo.mp4 -show_entries format=duration -v quiet -of csv="p=0"
+ *      eg: ffmpeg -i velvetpour-demo.mp4 -vf "fps=1/2,scale=160:-1,tile=8x7" -q:v 3 velvetpour-sprite.jpg
  *    Then pick a grid that covers (duration ÷ 2) frames, e.g. 93s → ~47 frames → 7x7 grid (49 slots).
  *    Rule of thumb: cols x rows must be >= duration / 2.
  *      ffmpeg -i <name>-demo.mp4 -vf "fps=1/2,scale=160:-1,tile=<cols>x<rows>" -q:v 3 <name>-sprite.jpg
