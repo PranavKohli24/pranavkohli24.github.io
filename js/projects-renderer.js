@@ -584,8 +584,9 @@
         let activeVideoEl = null;
 
         function updatePlayIcon(stage, isPaused) {
-            if (!stage) return;
+            updateCenterButton(stage, isPaused);
 
+            if (!stage) return;
             const toggleBtn = stage.querySelector('[data-video-toggle]');
             if (!toggleBtn) return;
 
@@ -832,18 +833,16 @@ function updateBuffered(stage, videoEl) {
     bufferedEl.style.width = `${Math.min(100, (end / videoEl.duration) * 100)}%`;
 }
 
-function showCenterFlash(stage, type) {
+// The center button always shows the real play/pause state and is
+// itself the only way to toggle playback — visible whenever controls
+// are visible, hidden whenever controls are hidden (see CSS).
+function updateCenterButton(stage, isPaused) {
     if (!stage) return;
-    const flashEl = stage.querySelector('[data-video-center-flash]');
-    if (!flashEl) return;
+    const centerBtn = stage.querySelector('[data-video-center-flash]');
+    if (!centerBtn) return;
 
-    flashEl.innerHTML = type === 'play' ? ICONS.play : ICONS.pause;
-    flashEl.classList.remove('is-visible');
-    void flashEl.offsetWidth; // restart animation on rapid re-toggles
-    flashEl.classList.add('is-visible');
-
-    clearTimeout(flashEl._hideTimer);
-    flashEl._hideTimer = setTimeout(() => flashEl.classList.remove('is-visible'), 500);
+    centerBtn.innerHTML = isPaused ? ICONS.play : ICONS.pause;
+    centerBtn.setAttribute('aria-label', isPaused ? 'Play' : 'Pause');
 }
 
 function togglePlayback(stage, videoEl) {
@@ -851,11 +850,27 @@ function togglePlayback(stage, videoEl) {
 
     if (videoEl.paused) {
         videoEl.play();
-        showCenterFlash(stage, 'pause');
     } else {
         videoEl.pause();
-        showCenterFlash(stage, 'play');
     }
+
+    pulseCenterButton(stage);
+}
+
+// Brief glow pulse on the center button, same visual as the old
+// flash — layered on top of the persistent button so it keeps
+// showing the correct icon/state throughout, not replaced by it.
+function pulseCenterButton(stage) {
+    if (!stage) return;
+    const centerBtn = stage.querySelector('[data-video-center-flash]');
+    if (!centerBtn) return;
+
+    centerBtn.classList.remove('is-pulsing');
+    void centerBtn.offsetWidth; // restart animation on rapid re-toggles
+    centerBtn.classList.add('is-pulsing');
+
+    clearTimeout(centerBtn._pulseTimer);
+    centerBtn._pulseTimer = setTimeout(() => centerBtn.classList.remove('is-pulsing'), 500);
 }
 
 // Controls auto-hide while actively playing — any pointer movement
@@ -945,7 +960,12 @@ function wakeControls(stage) {
                         >${ICONS.play}</button>
 
                         <div class="project-video-spinner" data-video-spinner aria-hidden="true"></div>
-                        <div class="project-video-center-flash" data-video-center-flash aria-hidden="true"></div>
+                        <button
+                            type="button"
+                            class="project-video-center-flash"
+                            data-video-center-flash
+                            aria-label="Play"
+                        >${ICONS.play}</button>
 
                         <!-- Our own minimal controls — shown only once
                              someone has clicked into the full player.
@@ -1401,6 +1421,18 @@ list.addEventListener('click', event => {
         return;
     }
 
+    const centerBtn = event.target.closest('[data-video-center-flash]');
+    if (centerBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const stage = centerBtn.closest('[data-video-stage]');
+        const videoEl = stage && stage.querySelector('[data-project-video]');
+        if (!videoEl) return;
+
+        togglePlayback(stage, videoEl);
+        return;
+    }
     // Plain clicks (no drag) on the bar are handled by pointerdown/up
     // below, which covers both tap-to-seek and drag-to-seek in one
     // path — this click handler intentionally does nothing for the
@@ -1706,6 +1738,10 @@ list.addEventListener('click', event => {
         return;
     }
 
+    // Clicks on the control bar (scrubber, speed, fullscreen, the
+    // center button itself) are handled by their own dedicated
+    // handlers above — this generic stage-tap logic only governs
+    // taps on the open video area.
     if (event.target.closest('[data-video-controls]')) return;
 
     event.preventDefault();
@@ -1718,18 +1754,18 @@ list.addEventListener('click', event => {
     tapStartedIdle.delete(stage);
 
     if (wasIdle) {
+        // Controls were hidden: this tap's job is just to reveal them
+        // (wakeControls already ran on pointerdown). If the video was
+        // paused, resume it too — otherwise leave playback untouched.
         if (videoEl.paused) videoEl.play();
         return;
     }
 
-    // Controls already visible: a plain click toggles play/pause,
-    // delayed briefly so a second click (a double-click/tap) can
-    // cancel it and hand off to the seek behaviour below instead.
-    clearTimeout(clickTimers.get(stage));
-    clickTimers.set(stage, setTimeout(() => {
-        clickTimers.delete(stage);
-        togglePlayback(stage, videoEl);
-    }, 220));
+    // Controls were already visible: a tap here means "hide them" —
+    // playback is never touched by tapping the open video area, only
+    // by the center button itself.
+    clearTimeout(idleTimers.get(stage));
+    stage.classList.add('is-idle');
 });
 
 function flashSeek(stage, direction) {

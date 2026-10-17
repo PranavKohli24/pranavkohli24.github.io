@@ -528,6 +528,14 @@ body:has(#projects.section.active) #liquid-glow {
 #projects .project-play-btn svg {
     transform: translateX(1px);
 }
+
+/* A brief glow pulse on every toggle, same purple-glow treatment as
+   before — layered on top of the persistent button rather than
+   replacing it, so the button stays visible/clickable throughout. */
+#projects .project-video-center-flash.is-pulsing {
+    box-shadow: 0 0 0 10px rgba(93, 0, 247, 0), 0 0 24px -4px var(--project-accent-strong);
+    transition: opacity 180ms ease, transform 180ms ease, background-color 160ms ease, box-shadow 500ms ease;
+}
 /* Center play/pause flash — our own rounded-square glow badge
    (not YouTube's circle), pulsing briefly on every toggle. */
 #projects .project-video-center-flash {
@@ -535,25 +543,41 @@ body:has(#projects.section.active) #liquid-glow {
     top: 50%;
     left: 50%;
     z-index: 5;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     width: 3.6rem;
     height: 3.6rem;
+    padding: 0;
+    border: 0;
     border-radius: 20px;
     background: rgba(10, 10, 10, 0.55);
     color: #fff;
-    pointer-events: none;
+    cursor: pointer;
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.82);
-    transition: opacity 260ms ease, transform 260ms ease, box-shadow 400ms ease;
+    transform: translate(-50%, -50%) scale(0.9);
+    transition: opacity 180ms ease, transform 180ms ease, background-color 160ms ease, box-shadow 400ms ease;
 }
 
-#projects .project-video-center-flash.is-visible {
+#projects .project-video-center-flash svg {
+    transform: translateX(1px);
+}
+
+#projects .project-video-center-flash:hover {
+    background: rgba(10, 10, 10, 0.72);
+}
+
+/* Visible exactly whenever the control bar is visible — same rule
+   the bar itself follows, so they always appear/disappear together. */
+#projects .project-media-stage.is-active .project-video-center-flash {
+    display: flex;
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
-    box-shadow: 0 0 0 10px rgba(93, 0, 247, 0), 0 0 24px -4px var(--project-accent-strong);
-    transition: opacity 180ms ease, transform 180ms ease, box-shadow 500ms ease;
+}
+
+#projects .project-media-stage.is-active.is-idle .project-video-center-flash {
+    opacity: 0;
+    pointer-events: none;
 }
 
 #projects .project-video-spinner {
@@ -900,9 +924,9 @@ body:has(#projects.section.active) #liquid-glow {
 
 #projects .project-media-stage:fullscreen .project-video-controls .project-video-toggle,
 #projects .project-media-stage:fullscreen .project-video-controls .project-video-mute,
+#projects .project-media-stage:fullscreen .project-video-controls .project-video-toggle,
 #projects .project-media-stage:fullscreen .project-video-controls .project-video-fullscreen,
 #projects .project-media-stage:-webkit-full-screen .project-video-controls .project-video-toggle,
-#projects .project-media-stage:-webkit-full-screen .project-video-controls .project-video-mute,
 #projects .project-media-stage:-webkit-full-screen .project-video-controls .project-video-fullscreen {
     width: 2.2rem;
     height: 2.2rem;
