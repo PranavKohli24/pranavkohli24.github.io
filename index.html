@@ -817,6 +817,25 @@
 </script>
 
 <script>
+    // Smooth profile pic load
+    (function() {
+        const pic = document.querySelector('.profile-pic');
+        if (!pic) return;
+
+        function markLoaded() {
+            pic.classList.add('is-loaded');
+        }
+
+        if (pic.complete && pic.naturalWidth !== 0) {
+            // Already cached/loaded before script ran
+            markLoaded();
+        } else {
+            pic.addEventListener('load', markLoaded, { once: true });
+        }
+    })();
+</script>
+
+<script>
     // TIME-BASED GREETING EMOJI
     (function() {
         const emojiEl = document.getElementById('time-emoji');

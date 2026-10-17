@@ -137,7 +137,6 @@ main {
     border-radius: 45%;
     object-fit: cover;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     border: 1px solid rgba(255, 255, 255, 0.65);
     box-shadow: 
         inset 2px 3px 5px rgba(255, 255, 255, 0.7),
@@ -145,13 +144,22 @@ main {
         inset -3px -3px 10px rgba(0, 0, 0, 0.05),
         0 10px 25px -10px rgba(0, 0, 0, 0.2);
     overflow: hidden;
-    transform: translateZ(0); /* Hardware Acceleration */
+    transform: translateZ(0);
 
-    animation: liquidMorph 8s ease-in-out infinite;
-    
     will-change: border-radius;
-    transition: transform 0.3s ease;
     cursor: pointer;
+
+    /* NEW: start hidden and slightly scaled down */
+    opacity: 0;
+    transform: translateZ(0) scale(0.96);
+    transition: opacity 0.5s ease, transform 0.4s ease;
+}
+
+/* NEW: only animate the morph once loaded */
+.profile-pic.is-loaded {
+    opacity: 1;
+    transform: translateZ(0) scale(1);
+    animation: liquidMorph 8s ease-in-out infinite;
 }
 
 .profile-pic:hover {
