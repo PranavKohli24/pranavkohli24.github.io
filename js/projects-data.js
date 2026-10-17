@@ -23,7 +23,7 @@ window.projects = [
         description: 'A full-stack AI chat assistant simulating my personal knowledge and communication style - remembers past conversations, shares links with previews, reacts to messages with emojis, and sends photos and voice notes.',
         image: '/src/images/projects/digital_twin.png',
         imageAlt: 'Digital Twin chat interface',
-        // video: '/src/images/projects/digital-twin-demo.mp4',
+        video: '/src/images/projects/digitaltwin-demo.mp4',
         tech_categories: ['React', 'Backend', 'Node.js', 'NLP', 'RAG'],
         github: '',
         demo: 'https://pranavkohli24.github.io/#twin'
@@ -149,31 +149,38 @@ window.projects = [
 ];
 
 
-
 /*
-ffmpeg -i src/images/projects/chatrify-demo.mp4 -c copy -movflags +faststart src/images/projects/chatrify-demo-fast.mp4
-Step 1 — Generate the sprite sheet for Chatrify
+Ah, simple fix — ffmpeg can't write to the same file it's reading from. You need a different output filename, then swap it in like you did for Chatrify.
 
-Your video is ~93 seconds. At one frame every 2 seconds that’s ~47 frames, so a 7×7 grid (49 slots) covers it with room to spare.
-
-powershell
+```powershell
 cd src/images/projects
-ffmpeg -i chatrify-demo.mp4 -vf "fps=1/2,scale=160:-1,tile=7x7" -q:v 3 chatrify-sprite.jpg
+ffmpeg -i digitaltwin-demo.mp4 -c copy -movflags +faststart digitaltwin-demo-fast.mp4
+```
 
-This creates chatrify-sprite.jpg — one small image, tens of KB, sitting right next to the video.
+Then replace the original:
 
-Step 2 — Add sprite config to projects-data.js
+```powershell
+del digitaltwin-demo.mp4
+ren digitaltwin-demo-fast.mp4 digitaltwin-demo.mp4
+```
 
-Find Chatrify’s entry and add these fields alongside video:
+That's it — same two-step process as Chatrify. Once that's done, if you want the sprite-sheet scrub preview for this one too, the duration is **1:42 (102 seconds)**, so at one frame every 2 seconds that's ~51 frames — an 8×7 grid (56 slots) covers it:
 
-js
-video: "src/images/projects/chatrify-demo.mp4",
-spriteSheet: "src/images/projects/chatrify-sprite.jpg",
-spriteInterval: 2,       // one frame every 2 seconds
-spriteCols: 7,
+```powershell
+ffmpeg -i digitaltwin-demo.mp4 -vf "fps=1/2,scale=160:-1,tile=8x7" -q:v 3 digitaltwin-sprite.jpg
+```
+
+Then in `projects-data.js`, add to Digital Twin's entry:
+
+```js
+video: "src/images/projects/digitaltwin-demo.mp4",
+spriteSheet: "src/images/projects/digitaltwin-sprite.jpg",
+spriteInterval: 2,
+spriteCols: 8,
 spriteRows: 7,
 spriteFrameWidth: 160,
 spriteFrameHeight: 90,
+```
 
-These are all optional — any project without spriteSheet just keeps the plain time-tooltip, exactly as it works today.
+One note: your source resolution here is 1306×802 (not quite 16:9 exactly, close to it) — the sprite frame height I gave (90px, matching a 160px-wide 16:9 frame) should still look fine since `scale=160:-1` auto-computes height from the actual aspect ratio. If the frame looks slightly off in the tooltip, let me know the actual output frame height (ffmpeg will print it) and I'll adjust `spriteFrameHeight` to match exactly.
 */
