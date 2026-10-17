@@ -145,6 +145,13 @@ window.projects = [
         description: 'Studied in-depth about the famous Attention Is All You Need" research paper that introduced the Transformer architecture behind ChatGPT. Studied the complete RNN, problems with RNN, LSTM, Attention mechanism, and self attention.',
         image: '/src/images/projects/gpt_arch.png',
         imageAlt: 'GPT Transformer Architecture project',
+        video: '/src/images/projects/gptarch-demo.mp4',
+        spriteSheet: "src/images/projects/gptarch-sprite.jpg",
+        spriteInterval: 2,       // one frame every 2 seconds
+        spriteCols: 7,
+        spriteRows: 7,
+        spriteFrameWidth: 160,
+        spriteFrameHeight: 90,
         tech_categories: ['DSA', 'Python', 'NLP', 'Deep Learning', 'LLM'],
         github: '',
         demo: 'https://colab.research.google.com/drive/1r-Wum3YDymHeanmgQVAdqAm3x_IJkCDn?usp=sharing'
