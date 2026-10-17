@@ -877,8 +877,8 @@ body:has(#projects.section.active) #liquid-glow {
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 22px -2px var(--project-accent-strong);
 }
 
-#projects .project-seek-flash--forward { right: 18%; }
-#projects .project-seek-flash--backward { left: 18%; }
+#projects .project-seek-flash--forward { right: 24%; }
+#projects .project-seek-flash--backward { left: 24%; }
 
 /* While actively dragging, the track and fill thicken slightly for a
    more confident grab target and clearer feedback. */
@@ -1520,7 +1520,7 @@ body:has(#projects.section.active) #liquid-glow {
 #projects .project-media-stage:fullscreen.is-active .project-video-fullscreen-title,
 #projects .project-media-stage:-webkit-full-screen.is-active .project-video-fullscreen-title {
     position: absolute;
-    top: 50%;
+    top: 38%;
     left: calc(env(safe-area-inset-left, 0px) + 1.25rem);
     z-index: 6;
 
@@ -1561,6 +1561,7 @@ body:has(#projects.section.active) #liquid-glow {
 @media (max-width: 480px) {
     #projects .project-media-stage:fullscreen.is-active .project-video-fullscreen-title,
     #projects .project-media-stage:-webkit-full-screen.is-active .project-video-fullscreen-title {
+        top: 32%;
         left: calc(env(safe-area-inset-left, 0px) + 0.75rem);
         font-size: 0.76rem;
         padding: 0.35rem 0.75rem;
