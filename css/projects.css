@@ -580,6 +580,14 @@ body:has(#projects.section.active) #liquid-glow {
     pointer-events: none;
 }
 
+/* While the progress bar is being scrubbed, hide the center
+   play/pause button entirely so the sprite/thumbnail preview under
+   the finger/cursor is fully visible instead of covered by it. */
+#projects .project-media-stage.is-scrubbing .project-video-center-flash {
+    opacity: 0;
+    pointer-events: none;
+}
+
 #projects .project-video-spinner {
     position: absolute;
     top: 50%;

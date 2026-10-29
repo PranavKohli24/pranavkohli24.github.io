@@ -1532,6 +1532,7 @@ list.addEventListener('pointerdown', event => {
     progressEl.classList.add('is-scrubbing');
     progressEl.classList.remove('is-touch-ended');
     if (stage) stage.classList.remove('is-buffering');
+    if (stage) stage.classList.add('is-scrubbing');
 
     // Cache the bar's position once per drag — it doesn't resize
     // mid-scrub, so re-querying it on every pointermove (which can
@@ -1711,10 +1712,12 @@ function endScrub(event) {
     if (!progressEl || !scrubbingBars.has(progressEl)) return;
 
     const videoEl = scrubbingBars.get(progressEl);
+    const stage = progressEl.closest('[data-video-stage]');
 
     scrubbingBars.delete(progressEl);
     cachedProgressRects.delete(progressEl);
     progressEl.classList.remove('is-scrubbing');
+    if (stage) stage.classList.remove('is-scrubbing');
 
     if (videoEl && wasPlayingBeforeScrub.get(progressEl)) {
         videoEl.play();
