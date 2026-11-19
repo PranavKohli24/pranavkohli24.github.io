@@ -352,14 +352,14 @@
                     repeating-linear-gradient(
                         116deg,
                         transparent 0 2px,
-                        rgba(174, 145, 219, 0.34) 2px 3px,
-                        rgba(174, 145, 219, 0.19) 3px 4px,
+                        rgba(174, 145, 219, 0.44) 2px 3px,
+                        rgba(174, 145, 219, 0.29) 3px 4px,
                         transparent 4px 6px
                     ),
                     repeating-linear-gradient(
                         113deg,
                         transparent 0 7px,
-                        rgba(174, 145, 219, 0.25) 7px 8px,
+                        rgba(174, 145, 219, 0.35) 7px 8px,
                         transparent 8px 11px
                     );
             }
