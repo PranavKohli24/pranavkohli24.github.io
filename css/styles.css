@@ -201,6 +201,11 @@ main {
     opacity: 0;
     transform: translateY(-8px);
     transition: opacity 0.35s ease, transform 0.35s ease;
+    box-shadow: none !important;
+}
+
+.profile-row:hover {
+    box-shadow: none !important;
 }
 
 #profiles-dropdown.is-open .profile-row {
