@@ -9,7 +9,7 @@ const blogPosts = [
         title: 'How ChatGPT helped me answer much of my curiousity',
         date: 'November 2025',
         image: '/src/images/blog1.jpeg',
-        imageAlt: 'Blog1 Image',
+        imageAlt: '',
         audioFile: '/src/audio/blog1_audio.mp3',
         content: `
             <p>I've always been like this.</p>
@@ -70,7 +70,7 @@ const blogPosts = [
         title: 'The 3 AM Breakthrough: Saving the Hackathon Demo',
         date: 'December 2025',
         image: '/src/images/blog2.jpeg',
-        imageAlt: 'Hackathon team working late night',
+        imageAlt: '',
         audioFile: '/src/audio/blog2_audio.mp3',
         content: `
                 <p>It was a 24 hour hackathon</p>
