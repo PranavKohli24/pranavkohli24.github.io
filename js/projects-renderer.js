@@ -314,6 +314,60 @@
         }
     };
 
+    function installMatchedTechPencilHighlight() {
+        if (document.getElementById('project-tech-pencil-highlight-styles')) return;
+
+        const style = document.createElement('style');
+        style.id = 'project-tech-pencil-highlight-styles';
+
+        style.textContent = `
+            .project-tech-line .project-tech-tag--matched {
+                position: relative;
+                display: inline-block;
+                isolation: isolate;
+                padding: 0 0.035em;
+            }
+
+            .project-tech-line .project-tech-tag--matched::before {
+                content: '';
+                position: absolute;
+                z-index: -1;
+                left: -0.12em;
+                right: -0.12em;
+                top: 0.12em;
+                bottom: 0.02em;
+                pointer-events: none;
+                transform: rotate(-1deg);
+                opacity: 0.88;
+
+                clip-path: polygon(
+                    2% 26%, 8% 11%, 16% 18%, 23% 4%, 31% 13%,
+                    40% 1%, 49% 12%, 58% 3%, 68% 14%, 77% 2%,
+                    87% 12%, 98% 5%, 96% 83%, 89% 97%, 80% 88%,
+                    70% 100%, 60% 89%, 50% 98%, 40% 88%, 30% 99%,
+                    20% 88%, 10% 97%, 3% 84%
+                );
+
+                background-image:
+                    repeating-linear-gradient(
+                        116deg,
+                        transparent 0 2px,
+                        rgba(174, 145, 219, 0.34) 2px 3px,
+                        rgba(174, 145, 219, 0.19) 3px 4px,
+                        transparent 4px 6px
+                    ),
+                    repeating-linear-gradient(
+                        113deg,
+                        transparent 0 7px,
+                        rgba(174, 145, 219, 0.25) 7px 8px,
+                        transparent 8px 11px
+                    );
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+
     function initProjects() {
         const list = document.getElementById('projectsGrid');
         const filters = document.getElementById('projectsFilters');
@@ -324,6 +378,8 @@
         const searchGhost = document.getElementById('projectsSearchGhost');
 
         if (!list || !filters) return;
+
+        installMatchedTechPencilHighlight();
 
         function focusInputWithoutKeyboard() {
             if (!searchInput) return;
