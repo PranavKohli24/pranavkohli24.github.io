@@ -523,9 +523,8 @@
         </svg>
     </div>
 
-    <div id="profiles-dropdown" style="display: none; flex-direction: column; gap: 15px; margin-top: 15px; margin-left: 20px; border-left: 2px solid rgba(128,128,128,0.2); padding-left: 15px;">
-        
-        <a href="https://github.com/PranavKohli24" class="contact-item" target="_blank" rel="noopener noreferrer">
+    <div id="profiles-dropdown">
+        <a href="https://github.com/PranavKohli24" class="contact-item profile-row" target="_blank" rel="noopener noreferrer">
             <div class="contact-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="fill: none !important; stroke: currentColor !important;">
                     <title>GitHub</title>
@@ -538,7 +537,7 @@
             </div>
         </a>
 
-        <a href="https://codeforces.com/profile/pranavkohli" class="contact-item" target="_blank" rel="noopener noreferrer">
+        <a href="https://codeforces.com/profile/pranavkohli" class="contact-item profile-row" target="_blank" rel="noopener noreferrer">
             <div class="contact-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 180" role="img" preserveAspectRatio="xMinYMid meet" style="width: 80px !important; height: auto !important;">
                     <title>Codeforces</title>
@@ -554,7 +553,7 @@
         </a>
 
 
-        <a href="https://www.geeksforgeeks.org/profile/pranavkohli?tab=activity" class="contact-item" target="_blank" rel="noopener noreferrer">
+        <a href="https://www.geeksforgeeks.org/profile/pranavkohli?tab=activity" class="contact-item profile-row" target="_blank" rel="noopener noreferrer">
             <div class="contact-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45" role="img" style="fill: none !important; stroke: #2f8d46 !important; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
                     <title>GeeksforGeeks</title>
@@ -995,15 +994,14 @@
     function toggleProfiles() {
         var dropdown = document.getElementById("profiles-dropdown");
         var arrow = document.getElementById("arrow-icon");
-        
-        // Check current display state (handle inline style or computed style)
-        var currentDisplay = dropdown.style.display;
-        
-        if (currentDisplay === "none" || currentDisplay === "") {
-            dropdown.style.display = "flex";
+
+        var isOpen = dropdown.classList.contains("is-open");
+
+        if (!isOpen) {
+            dropdown.classList.add("is-open");
             arrow.style.transform = "rotate(180deg)";
         } else {
-            dropdown.style.display = "none";
+            dropdown.classList.remove("is-open");
             arrow.style.transform = "rotate(0deg)";
         }
     }
