@@ -68,7 +68,8 @@
         }
 
         function updateSliderBackground() {
-            const percentage = (audio.currentTime / (audio.duration || 1)) * 100;
+            const value = isDragging ? seekSlider.value : audio.currentTime;
+            const percentage = (value / (audio.duration || 1)) * 100;
             seekSlider.style.background = 
                 `linear-gradient(to right, #808080 0%, #808080 ${percentage}%, #e5e5e5 ${percentage}%, #e5e5e5 100%)`;
         }
