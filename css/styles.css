@@ -316,16 +316,13 @@ main {
     backdrop-filter: blur(20px) saturate(120%);
     -webkit-backdrop-filter: blur(20px) saturate(120%);
     
-    /* 3. Specular Highlights (Shiny Edges) */
-    /* Light hits from top-left, so those borders are brighter */
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-top: 1px solid rgba(255, 255, 255, 0.9);
-    border-left: 1px solid rgba(255, 255, 255, 0.9);
+    /* 3. Border */
+    border: 1px solid rgba(0, 0, 0, 0.06);
     
-    /* 4. Depth Shadow */
+    /* 4. Depth Shadow (stronger, more 3D) */
     box-shadow: 
-        0 8px 32px 0 rgba(31, 38, 135, 0.05),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.2); /* Inner rim */
+        0 20px 40px -12px rgba(0, 0, 0, 0.18),
+        0 8px 16px -4px rgba(0, 0, 0, 0.08);
         
     transform: translateZ(0);
     transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -339,22 +336,21 @@ main {
 }
 
 .contact-item:hover {
-    /* Lift effect */
-    transform: translateY(-5px) scale(1.01);
+    /* Bigger lift for a more 3D pop */
+    transform: translateY(-10px) scale(1.015);
     
-    /* Increase glossiness on hover */
     background: linear-gradient(
         135deg,
         rgba(255, 255, 255, 0.8) 0%,
         rgba(93, 0, 247, 0.08) 100% 
     );
     
-    /* Stronger Highlight Color Shadow */
+    /* Deeper, wider shadow = more 3D depth, no bright rim */
     box-shadow: 
-        0 15px 35px -5px rgba(93, 0, 247, 0.15), /* Your brand purple glow */
-        inset 0 0 20px rgba(255, 255, 255, 0.6); /* Inner light reflection */
+        0 30px 60px -15px rgba(0, 0, 0, 0.25),
+        0 10px 20px -5px rgba(93, 0, 247, 0.1);
         
-    border-color: rgba(255, 255, 255, 1);
+    border-color: rgba(0, 0, 0, 0.08);
 }
 
 /* Original Icon Styling Preserved */
