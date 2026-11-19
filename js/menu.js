@@ -63,15 +63,19 @@ allNavLinks.forEach(link => {
 
         // Internal navigation
         if (targetHash && targetHash.startsWith('#')) {
+            const finalUrl = targetHash === '#about'
+                ? window.location.pathname + window.location.search
+                : targetHash;
+
             // Already on this section: remove the temporary menu history entry
-            if (window.location.hash === targetHash) {
+            if (window.location.hash === targetHash || (targetHash === '#about' && !window.location.hash)) {
                 history.back();
                 return;
             }
 
             // Different section: close menu, replace the temporary entry
             toggleMenu();
-            history.replaceState({}, '', targetHash);
+            history.replaceState({}, '', finalUrl);
 
             if (typeof showSection === 'function') {
                 showSection();

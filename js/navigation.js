@@ -94,9 +94,15 @@ document.addEventListener('click', event => {
     if (!route || !isSection(resolveSectionId(route.split('/')[0]))) return;
 
     event.preventDefault();
-    if (window.location.hash === targetHash) return;
 
-    history.pushState({}, '', targetHash);
+    // "about" is home - keep URL clean, no "#about"
+    const finalUrl = route === 'about'
+        ? window.location.pathname + window.location.search
+        : targetHash;
+
+    if (window.location.hash === targetHash || (route === 'about' && !window.location.hash)) return;
+
+    history.pushState({}, '', finalUrl);
     showSection();
 });
 
