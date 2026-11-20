@@ -1085,8 +1085,7 @@ body:has(#projects.section.active) #liquid-glow {
 }
 
 .project-tech-tag--matched {
-    color: var(--project-ink, #111);
-    font-weight: 700;
+    color: #666;
 }
 
 /* Links — same underlined, horizontal-slide motion as the rest of
