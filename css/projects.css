@@ -1583,7 +1583,7 @@ body:has(#projects.section.active) #liquid-glow {
 
 .project-row-points {
     list-style: none;
-    margin: 0;
+    margin: 0 0 0.9rem;
     padding: 0;
     display: flex;
     flex-direction: column;
