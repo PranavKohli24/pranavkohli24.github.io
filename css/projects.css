@@ -1595,9 +1595,9 @@ body:has(#projects.section.active) #liquid-glow {
 .project-row-point-arrow {
     flex: 0 0 auto;
     display: inline-flex;
-    margin-top: 0.15em;
-    color: var(--accent, currentColor);
-    opacity: 0.75;
+    margin-top: 0.3em;
+    color: var(--project-faint, currentColor);
+    opacity: 0.6;
 }
 
 .project-row-point-text {

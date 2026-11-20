@@ -1157,9 +1157,9 @@ const links = [
                                     ${descriptionPoints.map(point => `
                                         <li class="project-row-point">
                                             <span class="project-row-point-arrow" aria-hidden="true">
-                                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M4 4v9a4 4 0 0 0 4 4h12" />
-                                                    <polyline points="15 13 20 17 15 21" />
+                                                    <polyline points="16 14 20 17 16 20" />
                                                 </svg>
                                             </span>
                                             <span class="project-row-point-text">${escapeHTML(point)}</span>
