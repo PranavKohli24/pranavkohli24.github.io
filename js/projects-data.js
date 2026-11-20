@@ -21,8 +21,8 @@ window.projects = [
         id: 'digital-twin',
         title: 'Digital Twin',
         description: [
-            "My AI twin - trained on my GitHub, notes, and personal data so it actually talks like me. Ask it about my projects, it'll tell you.",
-            "It remembers past conversations, can send pics and voice notes mid-chat, and can even check at my calendar to set up a meeting with me in natural language.", 
+            "My AI twin - trained on my GitHub, notes, and personal data so it actually talks like me. Ask it about my projects or anything, it'll tell you.",
+            "It remembers past conversations, can react to a message with emoji, send pics and voice notes mid-chat, and can even check at my calendar to set up a meeting with me in natural language.", 
             "Try typing gibberish(npsdfghw) and it calls you out - 'sounds like there's a kid on the other side 😄'. There's a 20 message cap per conversation, and it actually knows when it's on the last one, so it doesn't awkwardly try to keep the chat going.",
             "Also has its own little animated avatar, and I spent way too much time on the micro-interactions."
         ],
@@ -43,18 +43,18 @@ window.projects = [
         id: 'rasoi-bazaar',
         title: 'Rasoi Bazaar',
         description: [
-            "A kitchen web app built on top of a dataset I curated myself - 600+ Indian dishes with their recipes. Type in any dish and it gives you the simplest version to cook, plus exactly what ingredients and equipment you'll need.", 
+            "A kitchen web app built on top of a dataset I curated myself - 600+ Indian dishes with their recipes. Type in any dish or upload any dish you liked and it gives you the simplest version to cook, plus exactly what ingredients and equipment you'll need.", 
             "Small detail I love - the UI changes color based on the dish, so rajma chawal gets a warm brown background, paneer gets an orangish one, stuff like that.",
-            "Missing an ingredient? Order it straight from Instamart without leaving the website (complete flow -  searching the product, buying, tracking the order. Or if you don't feel like cooking at all, just order the dish from Swiggy instead within the website.",
-            "Then there's Hey Chef (similar to Hey Alexa) - basically a cooking companion you can talk to while you're mid-recipe. Stuck on a step? Just speak it, and you dont need to touch our mobile while cooking. You can even tell it 'order this, this, and this' and it'll go place the Instamart order for you.",
+            "Missing an ingredient? Order it straight from Instamart without leaving the website (complete flow -  searching the product, buying, tracking the order). Or if you don't feel like cooking at all, just order the dish from Swiggy instead within the website.",
+            "Then there's Hey Chef (similar to Hey Alexa) - basically a cooking companion you can talk to while you're cooking. Stuck on a step? Just speak it, and you dont need to touch our mobile while cooking. You can even tell it 'order this, this, and this' and it'll place the Instamart order for you.",
             "If you're not sure what to cook in the first place, there's a Kitchen Canvas - a little visual kitchen where you tap in what equipment and ingredients you actually have, and it suggests dishes you can make right now.",
-            "And if you're traveling, there's Cook Like Local - cook a dish the way locals actually make it in that region, or find nearby restaurants through a Dineout integration. If you're traveling with a group, there's also a Meal Negotiator - everyone just types their own preference (cuisine, budget, whatever), and it figures out the best restaurant that actually works for the whole group."
+            "And if you're traveling, there's Cook Like Local - cook a dish the way locals actually make it in that region, or find nearby restaurants through a Dineout integration. If you're traveling with a group, everyone might have different restaurant preferences - so there's also a Meal Negotiator - everyone just types their own preference (cuisine, budget, whatever), and it figures out the best restaurant that actually works for the whole group."
         ],
         image: '/src/images/projects/rasoi-bazaar.png',
         imageAlt: '',
         // video: '/src/images/projects/rasoi-demo.mp4',
-        tech_categories: ['React', 'Backend', 'Node.js', 'Elastic Search', 'NLP', 'RAG'],
-        github: '',
+        tech_categories: ['React','Figma','Backend', 'Node.js', 'Elastic Search', 'NLP', 'RAG', 'MCP'],
+        github: 'https://github.com/PranavKohli24/Rasoi_Bazaar',
         demo: 'http://rasoi-bazaar.vercel.app/'
     },
     {
