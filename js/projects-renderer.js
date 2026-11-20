@@ -947,9 +947,16 @@ function wakeControls(stage) {
     
         function renderRow(project, index, highlightTerms) {
             const title = escapeHTML(project.title || 'Untitled project');
-            const description = escapeHTML(
-                project.description || 'More details coming soon.'
-            );
+
+            // description can be either a plain string (renders as a paragraph)
+            // or an array of strings (renders as arrow-bulleted points).
+            const isPointList = Array.isArray(project.description);
+
+            const description = isPointList
+                ? ''
+                : escapeHTML(project.description || 'More details coming soon.');
+
+            const descriptionPoints = isPointList ? project.description : [];
             const image = safeURL(project.image);
             const alt = escapeHTML(
                 project.imageAlt || `${project.title || 'Project'} thumbnail`
@@ -1144,7 +1151,24 @@ const links = [
                     <div class="project-row-content">
                         <h2 class="project-row-title">${title}</h2>
 
-                        <p class="project-row-description">${description}</p>
+                        ${isPointList
+                            ? `
+                                <ul class="project-row-points">
+                                    ${descriptionPoints.map(point => `
+                                        <li class="project-row-point">
+                                            <span class="project-row-point-arrow" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M4 4v9a4 4 0 0 0 4 4h12" />
+                                                    <polyline points="15 13 20 17 15 21" />
+                                                </svg>
+                                            </span>
+                                            <span class="project-row-point-text">${escapeHTML(point)}</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            `
+                            : `<p class="project-row-description">${description}</p>`
+                        }
 
                         ${techLine}
 

@@ -1575,3 +1575,32 @@ body:has(#projects.section.active) #liquid-glow {
         max-width: min(55%, 18rem);
     }
 }
+
+
+.project-row-points {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+}
+
+.project-row-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55em;
+}
+
+.project-row-point-arrow {
+    flex: 0 0 auto;
+    display: inline-flex;
+    margin-top: 0.15em;
+    color: var(--accent, currentColor);
+    opacity: 0.75;
+}
+
+.project-row-point-text {
+    flex: 1 1 auto;
+    line-height: 1.5;
+}
