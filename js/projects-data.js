@@ -20,7 +20,13 @@ window.projects = [
     {
         id: 'digital-twin',
         title: 'Digital Twin',
-        description: 'A full-stack AI chat assistant simulating my personal knowledge and communication style - remembers past conversations, shares links with previews, reacts to messages with emojis, and sends photos and voice notes.',
+        description: `
+        My AI twin - trained on my GitHub, notes, and personal data so it actually talks like me. 
+        Ask it about my projects, it'll tell you.
+        It remembers past conversations, can send pics and voice notes mid-chat, and can even check at my calendar to set up a meeting with me in natural language. 
+        Try typing gibberish(npsdfghw) and it calls you out - "sounds like there's a kid on the other side 😄"
+        There's a 20 message cap per conversation, and it actually knows when it's on the last one, so it doesn't awkwardly try to keep the chat going.
+        Also has its own little animated avatar, and I spent way too much time on the micro-interactions.`,
         image: '/src/images/projects/digital_twin.png',
         imageAlt: '',
         video: '/src/images/projects/digitaltwin-demo.mp4',
@@ -37,7 +43,14 @@ window.projects = [
     {
         id: 'rasoi-bazaar',
         title: 'Rasoi Bazaar',
-        description: 'An Indian cuisine recipe generator with 500+ dishes, attracting and retaining 10,000+ users. Features text + image search, a "cook what you have" mode, Swiggy/Instamart ordering via MCP, and an AI cooking companion that answers context-aware questions about the dish you\'re making.',
+        description: `A kitchen web app built on top of a dataset I curated myself - 600+ Indian dishes with their recipes.
+        Type in any dish and it gives you the simplest version to cook, plus exactly what ingredients and equipment you'll need. 
+        Small detail I love - the UI changes color based on the dish, so rajma chawal gets a warm brown background, paneer gets an orangish one, stuff like that.
+        Missing an ingredient? Order it straight from Instamart without leaving the website (complete flow -  searching the product, buying, tracking the order. Or if you don't feel like cooking at all, just order the dish from Swiggy instead within the website.
+        Then there's Hey Chef (similar to Hey Alexa) - basically a cooking companion you can talk to while you're mid-recipe. Stuck on a step? Just speak it, and you dont need to touch our mobile while cooking. You can even tell it "order this, this, and this" and it'll go place the Instamart order for you.
+        If you're not sure what to cook in the first place, there's a Kitchen Canvas - a little visual kitchen where you tap in what equipment and ingredients you actually have, and it suggests dishes you can make right now.
+        And if you're traveling, there's Cook Like Local - cook a dish the way locals actually make it in that region, or find nearby restaurants through a Dineout integration. 
+        If you're traveling with a group, there's also a Meal Negotiator - everyone just types their own preference (cuisine, budget, whatever), and it figures out the best restaurant that actually works for the whole group.`,
         image: '/src/images/projects/rasoi-bazaar.png',
         imageAlt: '',
         // video: '/src/images/projects/rasoi-demo.mp4',
