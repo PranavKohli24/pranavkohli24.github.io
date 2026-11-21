@@ -1611,15 +1611,6 @@ if (cw && ch) {
         dh
     );
 }
-        c.fillStyle = pal.sky || '#efe9fb';
-        c.fillRect(0, 0, W, H);
-
-        
-        if (cw && ch) {
-            const scale = Math.max(W / cw, H / ch);
-            const dw = cw * scale, dh = ch * scale;
-            c.drawImage(canvas, (W - dw) / 2, (H - dh) / 2, dw, dh);
-        }
 
         // Result badge, top-left, echoes the in-game banner style
         const kicker = won ? 'OFFER RECEIVED' : 'ROUND ' + (roundIndex + 1) + '/4';
@@ -3565,13 +3556,12 @@ if (cw && ch) {
        --------------------------------------------------------------------- */
 function draw() {
 
-    // Use the Three.js renderer when available.
+    // Use Three.js renderer when available.
     if (
         window.EscapeInterview3D &&
         typeof window.EscapeInterview3D.render === 'function'
     ) {
 
-        // Keep the original Canvas for the HUD and effects.
         ctx.setTransform(
             dpr * viewScale,
             0,
@@ -3584,7 +3574,7 @@ function draw() {
         ctx.clearRect(0, 0, LW, LH);
         PAL = currentPal();
 
-        // Pass the existing game state to the 3D renderer.
+        // Send the existing game state to the 3D renderer.
         window.EscapeInterview3D.render({
             state,
             result,
@@ -3609,7 +3599,6 @@ function draw() {
             doors
         });
 
-        // Existing visual effects.
         if (flash > 0 && !reduceMotion) {
             ctx.globalAlpha = flash * 0.22;
             ctx.fillStyle = HAZ;
@@ -3617,7 +3606,6 @@ function draw() {
             ctx.globalAlpha = 1;
         }
 
-        drawSpeedLines();
         drawParticles();
 
         if (state !== 'menu') drawHud();
@@ -3627,7 +3615,7 @@ function draw() {
         return;
     }
 
-    // Original Canvas renderer as a fallback.
+    // Original Canvas renderer as fallback.
     ctx.setTransform(
         dpr * viewScale,
         0,
