@@ -1585,11 +1585,36 @@
         const won = result === 'win';
         const W = 1200, H = 630;
 
-        // Fallback fill, then the ACTUAL game frame, cover-fit
+        // Fallback fill, then the actual game frame.
+c.fillStyle = pal.sky || '#efe9fb';
+c.fillRect(0, 0, W, H);
+
+const frameCanvas =
+    window.EscapeInterview3D &&
+    typeof window.EscapeInterview3D.capture === 'function'
+        ? window.EscapeInterview3D.capture()
+        : canvas;
+
+const cw = frameCanvas.width;
+const ch = frameCanvas.height;
+
+if (cw && ch) {
+    const scale = Math.max(W / cw, H / ch);
+    const dw = cw * scale;
+    const dh = ch * scale;
+
+    c.drawImage(
+        frameCanvas,
+        (W - dw) / 2,
+        (H - dh) / 2,
+        dw,
+        dh
+    );
+}
         c.fillStyle = pal.sky || '#efe9fb';
         c.fillRect(0, 0, W, H);
 
-        const cw = canvas.width, ch = canvas.height;
+        
         if (cw && ch) {
             const scale = Math.max(W / cw, H / ch);
             const dw = cw * scale, dh = ch * scale;
@@ -3538,30 +3563,53 @@
     /* ---------------------------------------------------------------------
        Main draw
        --------------------------------------------------------------------- */
-    function draw() {
-        ctx.setTransform(dpr * viewScale, 0, 0, dpr * viewScale, 0, 0);
+function draw() {
+
+    // Use the Three.js renderer when available.
+    if (
+        window.EscapeInterview3D &&
+        typeof window.EscapeInterview3D.render === 'function'
+    ) {
+
+        // Keep the original Canvas for the HUD and effects.
+        ctx.setTransform(
+            dpr * viewScale,
+            0,
+            0,
+            dpr * viewScale,
+            0,
+            0
+        );
+
+        ctx.clearRect(0, 0, LW, LH);
         PAL = currentPal();
 
-        drawSky();
+        // Pass the existing game state to the 3D renderer.
+        window.EscapeInterview3D.render({
+            state,
+            result,
+            roundIndex,
+            py,
+            vy,
+            sliding,
+            runPhase,
+            worldT,
+            scroll,
+            GY,
+            LW,
+            LH,
+            PX,
+            shake,
+            invuln,
+            shield,
+            rush,
+            obstacles,
+            coinItems,
+            powerItems,
+            doors
+        });
 
-        ctx.save();
-        if (shake > 0 && !reduceMotion) {
-            ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
-        }
-
-        drawBackground();
-        drawGround();
-        drawSpeedLines();
-
-        doors.forEach(drawDoor);
-        coinItems.forEach(drawCoin);
-        powerItems.forEach(drawPower);
-        obstacles.forEach(drawObstacle);
-
-        drawPlayer();
-        drawParticles();
-        ctx.restore();
-
+        // Existing visual effects.
         if (flash > 0 && !reduceMotion) {
             ctx.globalAlpha = flash * 0.22;
             ctx.fillStyle = HAZ;
@@ -3569,9 +3617,64 @@
             ctx.globalAlpha = 1;
         }
 
+        drawSpeedLines();
+        drawParticles();
+
         if (state !== 'menu') drawHud();
+
         drawCountdown();
+
+        return;
     }
+
+    // Original Canvas renderer as a fallback.
+    ctx.setTransform(
+        dpr * viewScale,
+        0,
+        0,
+        dpr * viewScale,
+        0,
+        0
+    );
+
+    PAL = currentPal();
+
+    drawSky();
+
+    ctx.save();
+
+    if (shake > 0 && !reduceMotion) {
+        ctx.translate(
+            (Math.random() - 0.5) * shake,
+            (Math.random() - 0.5) * shake
+        );
+    }
+
+    drawBackground();
+    drawGround();
+    drawSpeedLines();
+
+    doors.forEach(drawDoor);
+    coinItems.forEach(drawCoin);
+    powerItems.forEach(drawPower);
+    obstacles.forEach(drawObstacle);
+
+    drawPlayer();
+    drawParticles();
+
+    ctx.restore();
+
+    if (flash > 0 && !reduceMotion) {
+        ctx.globalAlpha = flash * 0.22;
+        ctx.fillStyle = HAZ;
+        ctx.fillRect(0, 0, LW, LH);
+        ctx.globalAlpha = 1;
+    }
+
+    if (state !== 'menu') drawHud();
+
+    drawCountdown();
+}
 
     /* ---------------------------------------------------------------------
        Loop

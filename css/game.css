@@ -757,3 +757,19 @@ html.game-lock body {
     overflow: hidden;
     overscroll-behavior: none;
 }
+
+#game3dCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 0;
+    pointer-events: none;
+}
+
+#mazeCanvas {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+}

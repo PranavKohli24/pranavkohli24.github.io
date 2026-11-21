@@ -26,6 +26,16 @@
     <link rel="stylesheet" href="/css/digital-twin.css">
     <link rel="stylesheet" href="/css/digital-twin-info.css">
     <link rel="stylesheet" href="/css/projects.css">
+
+<!-- Three.js -->
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js"
+    }
+}
+</script>
+
 </head>
 
 <body>
@@ -709,7 +719,12 @@
     </div>
 
     <div class="game-canvas-wrap">
-        <canvas id="mazeCanvas"></canvas>
+
+    <!-- 3D graphics layer -->
+    <canvas id="game3dCanvas" aria-hidden="true"></canvas>
+
+    <!-- Existing 2D canvas for HUD and effects -->
+    <canvas id="mazeCanvas"></canvas>
         <div class="game-overlay" id="pauseOverlay">
             <h2>Game paused</h2>
             <div class="game-actions">
@@ -968,7 +983,12 @@
 
 <script src="/js/digital-twin.js"></script>
 <script src="/js/digital-twin-info.js"></script>
+
+<!-- Existing game logic -->
 <script src="/js/game.js"></script>
+
+<!-- New 3D renderer -->
+<script type="module" src="/js/game3d.js"></script>
 
 <script>
     // LIQUID AURORA EFFECT
