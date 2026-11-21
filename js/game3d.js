@@ -20,6 +20,7 @@ import * as THREE from 'three';
             canvas,
             antialias: window.devicePixelRatio <= 1.5,
             alpha: false,
+            preserveDrawingBuffer: true,
             powerPreference: 'high-performance'
         });
     } catch (error) {
@@ -31,7 +32,7 @@ import * as THREE from 'three';
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.12;
+    renderer.toneMappingExposure = 1.0;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
 
@@ -69,44 +70,54 @@ import * as THREE from 'three';
     let activeThemeIndex = -1;
     let buildingMaterials = [];
     let windowMaterials = [];
+    let lampMaterials = [];
+    let sceneryTracks = [];
 
     // The four original rounds keep their own time-of-day identity.
     const ROUND_THEMES = [
         {
             name: 'Morning',
-            skyTop: '#aaa2ce', skyMid: '#d7c9e8', horizon: '#f4d9d9',
-            fog: '#d3c7df', background: '#d6cce2',
-            hemi: '#d9d1f1', groundLight: '#514a61', sunlight: '#ffe5d0',
-            sunIntensity: 2.35, buildingTint: '#b8b4c9', road: '#55535f',
-            curb: '#b8b1bc', sheen: '#f1d3de', windowGlow: 0.35,
-            lampGlow: 0.25, stars: false
+            // Cool lavender dawn, with a warm low sun and soft atmospheric haze.
+            skyTop: '#8193b7', skyMid: '#c9b9d2', horizon: '#f0d3c5',
+            fog: '#c7c2d0', background: '#c5bfce',
+            hemi: '#dce1f1', groundLight: '#565362', sunlight: '#ffe4cf',
+            sunIntensity: 2.05, buildingTint: '#c0c2c9', road: '#aab0b6',
+            curb: '#a9a6a5', sheen: '#c7a9b4', windowGlow: 0.12,
+            lampGlow: 0.08, stars: false, solarX: 0.79, solarY: 0.46,
+            solarColor: '#fff0d8'
         },
         {
             name: 'Afternoon',
-            skyTop: '#7ea1c4', skyMid: '#e6c87f', horizon: '#f6d48d',
-            fog: '#e7c58d', background: '#e6c991',
-            hemi: '#f3d99d', groundLight: '#66503b', sunlight: '#fff0c2',
-            sunIntensity: 3.1, buildingTint: '#d7c7a9', road: '#62594d',
-            curb: '#c7b99d', sheen: '#f7dca7', windowGlow: 0.18,
-            lampGlow: 0.15, stars: false
+            // Clean blue sky, clearer light and a visible high sun.
+            skyTop: '#69a9d2', skyMid: '#b9d0d7', horizon: '#f0d7a6',
+            fog: '#d5c9ae', background: '#bbcbd0',
+            hemi: '#f1e5ca', groundLight: '#53514a', sunlight: '#fff0ce',
+            sunIntensity: 2.55, buildingTint: '#d0c9bb', road: '#aeb5b8',
+            curb: '#b5b2a8', sheen: '#d2bd91', windowGlow: 0.06,
+            lampGlow: 0.03, stars: false, solarX: 0.79, solarY: 0.37,
+            solarColor: '#fff7d7'
         },
         {
             name: 'Evening',
-            skyTop: '#34476f', skyMid: '#7786b1', horizon: '#d39a9d',
-            fog: '#7180a5', background: '#7280a2',
-            hemi: '#9eadd8', groundLight: '#33394e', sunlight: '#ffc19a',
-            sunIntensity: 1.85, buildingTint: '#9aa9c4', road: '#343d51',
-            curb: '#77839c', sheen: '#d79da6', windowGlow: 0.8,
-            lampGlow: 0.8, stars: false
+            // Blue-hour buildings against a rose and amber sunset.
+            skyTop: '#35496d', skyMid: '#98798f', horizon: '#e5a27f',
+            fog: '#82798b', background: '#6f7188',
+            hemi: '#a5a9c6', groundLight: '#303544', sunlight: '#ffc09a',
+            sunIntensity: 1.45, buildingTint: '#929bad', road: '#858e9b',
+            curb: '#687487', sheen: '#bd8c91', windowGlow: 0.72,
+            lampGlow: 0.78, stars: false, solarX: 0.77, solarY: 0.51,
+            solarColor: '#ffbd91'
         },
         {
             name: 'Night',
-            skyTop: '#090f20', skyMid: '#17233b', horizon: '#34364f',
-            fog: '#1b2235', background: '#151d30',
-            hemi: '#6f7da8', groundLight: '#111522', sunlight: '#a9c6ff',
-            sunIntensity: 0.72, buildingTint: '#68758e', road: '#171e2d',
-            curb: '#343c4e', sheen: '#8292c2', windowGlow: 1.65,
-            lampGlow: 1.8, stars: true
+            // Deep blue late evening, cool moonlight and warm office windows.
+            skyTop: '#0c1528', skyMid: '#1b2b46', horizon: '#3a455f',
+            fog: '#263149', background: '#172238',
+            hemi: '#8190b1', groundLight: '#101722', sunlight: '#9bb9e8',
+            sunIntensity: 0.62, buildingTint: '#657287', road: '#737f91',
+            curb: '#354154', sheen: '#6a7c9e', windowGlow: 1.42,
+            lampGlow: 1.55, stars: true, solarX: 0.79, solarY: 0.35,
+            solarColor: '#dce8ff'
         }
     ];
 
@@ -242,57 +253,118 @@ import * as THREE from 'three';
         return makeCanvasTexture((g, w, h) => {
             const grad = g.createLinearGradient(0, 0, 0, h);
             grad.addColorStop(0, theme.skyTop);
-            grad.addColorStop(0.55, theme.skyMid);
+            grad.addColorStop(0.56, theme.skyMid);
             grad.addColorStop(1, theme.horizon);
             g.fillStyle = grad;
             g.fillRect(0, 0, w, h);
 
-            const glow = g.createRadialGradient(w * 0.76, h * 0.72, 4, w * 0.76, h * 0.72, h * 0.5);
-            glow.addColorStop(0, theme.stars ? 'rgba(190,211,255,0.22)' : 'rgba(255,226,184,0.48)');
-            glow.addColorStop(1, 'rgba(255,226,184,0)');
-            g.fillStyle = glow;
+            const sx = w * (theme.solarX || 0.78);
+            const sy = h * (theme.solarY || 0.42);
+            const solarColor = theme.solarColor || '#fff0d8';
+            const halo = g.createRadialGradient(sx, sy, 5, sx, sy, theme.stars ? 150 : 190);
+            halo.addColorStop(0, theme.stars ? 'rgba(170,198,255,0.2)' : 'rgba(255,231,190,0.34)');
+            halo.addColorStop(1, 'rgba(255,231,190,0)');
+            g.fillStyle = halo;
             g.fillRect(0, 0, w, h);
 
             if (theme.stars) {
-                for (let i = 0; i < 110; i++) {
+                for (let i = 0; i < 145; i++) {
                     const x = (Math.sin(i * 91.7) * 0.5 + 0.5) * w;
                     const y = (Math.sin(i * 37.1 + 2) * 0.5 + 0.5) * h * 0.72;
-                    const r = i % 9 === 0 ? 2.3 : 1.1;
-                    g.fillStyle = `rgba(235,241,255,${0.35 + (i % 5) * 0.11})`;
+                    const r = i % 11 === 0 ? 2.1 : 0.9;
+                    g.fillStyle = `rgba(235,241,255,${0.3 + (i % 5) * 0.1})`;
                     g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
                 }
-                g.fillStyle = 'rgba(232,239,255,0.78)';
-                g.beginPath(); g.arc(w * 0.78, h * 0.35, 28, 0, Math.PI * 2); g.fill();
+                // A crescent moon, kept high enough to remain clear of the skyline.
+                g.fillStyle = 'rgba(232,239,255,0.92)';
+                g.beginPath(); g.arc(sx, sy, 27, 0, Math.PI * 2); g.fill();
                 g.fillStyle = theme.skyTop;
-                g.beginPath(); g.arc(w * 0.795, h * 0.325, 24, 0, Math.PI * 2); g.fill();
+                g.beginPath(); g.arc(sx + 11, sy - 8, 24, 0, Math.PI * 2); g.fill();
             } else {
-                const sun = g.createRadialGradient(w * 0.77, h * 0.7, 3, w * 0.77, h * 0.7, 68);
-                sun.addColorStop(0, 'rgba(255,244,211,0.95)');
-                sun.addColorStop(0.55, 'rgba(255,220,176,0.34)');
-                sun.addColorStop(1, 'rgba(255,220,176,0)');
+                const radius = theme.name === 'Afternoon' ? 47 : 39;
+                const sun = g.createRadialGradient(sx, sy, 2, sx, sy, radius * 2.8);
+                sun.addColorStop(0, solarColor);
+                sun.addColorStop(0.35, 'rgba(255,238,205,0.62)');
+                sun.addColorStop(1, 'rgba(255,226,184,0)');
                 g.fillStyle = sun;
-                g.fillRect(0, 0, w, h);
+                g.fillRect(sx - radius * 2.8, sy - radius * 2.8, radius * 5.6, radius * 5.6);
+                g.beginPath();
+                g.arc(sx, sy, radius * 0.42, 0, Math.PI * 2);
+                g.fillStyle = solarColor;
+                g.fill();
+            }
+
+            // Thin high cloud streaks keep the sky from looking like a flat gradient.
+            if (!theme.stars) {
+                for (let i = 0; i < 5; i++) {
+                    const y = h * (0.18 + i * 0.075);
+                    const x = w * (0.08 + (i % 2) * 0.36);
+                    g.strokeStyle = `rgba(255,255,255,${theme.name === 'Afternoon' ? 0.12 : 0.09})`;
+                    g.lineWidth = 9;
+                    g.beginPath();
+                    g.moveTo(x, y);
+                    g.bezierCurveTo(x + 70, y - 13, x + 165, y + 9, x + 250, y - 2);
+                    g.stroke();
+                }
             }
         }, 1024, 512);
     }
 
     function concreteTexture() {
         return makeCanvasTexture((g, w, h) => {
-            g.fillStyle = '#777b80';
+            g.fillStyle = '#4a4e53';
             g.fillRect(0, 0, w, h);
-            for (let i = 0; i < 9000; i++) {
+            for (let i = 0; i < 15000; i++) {
                 const x = Math.random() * w;
                 const y = Math.random() * h;
-                const a = Math.random() * 0.12;
-                g.fillStyle = Math.random() > 0.5
-                    ? `rgba(255,255,255,${a})`
-                    : `rgba(12,18,25,${a})`;
-                g.fillRect(x, y, Math.random() * 3 + 0.5, Math.random() * 2 + 0.5);
+                const a = Math.random() * 0.13;
+                const size = Math.random() * 2.1 + 0.35;
+                g.fillStyle = Math.random() > 0.52
+                    ? `rgba(225,229,232,${a})`
+                    : `rgba(8,13,18,${a + 0.025})`;
+                g.fillRect(x, y, size, size * 0.7);
             }
-            g.strokeStyle = 'rgba(35,42,48,0.22)';
+            // Fine aggregate and a few faint repair seams, not a glossy mirror.
+            g.strokeStyle = 'rgba(20,25,30,0.2)';
             g.lineWidth = 2;
-            for (let y = 64; y < h; y += 128) {
-                g.beginPath(); g.moveTo(0, y); g.lineTo(w, y + 2); g.stroke();
+            for (let y = 92; y < h; y += 150) {
+                g.beginPath(); g.moveTo(0, y); g.lineTo(w, y + 3); g.stroke();
+            }
+        }, 1024, 512);
+    }
+
+    function concreteFacadeTexture() {
+        return makeCanvasTexture((g, w, h) => {
+            const grad = g.createLinearGradient(0, 0, w, h);
+            grad.addColorStop(0, '#aeb7bd');
+            grad.addColorStop(0.5, '#858f98');
+            grad.addColorStop(1, '#727f89');
+            g.fillStyle = grad;
+            g.fillRect(0, 0, w, h);
+
+            const cols = 12, rows = 8;
+            const cw = w / cols, rh = h / rows;
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const seed = Math.abs(Math.sin((col + 3) * 14.7 + (row + 1) * 6.31));
+                    const inset = 5;
+                    g.fillStyle = seed > 0.73
+                        ? 'rgba(255,213,163,0.62)'
+                        : `rgba(21,39,54,${0.62 + seed * 0.2})`;
+                    g.fillRect(col * cw + inset, row * rh + inset, cw - inset * 2, rh * 0.62);
+                    g.fillStyle = 'rgba(228,235,239,0.72)';
+                    g.fillRect(col * cw + inset, row * rh + rh * 0.68, cw - inset * 2, 3);
+                }
+            }
+            g.strokeStyle = 'rgba(32,45,56,0.42)';
+            g.lineWidth = 5;
+            for (let col = 0; col <= cols; col++) {
+                g.beginPath(); g.moveTo(col * cw, 0); g.lineTo(col * cw, h); g.stroke();
+            }
+            g.strokeStyle = 'rgba(242,245,246,0.2)';
+            g.lineWidth = 3;
+            for (let row = 0; row <= rows; row++) {
+                g.beginPath(); g.moveTo(0, row * rh); g.lineTo(w, row * rh); g.stroke();
             }
         }, 1024, 512);
     }
@@ -370,18 +442,21 @@ import * as THREE from 'three';
             const foliage = mesh(new THREE.IcosahedronGeometry(p[3] * s, 2), leaves[i % leaves.length], group,
                 { x: p[0] * s, y: p[1] * s, z: p[2] });
             foliage.scale.set(1.05, 0.9, 0.82);
+            foliage.castShadow = false;
         });
+        return group;
     }
 
-    function addBrandSign(parent, name, x, y, z, width = 2.0) {
+    function addBrandSign(parent, name, x, y, z, width = 2.25) {
         const sign = new THREE.Group();
         sign.position.set(x, y, z);
         parent.add(sign);
-        const panel = mat('#101923', 0.38, 0.28);
-        addBox(sign, width + 0.16, 0.7, 0.13, panel, 0, 0, 0);
+        const panel = mat('#111b26', 0.38, 0.2);
+        addBox(sign, width + 0.18, 0.78, 0.14, panel, 0, 0, 0);
         const texture = brandTexture(name);
-        const face = mesh(new THREE.PlaneGeometry(width, 0.56),
-            new THREE.MeshBasicMaterial({ map: texture }), sign, { x: 0, y: 0, z: 0.075 });
+        const face = mesh(new THREE.PlaneGeometry(width, 0.62),
+            new THREE.MeshBasicMaterial({ map: texture, toneMapped: false }),
+            sign, { x: 0, y: 0, z: 0.079 });
         face.renderOrder = 3;
         return sign;
     }
@@ -392,62 +467,86 @@ import * as THREE from 'three';
         parent.add(group);
 
         const style = options.style || 'glass';
-        const depth = options.depth || 1.5;
-        const baseColor = options.tint || '#263a49';
+        const depth = options.depth || 1.35;
+        const baseColor = options.tint || '#aab4bd';
+        const facadeTexture = style === 'concrete' ? concreteFacadeTexture() : glassTexture();
         const bodyMat = new THREE.MeshStandardMaterial({
-            map: glassTexture(), color: baseColor,
-            roughness: style === 'glass' ? 0.27 : 0.78,
-            metalness: style === 'glass' ? 0.42 : 0.08
+            map: facadeTexture,
+            color: baseColor,
+            roughness: style === 'glass' ? 0.34 : 0.9,
+            metalness: style === 'glass' ? 0.3 : 0.04
         });
         buildingMaterials.push(bodyMat);
         addBox(group, width, height, depth, bodyMat, 0, height / 2, 0);
 
         const frontZ = depth / 2 + 0.035;
-        const frameMat = mat(style === 'concrete' ? '#89909a' : '#152733', 0.42, 0.52);
-        const sideMat = mat('#172633', 0.38, 0.36);
-        addBox(group, 0.18, height + 0.22, depth + 0.12, sideMat, -width / 2, height / 2, 0.02);
-        addBox(group, 0.18, height + 0.22, depth + 0.12, sideMat, width / 2, height / 2, 0.02);
-        addBox(group, width + 0.22, 0.2, depth + 0.16, frameMat, 0, height, 0.03);
+        const frameMat = mat(style === 'concrete' ? '#9ca5aa' : '#263541', 0.52, 0.34);
+        const edgeMat = mat(style === 'concrete' ? '#737f87' : '#1c2a35', 0.5, 0.22);
+        addBox(group, 0.12, height + 0.12, depth + 0.1, edgeMat, -width / 2, height / 2, 0.02);
+        addBox(group, 0.12, height + 0.12, depth + 0.1, edgeMat, width / 2, height / 2, 0.02);
+        addBox(group, width + 0.14, 0.12, depth + 0.12, frameMat, 0, height, 0.03);
 
-        // Floor plates, columns and a darker glazed lobby at street level.
-        const floors = Math.max(4, Math.floor(height / 1.45));
+        // Thin floor bands and mullions give the facade a believable scale.
+        const floors = Math.max(4, Math.floor(height / 0.78));
         for (let i = 1; i < floors; i++) {
             const y = (height / floors) * i;
-            addBox(group, width + 0.08, 0.075, depth + 0.12, frameMat, 0, y, 0.055);
+            addBox(group, width + 0.04, 0.035, depth + 0.08,
+                frameMat, 0, y, 0.045);
         }
-        const columns = Math.max(3, Math.floor(width / 1.05));
+        const columns = Math.max(3, Math.floor(width / 0.82));
         for (let i = 1; i < columns; i++) {
             const cx = -width / 2 + (width / columns) * i;
-            addBox(group, 0.055, height - 0.2, 0.07, frameMat, cx, height / 2, frontZ);
+            addBox(group, 0.035, height - 0.14, 0.055,
+                edgeMat, cx, height / 2, frontZ);
         }
 
+        // A darker, recessed ground-floor lobby separates the facade from the street.
         const lobbyMat = new THREE.MeshStandardMaterial({
-            color: '#233c4b', roughness: 0.24, metalness: 0.36,
-            emissive: '#172c3a', emissiveIntensity: 0.15
+            color: '#344957', roughness: 0.28, metalness: 0.25,
+            emissive: '#1a2c38', emissiveIntensity: 0.12
         });
         windowMaterials.push(lobbyMat);
-        addBox(group, width * 0.52, Math.min(1.5, height * 0.22), 0.08,
-            lobbyMat, 0, Math.min(0.9, height * 0.12), frontZ + 0.07);
+        addBox(group, width * 0.56, Math.min(0.92, height * 0.23), 0.07,
+            lobbyMat, 0, 0.49, frontZ + 0.06);
 
-        // Exterior fins add depth and break up the flat glass wall.
-        if (style !== 'concrete') {
+        // Narrow vertical fins catch the sunlight without turning each building into a wall.
+        if (style === 'glass') {
             for (let i = 0; i < 3; i++) {
                 const fx = -width * 0.34 + i * width * 0.34;
-                addBox(group, 0.07, height - 0.4, 0.12, frameMat, fx, height / 2, frontZ + 0.07);
+                addBox(group, 0.045, height - 0.2, 0.09,
+                    frameMat, fx, height / 2, frontZ + 0.055);
             }
         }
 
         if (options.brand) {
-            const signWidth = Math.min(width * 0.55, options.brand.length > 6 ? 2.1 : 1.8);
-            addBrandSign(group, options.brand, -width * 0.15, Math.min(height - 1.2, height * 0.46), frontZ + 0.12, signWidth);
+            const signWidth = Math.min(width * 0.76, options.brand.length > 6 ? 2.55 : 2.25);
+            addBrandSign(group, options.brand,
+                -width * 0.08,
+                Math.min(height - 0.78, height * 0.58),
+                frontZ + 0.11,
+                signWidth);
         }
 
-        // Air-conditioning units and roof parapet details.
+        // Small rooftop parapet and mechanical housings add a recognisable skyline edge.
+        addBox(group, width + 0.2, 0.11, depth + 0.16,
+            frameMat, 0, height + 0.055, 0.02);
         for (let i = 0; i < 2; i++) {
-            addBox(group, 0.7, 0.32, 0.62, mat('#46535d', 0.8, 0.12),
-                -width * 0.25 + i * width * 0.5, height + 0.25, -0.05);
+            addBox(group, 0.42, 0.22, 0.44, mat('#68747d', 0.82, 0.06),
+                -width * 0.23 + i * width * 0.46, height + 0.21, -0.05);
         }
+
+        // Distant architecture should shape the skyline, not cast hard shadows over gameplay.
+        group.traverse(child => {
+            if (child.isMesh) {
+                child.castShadow = false;
+                child.receiveShadow = false;
+            }
+        });
         return group;
+    }
+
+    function addSceneryTrack(object, baseX, span, speed) {
+        sceneryTracks.push({ object, baseX, span, speed });
     }
 
     function buildEnvironment(s) {
@@ -458,8 +557,10 @@ import * as THREE from 'three';
         powerMeshes.clear();
         doorMeshes.clear();
         groundMarkers = [];
+        sceneryTracks = [];
         buildingMaterials = [];
         windowMaterials = [];
+        lampMaterials = [];
         activeThemeIndex = -1;
         skyMesh = null;
         skyMaterial = null;
@@ -478,138 +579,151 @@ import * as THREE from 'three';
         camera.bottom = -5;
         camera.updateProjectionMatrix();
 
-        ambientLight = new THREE.HemisphereLight(0xdcecff, 0x51453f, 1.8);
+        ambientLight = new THREE.HemisphereLight(0xdce6f4, 0x45434a, 1.65);
         environment.add(ambientLight);
-        keyLight = new THREE.DirectionalLight(0xffd1a1, 2.8);
-        keyLight.position.set(-8, 12, 16);
+        keyLight = new THREE.DirectionalLight(0xffdec2, 2.0);
+        keyLight.position.set(-9, 12, 13);
         keyLight.castShadow = true;
         keyLight.shadow.mapSize.set(1024, 1024);
-        keyLight.shadow.camera.left = -24;
-        keyLight.shadow.camera.right = 24;
-        keyLight.shadow.camera.top = 16;
-        keyLight.shadow.camera.bottom = -16;
-        keyLight.shadow.bias = -0.0003;
+        keyLight.shadow.camera.left = -22;
+        keyLight.shadow.camera.right = 22;
+        keyLight.shadow.camera.top = 14;
+        keyLight.shadow.camera.bottom = -14;
+        keyLight.shadow.bias = -0.00025;
         environment.add(keyLight);
 
-        // Large sky plane with round-specific atmosphere.
+        // The sky remains open above a low, broken skyline.
         skyMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff', depthWrite: false, fog: false });
-        skyMesh = mesh(new THREE.PlaneGeometry(worldWidth * 4.8, 26), skyMaterial,
-            environment, { x: 0, y: 1.0, z: -29 });
+        skyMesh = mesh(new THREE.PlaneGeometry(worldWidth * 5, 25), skyMaterial,
+            environment, { x: 0, y: 1.25, z: -30 });
         skyMesh.renderOrder = -5;
+        skyMesh.castShadow = false;
+        skyMesh.receiveShadow = false;
 
-        // Long urban skyline. Buildings overlap slightly so no empty gaps appear
-        // as the side-scrolling background drifts across the screen.
-        const buildings = [
-            { x: -2.02, w: 5.5, h: 11.3, z: -23, style: 'concrete', tint: '#596675' },
-            { x: -1.20, w: 4.8, h: 14.0, z: -21, style: 'glass', brand: 'google', tint: '#294456' },
-            { x: -0.57, w: 4.9, h: 10.2, z: -18, style: 'glass', brand: 'amazon', tint: '#344c5d' },
-            { x: 0.00, w: 4.9, h: 13.0, z: -20, style: 'concrete', brand: 'meta', tint: '#566171' },
-            { x: 0.57, w: 5.0, h: 11.7, z: -18.5, style: 'glass', brand: 'nvidia', tint: '#294554' },
-            { x: 1.20, w: 5.0, h: 14.4, z: -21.5, style: 'glass', brand: 'openai', tint: '#354b5a' },
-            { x: 1.85, w: 5.0, h: 10.8, z: -18, style: 'concrete', brand: 'netflix', tint: '#5b626f' },
-            { x: 2.50, w: 5.2, h: 12.8, z: -22.5, style: 'glass', brand: 'microsoft', tint: '#344c5e' },
-            { x: 3.15, w: 5.2, h: 9.9, z: -19, style: 'glass', tint: '#354958' }
-        ];
-        buildings.forEach((b, i) => {
-            addOfficeBuilding(
-                environment,
-                b.x * worldWidth * 0.30,
-                groundY - 0.15,
-                b.w,
-                b.h,
-                b.z,
-                b
+        const span = worldWidth * 2.9;
+
+        // Distant, shorter towers. They are widely spaced so the sky stays visible.
+        const farTints = ['#8997a1', '#a0a5aa', '#8997a8', '#9b9da4', '#7e909d'];
+        const farCount = 17;
+        for (let i = 0; i < farCount; i++) {
+            const x = -span / 2 + (i + 0.5) * span / farCount;
+            const width = 2.05 + ((i * 7) % 4) * 0.34;
+            const height = 2.35 + ((i * 5 + 2) % 5) * 0.31;
+            const tower = addOfficeBuilding(
+                environment, x, groundY + 0.04, width, height,
+                -25.5 - (i % 3) * 1.25,
+                { style: i % 4 === 0 ? 'concrete' : 'glass', tint: farTints[i % farTints.length], depth: 0.85 }
             );
+            addSceneryTrack(tower, x, span, 0.07);
+        }
+
+        // Mid-distance offices carry the company signs, spaced across the level.
+        // Every round scrolls through this same campus rather than a static wallpaper.
+        const companies = [
+            { brand: 'google', w: 3.7, h: 4.6, style: 'glass', tint: '#9eacb7' },
+            { brand: 'amazon', w: 4.0, h: 4.0, style: 'concrete', tint: '#b6b1a8' },
+            { brand: 'meta', w: 3.6, h: 4.8, style: 'glass', tint: '#9caeb8' },
+            { brand: 'nvidia', w: 3.85, h: 4.25, style: 'glass', tint: '#9ba9b0' },
+            { brand: 'openai', w: 4.0, h: 4.65, style: 'concrete', tint: '#b4b7b5' },
+            { brand: 'netflix', w: 3.6, h: 3.9, style: 'glass', tint: '#a2a8b2' },
+            { brand: 'microsoft', w: 4.1, h: 4.5, style: 'glass', tint: '#9daab5' }
+        ];
+        companies.forEach((building, i) => {
+            const x = -span / 2 + (i + 0.5) * span / companies.length;
+            const office = addOfficeBuilding(
+                environment, x, groundY + 0.02,
+                building.w, building.h,
+                -16.5 - (i % 3) * 1.05,
+                { ...building, depth: 1.25 }
+            );
+            addSceneryTrack(office, x, span, 0.16);
         });
 
-        // A lower row of distant towers creates city depth behind the main skyline.
-        const farTints = ['#72788b', '#68778a', '#7a8292', '#5e6e80'];
-        for (let i = -5; i <= 5; i++) {
-            const w = 4.2 + (i % 3 + 3) % 3 * 0.7;
-            const h = 7.4 + ((i * 7 + 40) % 5) * 0.8;
-            const tower = addOfficeBuilding(
-                environment,
-                i * worldWidth * 0.39,
-                groundY - 0.05,
-                w,
-                h,
-                -26 - (i % 2) * 1.5,
-                { style: 'glass', tint: farTints[(i + 20) % farTints.length], depth: 1.0 }
-            );
-            tower.scale.setScalar(0.92);
-        }
+        // A handful of trees and planters provide scale, without turning the scene into a park.
+        const treePositions = [-span * 0.42, -span * 0.08, span * 0.27, span * 0.47];
+        treePositions.forEach((x, i) => {
+            const treeGroup = addTree(environment, x, groundY + 0.28, -7.1, i % 2 ? 0.68 : 0.8);
+            addSceneryTrack(treeGroup, x, span, 0.30);
+        });
 
-        // Keep just a couple of trees. Buildings remain the dominant backdrop.
-        addTree(environment, -worldWidth * 0.47, groundY + 0.42, -5.8, 0.86);
-        addTree(environment, worldWidth * 0.91, groundY + 0.42, -6.0, 0.78);
-
-        // Street furniture and a few compact planters, rather than a tree-lined park.
-        const planterMat = mat('#46534f', 0.82, 0.08);
-        const shrubMat = mat('#354b40', 0.95);
-        for (const x of [-worldWidth * 0.24, worldWidth * 0.56]) {
-            addBox(environment, 1.65, 0.46, 0.95, planterMat, x, groundY + 0.25, -3.8);
+        const planterMat = mat('#737b78', 0.86, 0.04);
+        const shrubMat = mat('#43584c', 0.96);
+        for (const x of [-span * 0.31, -span * 0.04, span * 0.23, span * 0.46]) {
+            const planter = new THREE.Group();
+            planter.position.set(x, groundY, -4.2);
+            environment.add(planter);
+            addBox(planter, 1.35, 0.38, 0.72, planterMat, 0, 0.19, 0);
             for (let k = 0; k < 3; k++) {
-                const shrub = mesh(new THREE.IcosahedronGeometry(0.32, 1), shrubMat,
-                    environment, { x: x - 0.42 + k * 0.42, y: groundY + 0.7, z: -3.62 });
-                shrub.scale.set(1.15, 0.72, 0.8);
+                const shrub = mesh(new THREE.IcosahedronGeometry(0.28, 1), shrubMat,
+                    planter, { x: -0.36 + k * 0.36, y: 0.58, z: 0.03 });
+                shrub.scale.set(1.1, 0.72, 0.82);
             }
+            addSceneryTrack(planter, x, span, 0.42);
         }
 
-        // Streetlights, each with a compact warm fixture.
-        for (const x of [-worldWidth * 0.74, -worldWidth * 0.03, worldWidth * 0.72]) {
-            const poleMat = mat('#303b45', 0.34, 0.68);
-            addBox(environment, 0.075, 3.6, 0.08, poleMat, x, groundY + 1.8, -1.4);
-            addBox(environment, 0.52, 0.075, 0.12, poleMat, x + 0.22, groundY + 3.58, -1.4);
+        // Street lamps are landmarks in the foreground, with restrained glow.
+        for (const x of [-span * 0.43, -span * 0.16, span * 0.12, span * 0.39]) {
+            const lampGroup = new THREE.Group();
+            lampGroup.position.set(x, groundY, -2.1);
+            environment.add(lampGroup);
+            const poleMat = mat('#35414a', 0.38, 0.58);
+            addBox(lampGroup, 0.065, 3.15, 0.075, poleMat, 0, 1.575, 0);
+            addBox(lampGroup, 0.48, 0.065, 0.1, poleMat, 0.2, 3.12, 0);
             const lampMat = new THREE.MeshStandardMaterial({
-                color: '#ffe5b8', emissive: '#ffc477', emissiveIntensity: 0.55,
-                roughness: 0.32
+                color: '#fff0cf', emissive: '#ffd28d', emissiveIntensity: 0.12,
+                roughness: 0.34
             });
-            windowMaterials.push(lampMat);
-            const lamp = mesh(new THREE.BoxGeometry(0.27, 0.11, 0.2), lampMat,
-                environment, { x: x + 0.41, y: groundY + 3.5, z: -1.3 });
+            lampMaterials.push(lampMat);
+            const lamp = mesh(new THREE.BoxGeometry(0.25, 0.1, 0.18), lampMat,
+                lampGroup, { x: 0.4, y: 3.06, z: 0.03 });
             lamp.castShadow = false;
+            addSceneryTrack(lampGroup, x, span, 0.42);
         }
 
-        // Asphalt, curb and reflective road surface.
+        // Asphalt and curb. The road remains uncluttered around the runner and obstacles.
         const bottomY = -5.4;
         const roadHeight = Math.max(0.4, groundY - bottomY);
+        const asphalt = concreteTexture();
+        asphalt.wrapS = THREE.RepeatWrapping;
+        asphalt.wrapT = THREE.RepeatWrapping;
+        asphalt.repeat.set(20, 2);
         roadMaterial = new THREE.MeshStandardMaterial({
-            map: concreteTexture(), color: '#55545a', roughness: 0.38, metalness: 0.16
+            map: asphalt, color: '#aeb8c1', roughness: 0.84, metalness: 0.02
         });
-        addBox(environment, worldWidth * 3.2, roadHeight, 2.15,
+        addBox(environment, worldWidth * 3.4, roadHeight, 2.15,
             roadMaterial, 0, (groundY + bottomY) / 2, 1.7);
 
-        curbMaterial = mat('#aaa5a0', 0.7, 0.04);
-        addBox(environment, worldWidth * 3.2, 0.28, 2.35,
-            curbMaterial, 0, groundY - 0.15, 1.05);
-        addBox(environment, worldWidth * 3.2, 0.045, 2.4,
-            mat('#d6d0c9', 0.48), 0, groundY - 0.015, 0.98);
+        curbMaterial = mat('#a9adb0', 0.78, 0.02);
+        addBox(environment, worldWidth * 3.4, 0.25, 2.35,
+            curbMaterial, 0, groundY - 0.14, 1.05);
+        addBox(environment, worldWidth * 3.4, 0.035, 2.4,
+            mat('#d8d8d4', 0.62), 0, groundY - 0.012, 0.98);
 
         roadSheenMaterial = new THREE.MeshBasicMaterial({
-            color: '#e5bda0', transparent: true, opacity: 0.12
+            color: '#d6d3cf', transparent: true, opacity: 0.045
         });
-        for (let i = 0; i < 27; i++) {
-            const x = -worldWidth * 1.45 + i * worldWidth * 0.11;
-            const y = bottomY + 0.3 + (i % 5) * 0.17;
-            const streak = addBox(environment, 0.48 + (i % 4) * 0.28, 0.022, 0.012,
+        for (let i = 0; i < 18; i++) {
+            const x = -worldWidth * 1.45 + i * worldWidth * 0.17;
+            const y = bottomY + 0.22 + (i % 5) * 0.13;
+            const streak = addBox(environment, 0.35 + (i % 4) * 0.2, 0.016, 0.012,
                 roadSheenMaterial, x, y, 2.82);
-            streak.rotation.z = i % 2 ? 0.018 : -0.014;
+            streak.rotation.z = i % 2 ? 0.012 : -0.01;
         }
 
-        // Pavement seams and dashed road markings.
+        // Sidewalk joints and lane dashes are the strongest motion cues in the foreground.
         const tileLineMat = new THREE.MeshBasicMaterial({
-            color: '#d4cbc2', transparent: true, opacity: 0.32
+            color: '#e0e1df', transparent: true, opacity: 0.24
         });
         for (let i = 0; i < 19; i++) {
-            const line = addBox(environment, 0.018, 0.42, 0.015, tileLineMat,
-                -worldWidth * 1.35 + i * worldWidth * 0.15, groundY - 0.41, 2.87);
+            const line = addBox(environment, 0.018, 0.34, 0.015, tileLineMat,
+                -worldWidth * 1.35 + i * worldWidth * 0.15, groundY - 0.39, 2.87);
             groundMarkers.push(line);
         }
         const dashMat = new THREE.MeshBasicMaterial({
-            color: '#d8c2b2', transparent: true, opacity: 0.22
+            color: '#e3dfd7', transparent: true, opacity: 0.48
         });
         for (let i = 0; i < 12; i++) {
-            const dash = addBox(environment, 0.95, 0.032, 0.02, dashMat,
+            const dash = addBox(environment, 0.92, 0.026, 0.02, dashMat,
                 -worldWidth * 1.4 + i * worldWidth * 0.25, bottomY + 1.1, 2.9);
             groundMarkers.push(dash);
         }
@@ -625,19 +739,20 @@ import * as THREE from 'three';
         const theme = ROUND_THEMES[index];
 
         scene.background = new THREE.Color(theme.background);
-        if (!scene.fog) scene.fog = new THREE.Fog(theme.fog, 28, 72);
+        if (!scene.fog) scene.fog = new THREE.Fog(theme.fog, 24, 68);
         scene.fog.color.set(theme.fog);
-        scene.fog.near = index === 3 ? 18 : 30;
-        scene.fog.far = index === 3 ? 55 : 78;
+        scene.fog.near = index === 3 ? 20 : 25;
+        scene.fog.far = index === 3 ? 62 : 72;
 
         if (ambientLight) {
             ambientLight.color.set(theme.hemi);
             ambientLight.groundColor.set(theme.groundLight);
-            ambientLight.intensity = index === 3 ? 1.25 : 1.75;
+            ambientLight.intensity = index === 3 ? 1.12 : 1.58;
         }
         if (keyLight) {
             keyLight.color.set(theme.sunlight);
             keyLight.intensity = theme.sunIntensity;
+            keyLight.position.set(index === 2 ? -8 : -9, index === 1 ? 15 : 12, 13);
         }
         if (skyMaterial) {
             const previous = skyMaterial.map;
@@ -650,6 +765,9 @@ import * as THREE from 'three';
             if (material.emissiveIntensity !== undefined) {
                 material.emissiveIntensity = theme.windowGlow;
             }
+        });
+        lampMaterials.forEach(material => {
+            material.emissiveIntensity = theme.lampGlow;
         });
         if (roadMaterial) roadMaterial.color.set(theme.road);
         if (curbMaterial) curbMaterial.color.set(theme.curb);
@@ -1101,19 +1219,35 @@ import * as THREE from 'three';
 
     function updateWorldMotion(s) {
         if (!layout) return;
-        // Gentle parallax makes the campus drift while the player stays in its lane.
-        environment.position.x = -(((s.scroll || 0) * layout.scale * 0.045) % (layout.worldWidth * 0.42));
-        const offset = ((s.scroll || 0) * layout.scale * 0.42) % (layout.worldWidth * 0.3);
-        groundMarkers.forEach((marker, i) => {
-            const base = marker.userData.baseX;
-            if (base == null) marker.userData.baseX = marker.position.x;
-            marker.position.x = ((marker.userData.baseX - offset + layout.worldWidth * 1.5) % (layout.worldWidth * 3)) - layout.worldWidth * 1.5;
+        const scrollPx = s.scroll || 0;
+
+        // Each skyline layer moves continuously at its own parallax speed.
+        // Objects wrap only after leaving the camera view, so there is no whole-scene snap.
+        for (const track of sceneryTracks) {
+            const offset = scrollPx * layout.scale * track.speed;
+            const half = track.span / 2;
+            let x = (track.baseX - offset + half) % track.span;
+            if (x < 0) x += track.span;
+            track.object.position.x = x - half;
+        }
+
+        // Foreground seams and lane markings move faster to sell the runner's speed.
+        const offset = (scrollPx * layout.scale * 0.52) % (layout.worldWidth * 3);
+        groundMarkers.forEach(marker => {
+            if (marker.userData.baseX == null) marker.userData.baseX = marker.position.x;
+            let x = (marker.userData.baseX - offset + layout.worldWidth * 1.5) % (layout.worldWidth * 3);
+            if (x < 0) x += layout.worldWidth * 3;
+            marker.position.x = x - layout.worldWidth * 1.5;
         });
+
+        // A tiny road-texture drift adds motion without shaking the player or camera.
+        if (roadMaterial && roadMaterial.map) {
+            roadMaterial.map.offset.x = -((scrollPx * layout.scale * 0.018) % 1);
+        }
     }
 
     function capture() {
         renderer.render(scene, camera);
-
         const webglCanvas = renderer.domElement;
         const hudCanvas = document.getElementById('mazeCanvas');
         const output = document.createElement('canvas');
