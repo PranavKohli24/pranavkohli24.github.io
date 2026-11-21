@@ -32,13 +32,13 @@ import * as THREE from 'three';
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.18;
+    renderer.toneMappingExposure = 1.08;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xc9b9b3);
-    scene.fog = new THREE.Fog(0xc9b9b3, 27, 68);
+    scene.background = new THREE.Color(0x8a93a0);
+    scene.fog = new THREE.Fog(0x8a93a0, 22, 62);
 
     const camera = new THREE.OrthographicCamera(-10, 10, 5, -5, 0.1, 120);
     camera.position.set(0, 0, 32);
@@ -63,6 +63,7 @@ import * as THREE from 'three';
     let groundMarkers = [];
     let ambientLight;
     let keyLight;
+    let fillLight;
     let skyMesh;
     let skyMaterial;
     let roadMaterial;
@@ -75,50 +76,59 @@ import * as THREE from 'three';
     let sceneryTracks = [];
 
     // The four original rounds keep their own time-of-day identity.
+    // Palette kept deliberately muted and desaturated versus before — a
+    // bright pastel sky was competing with the runner for attention. Fog
+    // starts closer so distant buildings recede instead of glowing.
     const ROUND_THEMES = [
         {
             name: 'Morning',
-            // Soft lavender-pink dawn with the sun still low on the horizon.
-            skyTop: '#9aa9c8', skyMid: '#d8c7d9', horizon: '#f6d9c4',
-            fog: '#d6cbd5', background: '#d6d0dc',
-            hemi: '#f4e9ed', groundLight: '#77717a', sunlight: '#ffe5c7',
-            sunIntensity: 2.15, buildingTint: '#ddd7df', road: '#aab2ba',
-            curb: '#b9b5b3', sheen: '#d8bdc1', windowGlow: 0.12,
-            lampGlow: 0.05, stars: false, solarX: 0.76, solarY: 0.70,
-            solarColor: '#fff0d5', solarRadius: 48
+            // Clear, cool dawn with a soft warm band at the horizon — bright
+            // enough to read easily, muted enough not to fight the runner.
+            skyTop: '#6f83a0', skyMid: '#a3b0bc', horizon: '#dcbb8a',
+            fog: '#9aa1a8', background: '#8f9aa6',
+            hemi: '#d7dee3', groundLight: '#4a4951', sunlight: '#f0dcae',
+            sunIntensity: 1.4, buildingTint: '#9aa0a6', road: '#6b7379',
+            curb: '#8b8d89', sheen: '#a08e78', windowGlow: 0.14,
+            lampGlow: 0.06, stars: false, solarX: 0.76, solarY: 0.70,
+            solarColor: '#f8e4b8', solarRadius: 38,
+            fogNear: 20, fogFar: 60
         },
         {
             name: 'Afternoon',
-            // Clear blue sky, high bright sun and warm neutral daylight.
-            skyTop: '#5fa6d7', skyMid: '#bad8e5', horizon: '#f3dfb3',
-            fog: '#d9d5c9', background: '#c8d9e0',
-            hemi: '#fff1d9', groundLight: '#77736a', sunlight: '#fff0c9',
-            sunIntensity: 2.65, buildingTint: '#e3ddd0', road: '#b2bbc0',
-            curb: '#c2beb3', sheen: '#e0d1ac', windowGlow: 0.04,
-            lampGlow: 0.02, stars: false, solarX: 0.78, solarY: 0.35,
-            solarColor: '#fff8dc', solarRadius: 76
+            // Clear, naturally bright daylight — believable sky, not candy blue.
+            skyTop: '#4a76a0', skyMid: '#8eacc0', horizon: '#d7c79a',
+            fog: '#95a0a6', background: '#7a95a8',
+            hemi: '#e0e8ec', groundLight: '#4f4e47', sunlight: '#f6e9c4',
+            sunIntensity: 1.7, buildingTint: '#979c93', road: '#6e767c',
+            curb: '#86877f', sheen: '#ac9c76', windowGlow: 0.06,
+            lampGlow: 0.03, stars: false, solarX: 0.78, solarY: 0.35,
+            solarColor: '#faf0ce', solarRadius: 52,
+            fogNear: 22, fogFar: 64
         },
         {
             name: 'Evening',
-            // A visible orange sunset fading into blue hour.
-            skyTop: '#344d76', skyMid: '#b17d87', horizon: '#f2b184',
-            fog: '#9a8c99', background: '#78849a',
-            hemi: '#c5c1d0', groundLight: '#454959', sunlight: '#ffc09a',
-            sunIntensity: 1.8, buildingTint: '#b9b3bf', road: '#969eaa',
-            curb: '#7d8795', sheen: '#d0a5a0', windowGlow: 0.72,
-            lampGlow: 0.62, stars: false, solarX: 0.78, solarY: 0.70,
-            solarColor: '#ffbd8e', solarRadius: 88
+            // Golden hour: a clearly warm sun against a cooling upper sky.
+            skyTop: '#304564', skyMid: '#82657a', horizon: '#d49868',
+            fog: '#746b78', background: '#555f74',
+            hemi: '#9c97a8', groundLight: '#33333c', sunlight: '#f0ac82',
+            sunIntensity: 1.3, buildingTint: '#878390', road: '#656b74',
+            curb: '#616670', sheen: '#a17771', windowGlow: 0.62,
+            lampGlow: 0.52, stars: false, solarX: 0.78, solarY: 0.70,
+            solarColor: '#f3a470', solarRadius: 60,
+            fogNear: 22, fogFar: 66
         },
         {
             name: 'Late Evening',
-            // Clearly night, but with enough ambient blue light to keep the game legible.
-            skyTop: '#1b2a45', skyMid: '#354966', horizon: '#697487',
-            fog: '#536176', background: '#3a4b64',
-            hemi: '#c0cde0', groundLight: '#323e52', sunlight: '#b8cbed',
-            sunIntensity: 0.92, buildingTint: '#aeb9ca', road: '#8b97a6',
-            curb: '#687689', sheen: '#8d9bb1', windowGlow: 1.12,
-            lampGlow: 1.2, stars: true, solarX: 0.82, solarY: 0.27,
-            solarColor: '#e2eaff', solarRadius: 42
+            // Night blue with enough lit windows and lamps to stay lively
+            // without the whole scene glowing like a neon sign.
+            skyTop: '#132035', skyMid: '#28374f', horizon: '#4a5568',
+            fog: '#364355', background: '#223044',
+            hemi: '#96a2b4', groundLight: '#222838', sunlight: '#a3b7dc',
+            sunIntensity: 0.75, buildingTint: '#828b98', road: '#5f6874',
+            curb: '#4a515d', sheen: '#75808f', windowGlow: 0.72,
+            lampGlow: 0.85, stars: true, solarX: 0.82, solarY: 0.27,
+            solarColor: '#d2dcf5', solarRadius: 32,
+            fogNear: 30, fogFar: 92
         }
     ];
 
@@ -675,9 +685,11 @@ import * as THREE from 'three';
         camera.bottom = -5;
         camera.updateProjectionMatrix();
 
-        ambientLight = new THREE.HemisphereLight(0xeaf0f7, 0x55525a, 1.85);
+        // Dimmer, less saturated ambient than before — a bright hemisphere
+        // light was flattening the whole scene and burying the runner.
+        ambientLight = new THREE.HemisphereLight(0xdbe3e9, 0x44434a, 1.3);
         environment.add(ambientLight);
-        keyLight = new THREE.DirectionalLight(0xffe2c9, 2.25);
+        keyLight = new THREE.DirectionalLight(0xffeedb, 1.75);
         keyLight.position.set(-9, 12, 13);
         keyLight.castShadow = true;
         keyLight.shadow.mapSize.set(1024, 1024);
@@ -687,6 +699,13 @@ import * as THREE from 'three';
         keyLight.shadow.camera.bottom = -14;
         keyLight.shadow.bias = -0.00025;
         environment.add(keyLight);
+
+        // Low cool fill from the camera side only — keeps the runner's
+        // shadow side from disappearing into dark backgrounds at night
+        // without brightening the scene itself.
+        fillLight = new THREE.DirectionalLight(0xaecbe8, 0.45);
+        fillLight.position.set(6, 5, 20);
+        environment.add(fillLight);
 
         // The sky remains open above a low, broken skyline.
         skyMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff', depthWrite: false, fog: false });
@@ -835,20 +854,27 @@ import * as THREE from 'three';
         const theme = ROUND_THEMES[index];
 
         scene.background = new THREE.Color(theme.background);
-        if (!scene.fog) scene.fog = new THREE.Fog(theme.fog, 24, 68);
+        if (!scene.fog) scene.fog = new THREE.Fog(theme.fog, theme.fogNear || 20, theme.fogFar || 60);
         scene.fog.color.set(theme.fog);
-        scene.fog.near = index === 3 ? 38 : 36;
-        scene.fog.far = index === 3 ? 104 : 98;
+        // Fog starts closer than before so distant buildings soften into the
+        // haze instead of competing with the runner for contrast.
+        scene.fog.near = theme.fogNear || 20;
+        scene.fog.far = theme.fogFar || 60;
 
         if (ambientLight) {
             ambientLight.color.set(theme.hemi);
             ambientLight.groundColor.set(theme.groundLight);
-            ambientLight.intensity = index === 3 ? 1.95 : (index === 2 ? 1.88 : 2.0);
+            ambientLight.intensity = index === 3 ? 1.1 : (index === 2 ? 1.15 : 1.3);
         }
         if (keyLight) {
             keyLight.color.set(theme.sunlight);
             keyLight.intensity = theme.sunIntensity;
             keyLight.position.set(index === 2 ? -8 : -9, index === 1 ? 15 : 12, 13);
+        }
+        if (fillLight) {
+            // Fill stays low and roughly constant — it's there to keep the
+            // runner's far side readable, not to light the scene.
+            fillLight.intensity = index === 3 ? 0.38 : 0.45;
         }
         if (skyMaterial) {
             const previous = skyMaterial.map;
@@ -911,9 +937,12 @@ import * as THREE from 'three';
 
         const skin = mat('#b77b5e', 0.86);
         const skinShade = mat('#8d5844', 0.9);
-        const shirt = mat('#eeece5', 0.94);
-        const shirtShadow = mat('#c6c7c2', 0.9);
-        const shirtSeam = mat('#aeb2b1', 0.94);
+        // A warm stone shirt instead of near-white — the old tone washed
+        // out against pale skies. This keeps enough value contrast to read
+        // against every round's background, bright or dark, without going flat.
+        const shirt = mat('#d8cfb9', 0.88);
+        const shirtShadow = mat('#aea386', 0.86);
+        const shirtSeam = mat('#948a71', 0.9);
         const pants = mat('#202832', 0.92);
         const pantsHighlight = mat('#39424b', 0.88);
         const shoes = mat('#1b2026', 0.72, 0.08);
