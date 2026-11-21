@@ -1000,34 +1000,38 @@ import * as THREE from 'three';
         const head = mesh(new THREE.SphereGeometry(0.255, 28, 22), skin, headGroup,
             { x: 0, y: 0, z: 0 });
         head.scale.set(0.88, 1.06, 0.88);
-        mesh(new THREE.SphereGeometry(0.075, 16, 12), skin, headGroup,
-            { x: -0.205, y: -0.02, z: 0.155 });
-        mesh(new THREE.SphereGeometry(0.03, 10, 8), skinShade, headGroup,
-            { x: -0.225, y: -0.02, z: 0.216 });
+        // Ear and nose sized against the head's own radius (~0.22) rather
+        // than larger than it — the old sizes read as oversized features.
+        mesh(new THREE.SphereGeometry(0.058, 16, 12), skin, headGroup,
+            { x: -0.2, y: -0.02, z: 0.155 });
+        mesh(new THREE.SphereGeometry(0.023, 10, 8), skinShade, headGroup,
+            { x: -0.218, y: -0.02, z: 0.205 });
         // Nose, brow, eye and mouth are placed on the visible side profile.
-        mesh(new THREE.SphereGeometry(0.052, 14, 10), skin, headGroup,
-            { x: 0.21, y: -0.05, z: 0.045 });
+        mesh(new THREE.SphereGeometry(0.042, 14, 10), skin, headGroup,
+            { x: 0.218, y: -0.05, z: 0.048 });
         mesh(new THREE.SphereGeometry(0.026, 10, 8), mat('#17191d', 0.6), headGroup,
             { x: 0.105, y: 0.04, z: 0.211 });
         mesh(new THREE.SphereGeometry(0.03, 10, 8), hair, headGroup,
             { x: 0.105, y: 0.075, z: 0.212 });
-        addBox(headGroup, 0.10, 0.018, 0.025, hair, 0.095, 0.095, 0.205);
+        addBox(headGroup, 0.085, 0.016, 0.02, hair, 0.09, 0.085, 0.2);
         addBox(headGroup, 0.085, 0.014, 0.015, skinShade, 0.175, -0.14, 0.175);
 
-        // Wavy dark hair, with separate curls to avoid a plastic helmet silhouette.
-        const cap = mesh(new THREE.SphereGeometry(0.27, 24, 18, 0, Math.PI * 2, 0, Math.PI * 0.58),
-            hair, headGroup, { x: -0.035, y: 0.11, z: -0.02 });
-        cap.scale.set(1.04, 0.86, 0.96);
+        // Wavy dark hair, sized to hug the skull instead of ballooning past
+        // the face — the cap now sits just outside the head radius (0.255)
+        // rather than noticeably wider than it, with smaller, tighter curls.
+        const cap = mesh(new THREE.SphereGeometry(0.255, 24, 18, 0, Math.PI * 2, 0, Math.PI * 0.56),
+            hair, headGroup, { x: -0.02, y: 0.09, z: -0.015 });
+        cap.scale.set(0.96, 0.8, 0.9);
         const curls = [
-            [-0.17, 0.17, 0.085, 0.105], [-0.06, 0.30, 0.055, 0.11],
-            [0.08, 0.29, 0.065, 0.10], [0.20, 0.22, 0.025, 0.085],
-            [-0.23, 0.07, 0.115, 0.09], [-0.21, -0.04, 0.065, 0.075]
+            [-0.145, 0.135, 0.07, 0.075], [-0.05, 0.235, 0.045, 0.08],
+            [0.065, 0.225, 0.052, 0.072], [0.16, 0.175, 0.022, 0.06],
+            [-0.19, 0.05, 0.09, 0.064], [-0.175, -0.035, 0.052, 0.052]
         ];
         curls.forEach((c, i) => {
             const curl = mesh(new THREE.SphereGeometry(c[3], 12, 10),
                 i % 2 ? hairHighlight : hair, headGroup,
                 { x: c[0], y: c[1], z: c[2] });
-            curl.scale.set(1.25, 0.82, 1);
+            curl.scale.set(1.12, 0.78, 0.9);
         });
 
         // Articulated legs and arms. Upper/lower segments animate independently.
