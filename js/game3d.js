@@ -32,7 +32,7 @@ import * as THREE from 'three';
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.12;
+    renderer.toneMappingExposure = 1.18;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
 
@@ -59,6 +59,7 @@ import * as THREE from 'three';
     let layout = null;
     let player = null;
     let playerShadow = null;
+    let shieldVisual = null;
     let groundMarkers = [];
     let ambientLight;
     let keyLight;
@@ -193,7 +194,7 @@ import * as THREE from 'three';
             g.fillRect(0, h - 12, w, 12);
             g.textAlign = 'center';
             g.textBaseline = 'middle';
-            g.font = '700 112px Arial, sans-serif';
+            g.font = '800 156px Arial Black, Arial, sans-serif';
 
             if (label === 'google') {
                 const letters = [
@@ -221,7 +222,7 @@ import * as THREE from 'three';
                 };
                 g.fillStyle = styles[label] || '#f3f5f7';
                 const display = displayNames[label] || name;
-                g.fillText(display, w / 2, h * 0.47);
+                g.fillText(display, w / 2, h * 0.47, w * 0.9);
                 if (label === 'amazon') {
                     g.strokeStyle = '#f2a34a';
                     g.lineWidth = 11;
@@ -314,7 +315,7 @@ import * as THREE from 'three';
         return makeCanvasTexture((g, w, h) => {
             g.fillStyle = '#4a4e53';
             g.fillRect(0, 0, w, h);
-            for (let i = 0; i < 15000; i++) {
+            for (let i = 0; i < 5200; i++) {
                 const x = Math.random() * w;
                 const y = Math.random() * h;
                 const a = Math.random() * 0.13;
@@ -369,26 +370,121 @@ import * as THREE from 'three';
         }, 1024, 512);
     }
 
-    function labelTexture(label, bg = '#e8dfd2', fg = '#222a31') {
+    function labelTexture(label, bg = '#142b3b', fg = '#fff4d7') {
         return makeCanvasTexture((g, w, h) => {
-            g.fillStyle = bg;
+            const text = String(label || 'RESUME').trim().toUpperCase();
+            const gradient = g.createLinearGradient(0, 0, 0, h);
+            gradient.addColorStop(0, bg);
+            gradient.addColorStop(1, '#101d2a');
+            g.fillStyle = gradient;
             g.fillRect(0, 0, w, h);
-            g.strokeStyle = 'rgba(37,43,49,0.2)';
-            g.lineWidth = 10;
-            g.strokeRect(5, 5, w - 10, h - 10);
-            g.fillStyle = fg;
+
+            // Bright double keyline separates the label from the obstacle surface.
+            g.strokeStyle = '#f4c96c';
+            g.lineWidth = 20;
+            g.strokeRect(12, 12, w - 24, h - 24);
+            g.strokeStyle = 'rgba(255,255,255,0.46)';
+            g.lineWidth = 5;
+            g.strokeRect(34, 34, w - 68, h - 68);
+
+            // Wrap long obstacle phrases instead of shrinking them into tiny text.
+            const words = text.split(/\s+/).filter(Boolean);
+            let fontSize = 270;
+            let lines = [text];
+            g.font = `900 ${fontSize}px Arial Black, Arial, sans-serif`;
+            const maxTextWidth = w - 130;
+            if (g.measureText(text).width > maxTextWidth) {
+                lines = [];
+                let current = '';
+                for (const word of words) {
+                    const candidate = current ? `${current} ${word}` : word;
+                    if (current && g.measureText(candidate).width > maxTextWidth) {
+                        lines.push(current);
+                        current = word;
+                    } else {
+                        current = candidate;
+                    }
+                }
+                if (current) lines.push(current);
+                if (lines.length > 3) lines = [lines[0], lines[1], lines.slice(2).join(' ')];
+                fontSize = lines.length === 2 ? 190 : 158;
+            }
+
+            g.font = `900 ${fontSize}px Arial Black, Arial, sans-serif`;
+            while (lines.some(line => g.measureText(line).width > maxTextWidth) && fontSize > 112) {
+                fontSize -= 8;
+                g.font = `900 ${fontSize}px Arial Black, Arial, sans-serif`;
+            }
+
+            const lineHeight = fontSize * 0.98;
+            const totalHeight = lineHeight * lines.length;
+            const firstY = h * 0.51 - totalHeight / 2 + lineHeight / 2;
             g.textAlign = 'center';
             g.textBaseline = 'middle';
-            g.font = '800 56px Arial, sans-serif';
-            const words = String(label || 'RESUME').split(' ');
-            if (words.length > 1 && String(label).length > 12) {
-                g.font = '800 42px Arial, sans-serif';
-                g.fillText(words.slice(0, Math.ceil(words.length / 2)).join(' '), w / 2, h * 0.43);
-                g.fillText(words.slice(Math.ceil(words.length / 2)).join(' '), w / 2, h * 0.63);
-            } else {
-                g.fillText(String(label || 'RESUME').slice(0, 22), w / 2, h * 0.53);
+            g.lineJoin = 'round';
+            g.shadowColor = 'rgba(0,0,0,0.85)';
+            g.shadowBlur = 12;
+            g.shadowOffsetY = 6;
+            lines.forEach((line, index) => {
+                const y = firstY + index * lineHeight;
+                g.lineWidth = Math.max(12, fontSize * 0.075);
+                g.strokeStyle = 'rgba(0,0,0,0.88)';
+                g.strokeText(line, w / 2, y, maxTextWidth);
+                g.fillStyle = fg;
+                g.fillText(line, w / 2, y, maxTextWidth);
+            });
+            g.shadowBlur = 0;
+            g.shadowOffsetY = 0;
+
+            // Small bright marker makes each label read as a deliberate game prop.
+            g.fillStyle = '#f4c96c';
+            g.fillRect(w * 0.08, h - 54, w * 0.84, 9);
+        }, 1024, 512);
+    }
+
+    function doorPanelTexture(label, final = false) {
+        return makeCanvasTexture((g, w, h) => {
+            const gradient = g.createLinearGradient(0, 0, w, h);
+            gradient.addColorStop(0, final ? '#65502f' : '#385b70');
+            gradient.addColorStop(0.48, final ? '#263f50' : '#244356');
+            gradient.addColorStop(1, '#142a3b');
+            g.fillStyle = gradient;
+            g.fillRect(0, 0, w, h);
+
+            // Subtle glass reflections keep it reading as a door, not a floating banner.
+            const reflection = g.createLinearGradient(0, 0, w * 0.35, 0);
+            reflection.addColorStop(0, 'rgba(255,255,255,0.17)');
+            reflection.addColorStop(1, 'rgba(255,255,255,0)');
+            g.fillStyle = reflection;
+            g.fillRect(0, 0, w * 0.35, h);
+
+            g.strokeStyle = final ? 'rgba(255,219,153,0.92)' : 'rgba(223,241,249,0.88)';
+            g.lineWidth = 12;
+            g.strokeRect(15, 15, w - 30, h - 30);
+            g.strokeStyle = 'rgba(255,255,255,0.16)';
+            g.lineWidth = 3;
+            g.strokeRect(32, 32, w - 64, h - 64);
+
+            const text = String(label || 'OFFER').toUpperCase();
+            g.textAlign = 'center';
+            g.textBaseline = 'middle';
+            let fontSize = text.length > 9 ? 78 : text.length > 6 ? 92 : 112;
+            g.font = `900 ${fontSize}px Arial, sans-serif`;
+            while (g.measureText(text).width > w - 86 && fontSize > 46) {
+                fontSize -= 4;
+                g.font = `900 ${fontSize}px Arial, sans-serif`;
             }
-        }, 512, 256);
+            g.fillStyle = 'rgba(0,0,0,0.32)';
+            g.fillText(text, w / 2 + 3, h * 0.51 + 5);
+            g.fillStyle = final ? '#ffe4a8' : '#f4f7f7';
+            g.fillText(text, w / 2, h * 0.51);
+
+            g.fillStyle = final ? 'rgba(255,224,164,0.9)' : 'rgba(221,239,247,0.78)';
+            g.fillRect(w * 0.28, h * 0.67, w * 0.44, 5);
+            g.font = '700 26px Arial, sans-serif';
+            g.fillStyle = 'rgba(244,248,250,0.82)';
+            g.fillText(final ? 'YOU MADE IT' : 'INTERVIEW STAGE', w / 2, h * 0.73);
+        }, 512, 900);
     }
 
     function mesh(geometry, material, parent, position) {
@@ -741,13 +837,13 @@ import * as THREE from 'three';
         scene.background = new THREE.Color(theme.background);
         if (!scene.fog) scene.fog = new THREE.Fog(theme.fog, 24, 68);
         scene.fog.color.set(theme.fog);
-        scene.fog.near = index === 3 ? 31 : 29;
-        scene.fog.far = index === 3 ? 86 : 82;
+        scene.fog.near = index === 3 ? 38 : 36;
+        scene.fog.far = index === 3 ? 104 : 98;
 
         if (ambientLight) {
             ambientLight.color.set(theme.hemi);
             ambientLight.groundColor.set(theme.groundLight);
-            ambientLight.intensity = index === 3 ? 1.72 : (index === 2 ? 1.72 : 1.92);
+            ambientLight.intensity = index === 3 ? 1.95 : (index === 2 ? 1.88 : 2.0);
         }
         if (keyLight) {
             keyLight.color.set(theme.sunlight);
@@ -952,43 +1048,59 @@ import * as THREE from 'three';
 
         group.userData.rig = { leftLeg, rightLeg, leftArm, rightArm, torso, head, headGroup, bag };
 
-        // A complete translucent energy sphere wraps the runner while the shield is active.
-        const shieldBubble = new THREE.Group();
-        shieldBubble.position.set(0.02, 1.28, 0.12);
-        group.add(shieldBubble);
-        const bubbleShape = new THREE.SphereGeometry(1, 32, 24);
-        const bubbleShell = mesh(bubbleShape,
+        // Match the original robot shield: a simple pale-blue filled circle
+        // with one dashed outline. It stays upright even during a dive.
+        if (shieldVisual) {
+            characterLayer.remove(shieldVisual);
+            disposeTree(shieldVisual);
+        }
+        shieldVisual = new THREE.Group();
+        const shieldRadius = 40 * layout.scale;
+        const shieldFill = mesh(
+            new THREE.CircleGeometry(shieldRadius, 64),
             new THREE.MeshBasicMaterial({
-                color: '#83d9ff', transparent: true, opacity: 0.105,
-                side: THREE.DoubleSide, depthWrite: false, depthTest: true
-            }), shieldBubble);
-        bubbleShell.scale.set(0.78, 1.48, 0.72);
-        bubbleShell.renderOrder = 5;
-        const bubbleWire = mesh(new THREE.SphereGeometry(1.006, 20, 16),
-            new THREE.MeshBasicMaterial({
-                color: '#c7f1ff', wireframe: true, transparent: true,
-                opacity: 0.38, depthWrite: false, depthTest: true
-            }), shieldBubble);
-        bubbleWire.scale.copy(bubbleShell.scale);
-        bubbleWire.renderOrder = 6;
-        const shieldRing = mesh(new THREE.TorusGeometry(0.76, 0.022, 8, 56),
-            new THREE.MeshBasicMaterial({
-                color: '#d8f7ff', transparent: true, opacity: 0.72,
-                depthWrite: false, depthTest: true
-            }), shieldBubble, { x: 0, y: 0, z: 0.49 });
-        shieldRing.scale.set(1, 1.45, 1);
-        shieldRing.renderOrder = 7;
-        const shieldRing2 = mesh(new THREE.TorusGeometry(0.76, 0.014, 8, 56),
-            new THREE.MeshBasicMaterial({
-                color: '#7dcfff', transparent: true, opacity: 0.55,
-                depthWrite: false, depthTest: true
-            }), shieldBubble, { x: 0, y: 0, z: -0.42 });
-        shieldRing2.scale.set(1, 1.45, 1);
-        shieldRing2.rotation.y = Math.PI / 2;
-        shieldRing2.renderOrder = 4;
-        shieldBubble.visible = false;
-        group.userData.shieldBubble = shieldBubble;
-        group.userData.shieldRing = shieldRing;
+                color: '#bfe3ff',
+                transparent: true,
+                opacity: 0.28,
+                depthWrite: false,
+                depthTest: false
+            }),
+            shieldVisual
+        );
+        shieldFill.renderOrder = 10;
+
+        // The original 2D shield uses a 7px dash followed by a 6px gap.
+        const dashPositions = [];
+        const dashCount = 19;
+        const cycle = (Math.PI * 2) / dashCount;
+        const dashArc = cycle * (7 / 13);
+        for (let dash = 0; dash < dashCount; dash++) {
+            const startAngle = dash * cycle;
+            const segments = 5;
+            for (let segment = 0; segment < segments; segment++) {
+                const a0 = startAngle + dashArc * segment / segments;
+                const a1 = startAngle + dashArc * (segment + 1) / segments;
+                dashPositions.push(
+                    Math.cos(a0) * shieldRadius, Math.sin(a0) * shieldRadius, 0.012,
+                    Math.cos(a1) * shieldRadius, Math.sin(a1) * shieldRadius, 0.012
+                );
+            }
+        }
+        const dashGeometry = new THREE.BufferGeometry();
+        dashGeometry.setAttribute('position', new THREE.Float32BufferAttribute(dashPositions, 3));
+        const dashOutline = new THREE.LineSegments(
+            dashGeometry,
+            new THREE.LineBasicMaterial({
+                color: '#6fb2f0',
+                transparent: true,
+                opacity: 1,
+                depthTest: false
+            })
+        );
+        dashOutline.renderOrder = 11;
+        shieldVisual.add(dashOutline);
+        shieldVisual.visible = false;
+        characterLayer.add(shieldVisual);
 
         playerShadow = mesh(new THREE.CircleGeometry(0.62, 32),
             new THREE.MeshBasicMaterial({ color: '#15191e', transparent: true, opacity: 0.23, depthWrite: false }),
@@ -999,10 +1111,10 @@ import * as THREE from 'three';
     function createObstacle(o) {
         const group = new THREE.Group();
         const scale = layout.scale;
-        const cardboard = mat('#a77a51', 0.96);
-        const cardboardSide = mat('#76543a', 0.96);
-        const tape = mat('#c7a66f', 0.83);
-        const darkMetal = mat('#26333d', 0.36, 0.68);
+        const cardboard = mat('#bd9569', 0.92);
+        const cardboardSide = mat('#76543a', 0.94);
+        const tape = mat('#d9bd85', 0.78);
+        const darkMetal = mat('#354654', 0.34, 0.52);
         const hazardRed = mat('#a84343', 0.56, 0.18);
 
         if (o.type === 'crate') {
@@ -1016,18 +1128,23 @@ import * as THREE from 'three';
             for (const x of [-w * 0.46, w * 0.46]) {
                 addBox(group, 0.035, h * 0.94, 0.035, cardboardSide, x, h / 2, 0.48);
             }
-            const labelW = Math.max(0.55, w * 0.68);
-            const labelH = Math.max(0.26, h * 0.34);
+            // The original centre tape sits proud of the crate face. Put the label
+            // on a raised front plate so it cannot disappear inside the tape geometry.
+            const labelW = Math.max(0.88, w * 0.91);
+            const labelH = Math.max(0.48, h * 0.64);
+            const labelY = h * 0.57;
+            addBox(group, labelW + 0.14, labelH + 0.14, 0.065,
+                mat('#e6c77d', 0.42, 0.16), 0.06, labelY, 1.002);
+            addBox(group, labelW + 0.08, labelH + 0.08, 0.055,
+                mat('#142637', 0.34, 0.18), 0.06, labelY, 1.028);
             const sticker = mesh(new THREE.PlaneGeometry(labelW, labelH),
-                new THREE.MeshBasicMaterial({ map: labelTexture(o.label || 'RESUME', '#ece8df', '#30343a') }),
-                group, { x: 0.06, y: h * 0.58, z: 0.505 });
-            sticker.renderOrder = 2;
-            // Tracking barcode and small handling marks.
-            addBox(group, labelW * 0.58, 0.06, 0.012, mat('#242b31', 0.9), 0.02, h * 0.36, 0.514);
-            for (let i = 0; i < 6; i++) {
-                addBox(group, 0.018 + (i % 2) * 0.012, 0.14, 0.012, mat('#292d32', 0.9),
-                    -labelW * 0.28 + i * labelW * 0.105, h * 0.35, 0.518);
-            }
+                new THREE.MeshBasicMaterial({
+                    map: labelTexture(o.label || 'RESUME', '#173449', '#fff4d7'),
+                    toneMapped: false,
+                    depthWrite: false
+                }),
+                group, { x: 0.06, y: labelY, z: 1.061 });
+            sticker.renderOrder = 8;
             group.position.set((o.x + o.w / 2 - layout.LW / 2) * scale, layout.groundY, 1.3);
 
         } else if (o.type === 'flag') {
@@ -1037,9 +1154,9 @@ import * as THREE from 'three';
             addBox(group, 0.10, poleH, 0.12, darkMetal, 0.05, poleH / 2, -0.1);
             addBox(group, 1.5, 0.09, 0.13, darkMetal, 0, poleH, 0);
             const signW = Math.max(1.85, o.w * scale * 1.35);
-            const bannerTexture = labelTexture(o.label || 'REJECT', '#a94946', '#fff0e6');
-            const fabric = new THREE.MeshStandardMaterial({
-                map: bannerTexture, color: '#e9d8cb', roughness: 0.94, side: THREE.DoubleSide
+            const bannerTexture = labelTexture(o.label || 'REJECT', '#842b35', '#fff8e9');
+            const fabric = new THREE.MeshBasicMaterial({
+                map: bannerTexture, side: THREE.DoubleSide, toneMapped: false
             });
             const banner = mesh(new THREE.PlaneGeometry(signW, 2.45, 8, 4), fabric,
                 group, { x: 0, y: 3.12, z: 0.16 });
@@ -1163,60 +1280,58 @@ import * as THREE from 'three';
         const frameHighlight = mat('#e1e7e8', 0.22, 0.72);
         const glass = new THREE.MeshStandardMaterial({
             color: '#b8d9e5', roughness: 0.18, metalness: 0.24,
-            transparent: true, opacity: 0.72
-        });
-        const darkGlass = new THREE.MeshStandardMaterial({
-            color: '#456477', roughness: 0.22, metalness: 0.28,
-            transparent: true, opacity: 0.78
+            transparent: true, opacity: 0.36
         });
 
-        // Large, clearly framed double-glass entrance.
+        // Full-height double-door frame and glass backing.
         addBox(group, 0.19, 4.55, 0.28, frame, -1.27, 2.275, 0);
         addBox(group, 0.19, 4.55, 0.28, frame, 1.27, 2.275, 0);
         addBox(group, 2.72, 0.20, 0.30, frame, 0, 4.55, 0);
         addBox(group, 2.34, 0.12, 0.30, frameHighlight, 0, 0.11, 0.035);
         addBox(group, 1.12, 3.95, 0.07, glass, -0.57, 2.20, -0.13);
-        addBox(group, 1.12, 3.95, 0.07, darkGlass, 0.57, 2.20, -0.13);
+        addBox(group, 1.12, 3.95, 0.07, glass, 0.57, 2.20, -0.13);
 
-        // Strong center stile and transom make the entrance shape legible at a glance.
-        addBox(group, 0.085, 4.02, 0.13, frameDark, 0, 2.20, -0.015);
-        addBox(group, 2.27, 0.12, 0.13, frameDark, 0, 3.72, -0.005);
-        addBox(group, 2.38, 0.075, 0.08, frameHighlight, 0, 4.55, 0.08);
+        // The label is no longer a small plaque. It fills almost the entire door,
+        // just like the bold entrance panel in the original game presentation.
+        const panelTexture = doorPanelTexture(door.label || 'OFFER', !!door.final);
+        const fullDoorFace = mesh(
+            new THREE.PlaneGeometry(2.28, 3.92),
+            new THREE.MeshBasicMaterial({ map: panelTexture, toneMapped: false }),
+            group,
+            { x: 0, y: 2.20, z: 0.035 }
+        );
+        fullDoorFace.renderOrder = 8;
 
-        // Vertical light strips outline the entrance, especially in the final round.
-        const edgeGlow = new THREE.MeshBasicMaterial({ color: '#d4efff', transparent: true, opacity: 0.64 });
-        addBox(group, 0.035, 3.85, 0.025, edgeGlow, -1.15, 2.18, 0.17);
-        addBox(group, 0.035, 3.85, 0.025, edgeGlow, 1.15, 2.18, 0.17);
+        // Outer frame edges and top transom remain visible around the full-door graphic.
+        addBox(group, 0.10, 4.08, 0.13, frameDark, -1.13, 2.20, 0.105);
+        addBox(group, 0.10, 4.08, 0.13, frameDark, 1.13, 2.20, 0.105);
+        addBox(group, 2.28, 0.12, 0.13, frameDark, 0, 4.18, 0.105);
 
-        // Brushed-metal pull handles on the meeting edges.
-        addBox(group, 0.055, 0.82, 0.075, frameHighlight, -0.16, 2.08, 0.13);
-        addBox(group, 0.055, 0.82, 0.075, frameHighlight, 0.16, 2.08, 0.13);
-        for (const x of [-1.27, 1.27]) {
-            mesh(new THREE.SphereGeometry(0.075, 12, 10), frameHighlight,
-                group, { x, y: 4.55, z: 0.16 });
-        }
+        // Keep the label unobstructed. Handles sit near the outer edges rather
+        // than cutting through the lettering in the middle of the door.
+        addBox(group, 0.05, 0.68, 0.07, frameHighlight, -0.93, 1.95, 0.17);
+        addBox(group, 0.05, 0.68, 0.07, frameHighlight, 0.93, 1.95, 0.17);
 
-        // The round/offer text is fixed ON the right-hand glass leaf, not above the doorway.
-        const doorLabel = String(door.label || 'OFFER');
-        const labelBack = mat('#142b3b', 0.32, 0.42);
-        addBox(group, 1.04, 0.50, 0.075, labelBack, 0.58, 2.86, -0.045);
-        addBox(group, 0.98, 0.44, 0.018, frameHighlight, 0.58, 2.86, 0.001);
-        const labelTextureMap = labelTexture(doorLabel, '#f7f1e4', '#172d3c');
-        const labelFace = mesh(new THREE.PlaneGeometry(0.91, 0.37),
-            new THREE.MeshBasicMaterial({ map: labelTextureMap, toneMapped: false }),
-            group, { x: 0.58, y: 2.86, z: 0.014 });
-        labelFace.renderOrder = 8;
-
-        // A warm interior glow, floor threshold and visible landing.
-        const lobbyGlow = mesh(new THREE.PlaneGeometry(1.96, 3.55),
-            new THREE.MeshBasicMaterial({ color: '#ffe0ad', transparent: true, opacity: 0.19, depthWrite: false }),
-            group, { x: 0, y: 2.02, z: -0.22 });
+        // Warm lobby glow shows through the surrounding glass at the edges.
+        const lobbyGlow = mesh(
+            new THREE.PlaneGeometry(2.02, 3.5),
+            new THREE.MeshBasicMaterial({
+                color: '#ffe0ad', transparent: true, opacity: 0.12,
+                depthWrite: false
+            }),
+            group,
+            { x: 0, y: 2.02, z: -0.22 }
+        );
         lobbyGlow.renderOrder = -1;
+
         addBox(group, 2.86, 0.20, 1.08, mat('#aab3b5', 0.7, 0.12), 0, -0.09, 0.27);
         addBox(group, 2.62, 0.08, 0.98, mat('#e1dfd7', 0.62, 0.04), 0, -0.20, 0.27);
 
-        group.position.set((door.x + door.w / 2 - layout.LW / 2) * layout.scale,
-            layout.groundY, 1.55);
+        group.position.set(
+            (door.x + door.w / 2 - layout.LW / 2) * layout.scale,
+            layout.groundY,
+            1.55
+        );
         return group;
     }
 
@@ -1262,83 +1377,82 @@ import * as THREE from 'three';
         const t = slideBlend;
         const mix = (a, b) => THREE.MathUtils.lerp(a, b, t);
 
-        // The whole character dives forward. The head points in the running
-        // direction while the legs trail behind, creating a true lying slide.
-        // The small x/y offsets keep the horizontal pose centred over the runner
-        // and resting just above the road instead of sinking into it.
-        const slideXOffset = -0.60 * sizeScale * t;
-        const slideYOffset = 0.36 * sizeScale * t;
+        // Forward dive: the legs lead to the right while the head trails behind.
+        // Keep a strong diagonal angle rather than rotating all the way to horizontal.
+        const diveAngle = THREE.MathUtils.degToRad(56);
+        const slideXOffset = -0.03 * sizeScale * t;
+        const slideYOffset = 0.035 * sizeScale * t;
         const y = layout.groundY + s.py * scale + slideYOffset;
 
         player.position.set(x + slideXOffset, y, 3.2);
         player.scale.set(sizeScale, sizeScale, sizeScale);
 
-        // Keep the character's normal proportions. The root rotation below
-        // turns the complete body, including the head, backpack and limbs.
+        // The whole body inclines as one piece. No squashing or height reduction.
         rig.torso.position.set(0, 1.44, 0);
-        rig.torso.rotation.z = mix(airborne ? -0.17 : -0.10, -0.04);
+        rig.torso.rotation.z = mix(airborne ? -0.17 : -0.10, -0.035);
         rig.headGroup.position.set(0.075, 2.18, 0.015);
-        rig.headGroup.rotation.z = mix(airborne ? 0.08 : 0, 0.015);
+        rig.headGroup.rotation.z = mix(airborne ? 0.08 : 0, -0.065);
         rig.bag.position.set(-0.39, 1.34, -0.20);
-        rig.bag.rotation.z = mix(0, 0.05);
+        rig.bag.rotation.z = mix(0, -0.08);
 
-        // Slightly bend the joints as the character reaches the ground.
-        // Their overall direction comes from rotating the full body, not crouching it.
-        rig.leftLeg.upper.rotation.z = mix(airborne ? 0.52 : swing, -0.10);
-        rig.rightLeg.upper.rotation.z = mix(airborne ? -0.56 : -swing, 0.10);
+        // Extend the legs into the direction of travel. A slight knee bend keeps
+        // the pose looking like a dive rather than a rigid plank.
+        rig.leftLeg.upper.rotation.z = mix(airborne ? 0.52 : swing, 0.02);
+        rig.rightLeg.upper.rotation.z = mix(airborne ? -0.56 : -swing, -0.04);
         rig.leftLeg.lower.rotation.z = mix(
             airborne ? -0.85 : Math.max(0, -swing) * 0.7,
-            -0.24
+            -0.22
         );
         rig.rightLeg.lower.rotation.z = mix(
             airborne ? -0.72 : Math.max(0, swing) * 0.7,
-            -0.12
+            -0.14
         );
 
+        // Arms sweep back alongside the torso, away from the leading legs.
         rig.leftArm.upper.position.set(-0.25, 1.72, 0.15);
         rig.rightArm.upper.position.set(0.23, 1.72, -0.12);
-        rig.leftArm.upper.rotation.z = mix(airborne ? -0.92 : -swing * 0.82, 0.10);
-        rig.rightArm.upper.rotation.z = mix(airborne ? 0.88 : swing * 0.82, -0.10);
+        rig.leftArm.upper.rotation.z = mix(airborne ? -0.92 : -swing * 0.82, -1.48);
+        rig.rightArm.upper.rotation.z = mix(airborne ? 0.88 : swing * 0.82, -1.24);
         rig.leftArm.lower.rotation.z = mix(
             airborne ? -0.36 : -0.18 - Math.max(0, swing) * 0.3,
-            -0.30
+            0.72
         );
         rig.rightArm.lower.rotation.z = mix(
             airborne ? 0.36 : 0.18 + Math.max(0, -swing) * 0.3,
-            0.25
+            0.58
         );
 
-        // Rotate the complete character from upright to horizontal.
-        // Negative 90 degrees makes the head face forward (right) on the screen.
+        // Positive rotation tips the head back/left and brings the legs forward/right.
+        // 56 degrees gives a clear dive silhouette without lying completely flat.
         const hitTilt = s.shake > 0 && !airborne
             ? Math.sin(elapsed * 32) * 0.025
             : 0;
-        player.rotation.z = -Math.PI * 0.5 * t + hitTilt;
+        player.rotation.z = diveAngle * t + hitTilt;
 
-        // Running bounce only applies while upright. The slide glides steadily.
+        // Running bounce only applies while upright. The dive glides smoothly.
         if (running && !airborne && t < 0.01) {
             player.position.y += Math.abs(Math.sin(phase * 2)) * 0.025 * sizeScale;
         }
 
-        // Move the shield bubble with the pose so it encloses the horizontal body too.
-        const shieldBubble = player.userData.shieldBubble;
-        shieldBubble.visible = !!s.shield;
-        shieldBubble.position.x = mix(0.02, -0.38, t);
-        if (s.shield) {
-            const pulse = 1 + Math.sin(elapsed * 4.2) * 0.025;
-            shieldBubble.scale.setScalar(pulse);
-            shieldBubble.rotation.y = Math.sin(elapsed * 0.8) * 0.08;
-            player.userData.shieldRing.rotation.z = elapsed * 0.52;
+        // Original plain circular shield, independent of the body angle.
+        // This matches the old robot's pale fill and dashed blue outline.
+        if (shieldVisual) {
+            shieldVisual.visible = !!s.shield;
+            shieldVisual.position.set(
+                x,
+                layout.groundY + (28 * scale) + s.py * scale,
+                4.15
+            );
         }
 
         const flicker = s.invuln > 0 && Math.floor(elapsed * 18) % 2 === 0;
         player.visible = !flicker;
 
-        // The ground shadow becomes longer and softer during the horizontal slide.
+        // The ground shadow becomes wider during the forward dive.
         playerShadow.position.set(x + slideXOffset, layout.groundY + 0.02, 2.76);
         const shadowScale = Math.max(0.42, 1 - s.py / 260);
         playerShadow.scale.set(
-            shadowScale * sizeScale * (1 + 1.35 * t),
+            shadowScale * sizeScale * (1 + 0.85 * t),
             shadowScale * 0.2 * sizeScale,
             1
         );
