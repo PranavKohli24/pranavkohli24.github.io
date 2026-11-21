@@ -1386,6 +1386,9 @@ import * as THREE from 'three';
 
     let slideBlend = 0;
     let lastPlayerAnimTime = 0;
+    let deadBlend = 0;
+    let deadSide = 1;
+    let wasDead = false;
 
     function updatePlayer(s, elapsed) {
         if (!player) createPlayer();
@@ -1400,9 +1403,19 @@ import * as THREE from 'three';
         const airborne = s.py > 1 || s.vy > 0;
         const sliding = !!s.sliding && !airborne;
 
+        // Out of lives: the run is over and the character goes down, rather
+        // than standing through the "You lose" screen. Picks a fall side
+        // once per death so it doesn't re-roll every frame.
+        const isDead = s.result === 'lose' && (s.state === 'ending' || s.state === 'over');
+        if (isDead && !wasDead) deadSide = Math.random() < 0.5 ? 1 : -1;
+        wasDead = isDead;
+
         const frameDelta = Math.max(0, Math.min(0.05, elapsed - lastPlayerAnimTime));
         lastPlayerAnimTime = elapsed;
         slideBlend = THREE.MathUtils.damp(slideBlend, sliding ? 1 : 0, 13, frameDelta);
+        // A touch slower than the slide so the knockback reads as a real
+        // stumble-and-collapse rather than an instant snap to the ground.
+        deadBlend = THREE.MathUtils.damp(deadBlend, isDead ? 1 : 0, 4.5, frameDelta);
         const t = slideBlend;
         const mix = (a, b) => THREE.MathUtils.lerp(a, b, t);
 
@@ -1451,15 +1464,36 @@ import * as THREE from 'three';
             0.58
         );
 
+        // Ragdoll overlay: once a life-ending hit lands, limbs go loose and
+        // splay out instead of holding a running or airborne shape.
+        if (deadBlend > 0.001) {
+            const dp = deadBlend;
+            rig.torso.rotation.z = THREE.MathUtils.lerp(rig.torso.rotation.z, 0.1 * deadSide, dp);
+            rig.headGroup.rotation.z = THREE.MathUtils.lerp(rig.headGroup.rotation.z, -0.16 * deadSide, dp);
+            rig.leftLeg.upper.rotation.z = THREE.MathUtils.lerp(rig.leftLeg.upper.rotation.z, 0.5 * deadSide, dp);
+            rig.rightLeg.upper.rotation.z = THREE.MathUtils.lerp(rig.rightLeg.upper.rotation.z, -0.32 * deadSide, dp);
+            rig.leftLeg.lower.rotation.z = THREE.MathUtils.lerp(rig.leftLeg.lower.rotation.z, -0.55, dp);
+            rig.rightLeg.lower.rotation.z = THREE.MathUtils.lerp(rig.rightLeg.lower.rotation.z, -0.28, dp);
+            rig.leftArm.upper.rotation.z = THREE.MathUtils.lerp(rig.leftArm.upper.rotation.z, -2.05 * deadSide, dp);
+            rig.rightArm.upper.rotation.z = THREE.MathUtils.lerp(rig.rightArm.upper.rotation.z, 1.75 * deadSide, dp);
+            rig.leftArm.lower.rotation.z = THREE.MathUtils.lerp(rig.leftArm.lower.rotation.z, 0.35, dp);
+            rig.rightArm.lower.rotation.z = THREE.MathUtils.lerp(rig.rightArm.lower.rotation.z, 0.3, dp);
+        }
+
         // Positive rotation tips the head back/left and brings the legs forward/right.
         // 56 degrees gives a clear dive silhouette without lying completely flat.
         const hitTilt = s.shake > 0 && !airborne
             ? Math.sin(elapsed * 32) * 0.025
             : 0;
-        player.rotation.z = diveAngle * t + hitTilt;
+        // Past a life-ending hit, the whole body keeps toppling — well past
+        // the dive angle — until it's lying flat on the ground instead of
+        // left standing through the game-over screen.
+        const fallAngle = THREE.MathUtils.degToRad(88) * deadSide;
+        player.rotation.z = diveAngle * t + hitTilt + fallAngle * deadBlend;
+        player.rotation.x = 0.1 * deadSide * deadBlend;
 
         // Running bounce only applies while upright. The dive glides smoothly.
-        if (running && !airborne && t < 0.01) {
+        if (running && !airborne && t < 0.01 && deadBlend < 0.01) {
             player.position.y += Math.abs(Math.sin(phase * 2)) * 0.025 * sizeScale;
         }
 
@@ -1477,11 +1511,12 @@ import * as THREE from 'three';
         const flicker = s.invuln > 0 && Math.floor(elapsed * 18) % 2 === 0;
         player.visible = !flicker;
 
-        // The ground shadow becomes wider during the forward dive.
+        // The ground shadow becomes wider during the forward dive, and wider
+        // still once the body is down flat on the ground.
         playerShadow.position.set(x + slideXOffset, layout.groundY + 0.02, 2.76);
         const shadowScale = Math.max(0.42, 1 - s.py / 260);
         playerShadow.scale.set(
-            shadowScale * sizeScale * (1 + 0.85 * t),
+            shadowScale * sizeScale * (1 + 0.85 * t + 1.1 * deadBlend),
             shadowScale * 0.2 * sizeScale,
             1
         );
