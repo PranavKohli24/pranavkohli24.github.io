@@ -32,7 +32,7 @@ import * as THREE from 'three';
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.toneMappingExposure = 1.12;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
 
@@ -77,47 +77,47 @@ import * as THREE from 'three';
     const ROUND_THEMES = [
         {
             name: 'Morning',
-            // Cool lavender dawn, with a warm low sun and soft atmospheric haze.
-            skyTop: '#8193b7', skyMid: '#c9b9d2', horizon: '#f0d3c5',
-            fog: '#c7c2d0', background: '#c5bfce',
-            hemi: '#dce1f1', groundLight: '#565362', sunlight: '#ffe4cf',
-            sunIntensity: 2.05, buildingTint: '#c0c2c9', road: '#aab0b6',
-            curb: '#a9a6a5', sheen: '#c7a9b4', windowGlow: 0.12,
-            lampGlow: 0.08, stars: false, solarX: 0.79, solarY: 0.46,
-            solarColor: '#fff0d8'
+            // Soft lavender-pink dawn with the sun still low on the horizon.
+            skyTop: '#9aa9c8', skyMid: '#d8c7d9', horizon: '#f6d9c4',
+            fog: '#d6cbd5', background: '#d6d0dc',
+            hemi: '#f4e9ed', groundLight: '#77717a', sunlight: '#ffe5c7',
+            sunIntensity: 2.15, buildingTint: '#ddd7df', road: '#aab2ba',
+            curb: '#b9b5b3', sheen: '#d8bdc1', windowGlow: 0.12,
+            lampGlow: 0.05, stars: false, solarX: 0.76, solarY: 0.70,
+            solarColor: '#fff0d5', solarRadius: 48
         },
         {
             name: 'Afternoon',
-            // Clean blue sky, clearer light and a visible high sun.
-            skyTop: '#69a9d2', skyMid: '#b9d0d7', horizon: '#f0d7a6',
-            fog: '#d5c9ae', background: '#bbcbd0',
-            hemi: '#f1e5ca', groundLight: '#53514a', sunlight: '#fff0ce',
-            sunIntensity: 2.55, buildingTint: '#d0c9bb', road: '#aeb5b8',
-            curb: '#b5b2a8', sheen: '#d2bd91', windowGlow: 0.06,
-            lampGlow: 0.03, stars: false, solarX: 0.79, solarY: 0.37,
-            solarColor: '#fff7d7'
+            // Clear blue sky, high bright sun and warm neutral daylight.
+            skyTop: '#5fa6d7', skyMid: '#bad8e5', horizon: '#f3dfb3',
+            fog: '#d9d5c9', background: '#c8d9e0',
+            hemi: '#fff1d9', groundLight: '#77736a', sunlight: '#fff0c9',
+            sunIntensity: 2.65, buildingTint: '#e3ddd0', road: '#b2bbc0',
+            curb: '#c2beb3', sheen: '#e0d1ac', windowGlow: 0.04,
+            lampGlow: 0.02, stars: false, solarX: 0.78, solarY: 0.35,
+            solarColor: '#fff8dc', solarRadius: 76
         },
         {
             name: 'Evening',
-            // Blue-hour buildings against a rose and amber sunset.
-            skyTop: '#35496d', skyMid: '#98798f', horizon: '#e5a27f',
-            fog: '#82798b', background: '#6f7188',
-            hemi: '#a5a9c6', groundLight: '#303544', sunlight: '#ffc09a',
-            sunIntensity: 1.45, buildingTint: '#929bad', road: '#858e9b',
-            curb: '#687487', sheen: '#bd8c91', windowGlow: 0.72,
-            lampGlow: 0.78, stars: false, solarX: 0.77, solarY: 0.51,
-            solarColor: '#ffbd91'
+            // A visible orange sunset fading into blue hour.
+            skyTop: '#344d76', skyMid: '#b17d87', horizon: '#f2b184',
+            fog: '#9a8c99', background: '#78849a',
+            hemi: '#c5c1d0', groundLight: '#454959', sunlight: '#ffc09a',
+            sunIntensity: 1.8, buildingTint: '#b9b3bf', road: '#969eaa',
+            curb: '#7d8795', sheen: '#d0a5a0', windowGlow: 0.72,
+            lampGlow: 0.62, stars: false, solarX: 0.78, solarY: 0.70,
+            solarColor: '#ffbd8e', solarRadius: 88
         },
         {
-            name: 'Night',
-            // Deep blue late evening, cool moonlight and warm office windows.
-            skyTop: '#0c1528', skyMid: '#1b2b46', horizon: '#3a455f',
-            fog: '#263149', background: '#172238',
-            hemi: '#8190b1', groundLight: '#101722', sunlight: '#9bb9e8',
-            sunIntensity: 0.62, buildingTint: '#657287', road: '#737f91',
-            curb: '#354154', sheen: '#6a7c9e', windowGlow: 1.42,
-            lampGlow: 1.55, stars: true, solarX: 0.79, solarY: 0.35,
-            solarColor: '#dce8ff'
+            name: 'Late Evening',
+            // Clearly night, but with enough ambient blue light to keep the game legible.
+            skyTop: '#1b2a45', skyMid: '#354966', horizon: '#697487',
+            fog: '#536176', background: '#3a4b64',
+            hemi: '#c0cde0', groundLight: '#323e52', sunlight: '#b8cbed',
+            sunIntensity: 0.92, buildingTint: '#aeb9ca', road: '#8b97a6',
+            curb: '#687689', sheen: '#8d9bb1', windowGlow: 1.12,
+            lampGlow: 1.2, stars: true, solarX: 0.82, solarY: 0.27,
+            solarColor: '#e2eaff', solarRadius: 42
         }
     ];
 
@@ -281,15 +281,15 @@ import * as THREE from 'three';
                 g.fillStyle = theme.skyTop;
                 g.beginPath(); g.arc(sx + 11, sy - 8, 24, 0, Math.PI * 2); g.fill();
             } else {
-                const radius = theme.name === 'Afternoon' ? 47 : 39;
+                const radius = theme.solarRadius || (theme.name === 'Afternoon' ? 76 : 48);
                 const sun = g.createRadialGradient(sx, sy, 2, sx, sy, radius * 2.8);
                 sun.addColorStop(0, solarColor);
-                sun.addColorStop(0.35, 'rgba(255,238,205,0.62)');
+                sun.addColorStop(0.35, 'rgba(255,238,205,0.72)');
                 sun.addColorStop(1, 'rgba(255,226,184,0)');
                 g.fillStyle = sun;
                 g.fillRect(sx - radius * 2.8, sy - radius * 2.8, radius * 5.6, radius * 5.6);
                 g.beginPath();
-                g.arc(sx, sy, radius * 0.42, 0, Math.PI * 2);
+                g.arc(sx, sy, radius * 0.40, 0, Math.PI * 2);
                 g.fillStyle = solarColor;
                 g.fill();
             }
@@ -579,9 +579,9 @@ import * as THREE from 'three';
         camera.bottom = -5;
         camera.updateProjectionMatrix();
 
-        ambientLight = new THREE.HemisphereLight(0xdce6f4, 0x45434a, 1.65);
+        ambientLight = new THREE.HemisphereLight(0xeaf0f7, 0x55525a, 1.85);
         environment.add(ambientLight);
-        keyLight = new THREE.DirectionalLight(0xffdec2, 2.0);
+        keyLight = new THREE.DirectionalLight(0xffe2c9, 2.25);
         keyLight.position.set(-9, 12, 13);
         keyLight.castShadow = true;
         keyLight.shadow.mapSize.set(1024, 1024);
@@ -741,13 +741,13 @@ import * as THREE from 'three';
         scene.background = new THREE.Color(theme.background);
         if (!scene.fog) scene.fog = new THREE.Fog(theme.fog, 24, 68);
         scene.fog.color.set(theme.fog);
-        scene.fog.near = index === 3 ? 20 : 25;
-        scene.fog.far = index === 3 ? 62 : 72;
+        scene.fog.near = index === 3 ? 31 : 29;
+        scene.fog.far = index === 3 ? 86 : 82;
 
         if (ambientLight) {
             ambientLight.color.set(theme.hemi);
             ambientLight.groundColor.set(theme.groundLight);
-            ambientLight.intensity = index === 3 ? 1.12 : 1.58;
+            ambientLight.intensity = index === 3 ? 1.72 : (index === 2 ? 1.72 : 1.92);
         }
         if (keyLight) {
             keyLight.color.set(theme.sunlight);
@@ -869,35 +869,38 @@ import * as THREE from 'three';
         // Neck and sculpted head profile.
         mesh(new THREE.CylinderGeometry(0.095, 0.11, 0.22, 16), skin, group,
             { x: 0.055, y: 1.94, z: 0.015 });
-        const head = mesh(new THREE.SphereGeometry(0.255, 28, 22), skin, group,
-            { x: 0.075, y: 2.18, z: 0.015 });
+        const headGroup = new THREE.Group();
+        headGroup.position.set(0.075, 2.18, 0.015);
+        group.add(headGroup);
+        const head = mesh(new THREE.SphereGeometry(0.255, 28, 22), skin, headGroup,
+            { x: 0, y: 0, z: 0 });
         head.scale.set(0.88, 1.06, 0.88);
-        mesh(new THREE.SphereGeometry(0.075, 16, 12), skin, group,
-            { x: -0.13, y: 2.16, z: 0.17 });
-        mesh(new THREE.SphereGeometry(0.03, 10, 8), skinShade, group,
-            { x: -0.15, y: 2.16, z: 0.231 });
+        mesh(new THREE.SphereGeometry(0.075, 16, 12), skin, headGroup,
+            { x: -0.205, y: -0.02, z: 0.155 });
+        mesh(new THREE.SphereGeometry(0.03, 10, 8), skinShade, headGroup,
+            { x: -0.225, y: -0.02, z: 0.216 });
         // Nose, brow, eye and mouth are placed on the visible side profile.
-        mesh(new THREE.SphereGeometry(0.052, 14, 10), skin, group,
-            { x: 0.285, y: 2.13, z: 0.06 });
-        mesh(new THREE.SphereGeometry(0.026, 10, 8), mat('#17191d', 0.6), group,
-            { x: 0.18, y: 2.22, z: 0.226 });
-        mesh(new THREE.SphereGeometry(0.03, 10, 8), hair, group,
-            { x: 0.18, y: 2.255, z: 0.227 });
-        addBox(group, 0.10, 0.018, 0.025, hair, 0.17, 2.275, 0.22);
-        addBox(group, 0.085, 0.014, 0.015, skinShade, 0.25, 2.04, 0.19);
+        mesh(new THREE.SphereGeometry(0.052, 14, 10), skin, headGroup,
+            { x: 0.21, y: -0.05, z: 0.045 });
+        mesh(new THREE.SphereGeometry(0.026, 10, 8), mat('#17191d', 0.6), headGroup,
+            { x: 0.105, y: 0.04, z: 0.211 });
+        mesh(new THREE.SphereGeometry(0.03, 10, 8), hair, headGroup,
+            { x: 0.105, y: 0.075, z: 0.212 });
+        addBox(headGroup, 0.10, 0.018, 0.025, hair, 0.095, 0.095, 0.205);
+        addBox(headGroup, 0.085, 0.014, 0.015, skinShade, 0.175, -0.14, 0.175);
 
         // Wavy dark hair, with separate curls to avoid a plastic helmet silhouette.
         const cap = mesh(new THREE.SphereGeometry(0.27, 24, 18, 0, Math.PI * 2, 0, Math.PI * 0.58),
-            hair, group, { x: 0.04, y: 2.29, z: -0.005 });
+            hair, headGroup, { x: -0.035, y: 0.11, z: -0.02 });
         cap.scale.set(1.04, 0.86, 0.96);
         const curls = [
-            [-0.17, 2.35, 0.10, 0.105], [-0.06, 2.48, 0.07, 0.11],
-            [0.08, 2.47, 0.08, 0.10], [0.20, 2.40, 0.04, 0.085],
-            [-0.23, 2.25, 0.13, 0.09], [-0.21, 2.14, 0.08, 0.075]
+            [-0.17, 0.17, 0.085, 0.105], [-0.06, 0.30, 0.055, 0.11],
+            [0.08, 0.29, 0.065, 0.10], [0.20, 0.22, 0.025, 0.085],
+            [-0.23, 0.07, 0.115, 0.09], [-0.21, -0.04, 0.065, 0.075]
         ];
         curls.forEach((c, i) => {
             const curl = mesh(new THREE.SphereGeometry(c[3], 12, 10),
-                i % 2 ? hairHighlight : hair, group,
+                i % 2 ? hairHighlight : hair, headGroup,
                 { x: c[0], y: c[1], z: c[2] });
             curl.scale.set(1.25, 0.82, 1);
         });
@@ -918,13 +921,73 @@ import * as THREE from 'three';
         addBox(leftLeg.upper, 0.035, 0.58, 0.02, pantsHighlight, 0.08, -0.17, 0.104);
         addBox(rightLeg.upper, 0.035, 0.58, 0.02, pantsHighlight, 0.08, -0.17, -0.09);
 
-        group.userData.rig = { leftLeg, rightLeg, leftArm, rightArm, torso, head };
-        const shieldRing = mesh(new THREE.TorusGeometry(0.92, 0.045, 10, 48),
-            new THREE.MeshStandardMaterial({
-                color: '#a9d9f4', emissive: '#6bb9e8', emissiveIntensity: 0.7,
-                transparent: true, opacity: 0.58, roughness: 0.28, metalness: 0.25
-            }), group, { x: 0, y: 1.15, z: 0.25 });
-        shieldRing.rotation.y = Math.PI / 2;
+        // Small tailoring details help the character read as a person, not a mannequin.
+        const belt = mat('#242a30', 0.64, 0.12);
+        const buckle = mat('#b5b9b8', 0.28, 0.72);
+        addBox(group, 0.49, 0.075, 0.29, belt, 0, 0.985, 0.045);
+        addBox(group, 0.105, 0.10, 0.035, buckle, 0.02, 0.985, 0.205);
+        addBox(group, 0.22, 0.018, 0.022, pantsHighlight, -0.15, 0.79, 0.12);
+        addBox(group, 0.22, 0.018, 0.022, pantsHighlight, 0.16, 0.79, 0.12);
+
+        // Pocket stitching and subtle sleeve folds.
+        addBox(torso, 0.012, 0.15, 0.018, shirtSeam, 0.29, -0.08, 0.13);
+        addBox(torso, 0.19, 0.012, 0.02, shirtSeam, 0.205, -0.13, 0.235);
+        for (const arm of [leftArm, rightArm]) {
+            addBox(arm.upper, 0.16, 0.018, 0.19, shirtSeam, 0, -0.22, 0.055);
+            addBox(arm.upper, 0.14, 0.018, 0.19, shirtShadow, 0, -0.29, 0.055);
+        }
+
+        // Watch on the nearer wrist and visible laces on both shoes.
+        const watchCase = mat('#303b45', 0.28, 0.74);
+        const watchFace = new THREE.MeshBasicMaterial({ color: '#9ed3dc' });
+        addBox(leftArm.lower, 0.15, 0.085, 0.19, watchCase, 0.015, -0.70, 0.07);
+        addBox(leftArm.lower, 0.095, 0.055, 0.012, watchFace, 0.015, -0.70, 0.172);
+        for (const leg of [leftLeg, rightLeg]) {
+            for (let i = 0; i < 3; i++) {
+                const lace = addBox(leg.lower, 0.13, 0.018, 0.018, mat('#d3d4d1', 0.8),
+                    0.13, -0.48 - i * 0.045, 0.142);
+                lace.rotation.z = -0.16;
+            }
+        }
+
+        group.userData.rig = { leftLeg, rightLeg, leftArm, rightArm, torso, head, headGroup, bag };
+
+        // A complete translucent energy sphere wraps the runner while the shield is active.
+        const shieldBubble = new THREE.Group();
+        shieldBubble.position.set(0.02, 1.28, 0.12);
+        group.add(shieldBubble);
+        const bubbleShape = new THREE.SphereGeometry(1, 32, 24);
+        const bubbleShell = mesh(bubbleShape,
+            new THREE.MeshBasicMaterial({
+                color: '#83d9ff', transparent: true, opacity: 0.105,
+                side: THREE.DoubleSide, depthWrite: false, depthTest: true
+            }), shieldBubble);
+        bubbleShell.scale.set(0.78, 1.48, 0.72);
+        bubbleShell.renderOrder = 5;
+        const bubbleWire = mesh(new THREE.SphereGeometry(1.006, 20, 16),
+            new THREE.MeshBasicMaterial({
+                color: '#c7f1ff', wireframe: true, transparent: true,
+                opacity: 0.38, depthWrite: false, depthTest: true
+            }), shieldBubble);
+        bubbleWire.scale.copy(bubbleShell.scale);
+        bubbleWire.renderOrder = 6;
+        const shieldRing = mesh(new THREE.TorusGeometry(0.76, 0.022, 8, 56),
+            new THREE.MeshBasicMaterial({
+                color: '#d8f7ff', transparent: true, opacity: 0.72,
+                depthWrite: false, depthTest: true
+            }), shieldBubble, { x: 0, y: 0, z: 0.49 });
+        shieldRing.scale.set(1, 1.45, 1);
+        shieldRing.renderOrder = 7;
+        const shieldRing2 = mesh(new THREE.TorusGeometry(0.76, 0.014, 8, 56),
+            new THREE.MeshBasicMaterial({
+                color: '#7dcfff', transparent: true, opacity: 0.55,
+                depthWrite: false, depthTest: true
+            }), shieldBubble, { x: 0, y: 0, z: -0.42 });
+        shieldRing2.scale.set(1, 1.45, 1);
+        shieldRing2.rotation.y = Math.PI / 2;
+        shieldRing2.renderOrder = 4;
+        shieldBubble.visible = false;
+        group.userData.shieldBubble = shieldBubble;
         group.userData.shieldRing = shieldRing;
 
         playerShadow = mesh(new THREE.CircleGeometry(0.62, 32),
@@ -1095,57 +1158,65 @@ import * as THREE from 'three';
 
     function createDoor(door) {
         const group = new THREE.Group();
-        const frame = mat('#26333d', 0.28, 0.78);
-        const frameHighlight = mat('#8b969e', 0.25, 0.72);
+        const frame = mat('#9aaab4', 0.30, 0.72);
+        const frameDark = mat('#344654', 0.34, 0.56);
+        const frameHighlight = mat('#e1e7e8', 0.22, 0.72);
         const glass = new THREE.MeshStandardMaterial({
-            color: '#8da9b7', roughness: 0.16, metalness: 0.34,
-            transparent: true, opacity: 0.54
+            color: '#b8d9e5', roughness: 0.18, metalness: 0.24,
+            transparent: true, opacity: 0.72
         });
         const darkGlass = new THREE.MeshStandardMaterial({
-            color: '#243b4e', roughness: 0.2, metalness: 0.42,
-            transparent: true, opacity: 0.84
+            color: '#456477', roughness: 0.22, metalness: 0.28,
+            transparent: true, opacity: 0.78
         });
 
-        // Two glass entrance leaves, framed with brushed metal.
-        addBox(group, 0.16, 4.45, 0.24, frame, -1.2, 2.225, 0);
-        addBox(group, 0.16, 4.45, 0.24, frame, 1.2, 2.225, 0);
-        addBox(group, 2.48, 0.18, 0.26, frame, 0, 4.45, 0);
-        addBox(group, 2.12, 0.10, 0.28, frameHighlight, 0, 0.12, 0.02);
-        addBox(group, 1.08, 3.86, 0.06, glass, -0.55, 2.14, -0.13);
-        addBox(group, 1.08, 3.86, 0.06, darkGlass, 0.55, 2.14, -0.13);
+        // Large, clearly framed double-glass entrance.
+        addBox(group, 0.19, 4.55, 0.28, frame, -1.27, 2.275, 0);
+        addBox(group, 0.19, 4.55, 0.28, frame, 1.27, 2.275, 0);
+        addBox(group, 2.72, 0.20, 0.30, frame, 0, 4.55, 0);
+        addBox(group, 2.34, 0.12, 0.30, frameHighlight, 0, 0.11, 0.035);
+        addBox(group, 1.12, 3.95, 0.07, glass, -0.57, 2.20, -0.13);
+        addBox(group, 1.12, 3.95, 0.07, darkGlass, 0.57, 2.20, -0.13);
 
-        // Door stile and transom glazing.
-        addBox(group, 0.075, 3.92, 0.12, frame, 0, 2.14, -0.03);
-        addBox(group, 2.13, 0.10, 0.10, frame, 0, 3.68, -0.015);
-        addBox(group, 2.32, 0.66, 0.08, glass, 0, 4.04, -0.12);
+        // Strong center stile and transom make the entrance shape legible at a glance.
+        addBox(group, 0.085, 4.02, 0.13, frameDark, 0, 2.20, -0.015);
+        addBox(group, 2.27, 0.12, 0.13, frameDark, 0, 3.72, -0.005);
+        addBox(group, 2.38, 0.075, 0.08, frameHighlight, 0, 4.55, 0.08);
 
-        // Vertical brushed handles.
-        addBox(group, 0.045, 0.78, 0.06, frameHighlight, -0.13, 2.1, 0.11);
-        addBox(group, 0.045, 0.78, 0.06, frameHighlight, 0.13, 2.1, 0.11);
-        for (const x of [-1.2, 1.2]) {
-            mesh(new THREE.SphereGeometry(0.07, 12, 10), mat('#d1d7d8', 0.22, 0.78),
-                group, { x, y: 4.43, z: 0.15 });
+        // Vertical light strips outline the entrance, especially in the final round.
+        const edgeGlow = new THREE.MeshBasicMaterial({ color: '#d4efff', transparent: true, opacity: 0.64 });
+        addBox(group, 0.035, 3.85, 0.025, edgeGlow, -1.15, 2.18, 0.17);
+        addBox(group, 0.035, 3.85, 0.025, edgeGlow, 1.15, 2.18, 0.17);
+
+        // Brushed-metal pull handles on the meeting edges.
+        addBox(group, 0.055, 0.82, 0.075, frameHighlight, -0.16, 2.08, 0.13);
+        addBox(group, 0.055, 0.82, 0.075, frameHighlight, 0.16, 2.08, 0.13);
+        for (const x of [-1.27, 1.27]) {
+            mesh(new THREE.SphereGeometry(0.075, 12, 10), frameHighlight,
+                group, { x, y: 4.55, z: 0.16 });
         }
 
-        // Illuminated round/offer plaque above the entrance.
-        const plaqueTexture = labelTexture(door.label || 'OFFER', '#f1e4d2', '#28313a');
-        const plaqueBack = mat('#1c2933', 0.3, 0.55);
-        addBox(group, 2.06, 0.58, 0.16, plaqueBack, 0, 4.88, 0.02);
-        const plaque = mesh(new THREE.PlaneGeometry(1.92, 0.48),
-            new THREE.MeshBasicMaterial({ map: plaqueTexture }),
-            group, { x: 0, y: 4.88, z: 0.11 });
-        plaque.renderOrder = 3;
+        // The round/offer text is fixed ON the right-hand glass leaf, not above the doorway.
+        const doorLabel = String(door.label || 'OFFER');
+        const labelBack = mat('#142b3b', 0.32, 0.42);
+        addBox(group, 1.04, 0.50, 0.075, labelBack, 0.58, 2.86, -0.045);
+        addBox(group, 0.98, 0.44, 0.018, frameHighlight, 0.58, 2.86, 0.001);
+        const labelTextureMap = labelTexture(doorLabel, '#f7f1e4', '#172d3c');
+        const labelFace = mesh(new THREE.PlaneGeometry(0.91, 0.37),
+            new THREE.MeshBasicMaterial({ map: labelTextureMap, toneMapped: false }),
+            group, { x: 0.58, y: 2.86, z: 0.014 });
+        labelFace.renderOrder = 8;
 
-        // Warm lobby light behind the glass and a stone threshold.
-        const lobbyGlow = mesh(new THREE.PlaneGeometry(1.95, 3.55),
-            new THREE.MeshBasicMaterial({ color: '#e5b985', transparent: true, opacity: 0.14 }),
-            group, { x: 0, y: 2.0, z: -0.23 });
+        // A warm interior glow, floor threshold and visible landing.
+        const lobbyGlow = mesh(new THREE.PlaneGeometry(1.96, 3.55),
+            new THREE.MeshBasicMaterial({ color: '#ffe0ad', transparent: true, opacity: 0.19, depthWrite: false }),
+            group, { x: 0, y: 2.02, z: -0.22 });
         lobbyGlow.renderOrder = -1;
-        addBox(group, 2.72, 0.18, 1.05, mat('#81888d', 0.72, 0.08), 0, -0.08, 0.25);
-        addBox(group, 2.5, 0.08, 0.95, mat('#c7c5bf', 0.66), 0, -0.18, 0.25);
+        addBox(group, 2.86, 0.20, 1.08, mat('#aab3b5', 0.7, 0.12), 0, -0.09, 0.27);
+        addBox(group, 2.62, 0.08, 0.98, mat('#e1dfd7', 0.62, 0.04), 0, -0.20, 0.27);
 
         group.position.set((door.x + door.w / 2 - layout.LW / 2) * layout.scale,
-            layout.groundY, 1.45);
+            layout.groundY, 1.55);
         return group;
     }
 
@@ -1169,51 +1240,108 @@ import * as THREE from 'three';
         }
     }
 
+    let slideBlend = 0;
+    let lastPlayerAnimTime = 0;
+
     function updatePlayer(s, elapsed) {
         if (!player) createPlayer();
-        const scale = layout.scale;
-        const x = (s.PX - s.LW / 2) * scale;
-        const y = layout.groundY + s.py * scale;
-        player.position.set(x, y, 3.2);
 
-        // Match the legacy 338px logical-height character scale.
+        const scale = layout.scale;
         const sizeScale = scale / (10 / 338);
+        const x = (s.PX - s.LW / 2) * scale;
         const rig = player.userData.rig;
         const running = s.state === 'playing' || s.state === 'countdown' || s.state === 'menu';
         const phase = s.runPhase || elapsed * 7;
         const swing = running ? Math.sin(phase) * 0.72 : 0;
         const airborne = s.py > 1 || s.vy > 0;
-        const slide = !!s.sliding;
+        const sliding = !!s.sliding && !airborne;
 
-        player.scale.set(sizeScale, sizeScale * (slide ? 0.76 : 1), sizeScale);
-        rig.torso.rotation.z = slide ? -0.55 : (airborne ? -0.17 : -0.10);
-        rig.head.rotation.z = slide ? 0.16 : (airborne ? 0.08 : 0);
+        const frameDelta = Math.max(0, Math.min(0.05, elapsed - lastPlayerAnimTime));
+        lastPlayerAnimTime = elapsed;
+        slideBlend = THREE.MathUtils.damp(slideBlend, sliding ? 1 : 0, 13, frameDelta);
+        const t = slideBlend;
+        const mix = (a, b) => THREE.MathUtils.lerp(a, b, t);
 
-        rig.leftLeg.upper.rotation.z = slide ? 0.96 : (airborne ? 0.52 : swing);
-        rig.rightLeg.upper.rotation.z = slide ? -0.44 : (airborne ? -0.56 : -swing);
-        rig.leftLeg.lower.rotation.z = slide ? -0.22 : (airborne ? -0.85 : Math.max(0, -swing) * 0.7);
-        rig.rightLeg.lower.rotation.z = slide ? 0.52 : (airborne ? -0.72 : Math.max(0, swing) * 0.7);
+        // The whole character dives forward. The head points in the running
+        // direction while the legs trail behind, creating a true lying slide.
+        // The small x/y offsets keep the horizontal pose centred over the runner
+        // and resting just above the road instead of sinking into it.
+        const slideXOffset = -0.60 * sizeScale * t;
+        const slideYOffset = 0.36 * sizeScale * t;
+        const y = layout.groundY + s.py * scale + slideYOffset;
 
-        rig.leftArm.upper.rotation.z = slide ? -1.15 : (airborne ? -0.92 : -swing * 0.82);
-        rig.rightArm.upper.rotation.z = slide ? 0.92 : (airborne ? 0.88 : swing * 0.82);
-        rig.leftArm.lower.rotation.z = slide ? -0.28 : (airborne ? -0.36 : -0.18 - Math.max(0, swing) * 0.3);
-        rig.rightArm.lower.rotation.z = slide ? 0.22 : (airborne ? 0.36 : 0.18 + Math.max(0, -swing) * 0.3);
+        player.position.set(x + slideXOffset, y, 3.2);
+        player.scale.set(sizeScale, sizeScale, sizeScale);
 
-        // Small vertical body rhythm and impact squash while preserving game physics.
-        if (running && !airborne && !slide) {
+        // Keep the character's normal proportions. The root rotation below
+        // turns the complete body, including the head, backpack and limbs.
+        rig.torso.position.set(0, 1.44, 0);
+        rig.torso.rotation.z = mix(airborne ? -0.17 : -0.10, -0.04);
+        rig.headGroup.position.set(0.075, 2.18, 0.015);
+        rig.headGroup.rotation.z = mix(airborne ? 0.08 : 0, 0.015);
+        rig.bag.position.set(-0.39, 1.34, -0.20);
+        rig.bag.rotation.z = mix(0, 0.05);
+
+        // Slightly bend the joints as the character reaches the ground.
+        // Their overall direction comes from rotating the full body, not crouching it.
+        rig.leftLeg.upper.rotation.z = mix(airborne ? 0.52 : swing, -0.10);
+        rig.rightLeg.upper.rotation.z = mix(airborne ? -0.56 : -swing, 0.10);
+        rig.leftLeg.lower.rotation.z = mix(
+            airborne ? -0.85 : Math.max(0, -swing) * 0.7,
+            -0.24
+        );
+        rig.rightLeg.lower.rotation.z = mix(
+            airborne ? -0.72 : Math.max(0, swing) * 0.7,
+            -0.12
+        );
+
+        rig.leftArm.upper.position.set(-0.25, 1.72, 0.15);
+        rig.rightArm.upper.position.set(0.23, 1.72, -0.12);
+        rig.leftArm.upper.rotation.z = mix(airborne ? -0.92 : -swing * 0.82, 0.10);
+        rig.rightArm.upper.rotation.z = mix(airborne ? 0.88 : swing * 0.82, -0.10);
+        rig.leftArm.lower.rotation.z = mix(
+            airborne ? -0.36 : -0.18 - Math.max(0, swing) * 0.3,
+            -0.30
+        );
+        rig.rightArm.lower.rotation.z = mix(
+            airborne ? 0.36 : 0.18 + Math.max(0, -swing) * 0.3,
+            0.25
+        );
+
+        // Rotate the complete character from upright to horizontal.
+        // Negative 90 degrees makes the head face forward (right) on the screen.
+        const hitTilt = s.shake > 0 && !airborne
+            ? Math.sin(elapsed * 32) * 0.025
+            : 0;
+        player.rotation.z = -Math.PI * 0.5 * t + hitTilt;
+
+        // Running bounce only applies while upright. The slide glides steadily.
+        if (running && !airborne && t < 0.01) {
             player.position.y += Math.abs(Math.sin(phase * 2)) * 0.025 * sizeScale;
         }
-        if (s.shake > 0 && !airborne) player.rotation.z = Math.sin(elapsed * 32) * 0.025;
-        else player.rotation.z = 0;
 
-        player.userData.shieldRing.visible = !!s.shield;
-        player.userData.shieldRing.rotation.z = elapsed * 0.75;
+        // Move the shield bubble with the pose so it encloses the horizontal body too.
+        const shieldBubble = player.userData.shieldBubble;
+        shieldBubble.visible = !!s.shield;
+        shieldBubble.position.x = mix(0.02, -0.38, t);
+        if (s.shield) {
+            const pulse = 1 + Math.sin(elapsed * 4.2) * 0.025;
+            shieldBubble.scale.setScalar(pulse);
+            shieldBubble.rotation.y = Math.sin(elapsed * 0.8) * 0.08;
+            player.userData.shieldRing.rotation.z = elapsed * 0.52;
+        }
 
         const flicker = s.invuln > 0 && Math.floor(elapsed * 18) % 2 === 0;
         player.visible = !flicker;
-        playerShadow.position.set(x, layout.groundY + 0.02, 2.76);
+
+        // The ground shadow becomes longer and softer during the horizontal slide.
+        playerShadow.position.set(x + slideXOffset, layout.groundY + 0.02, 2.76);
         const shadowScale = Math.max(0.42, 1 - s.py / 260);
-        playerShadow.scale.set(shadowScale * sizeScale, shadowScale * 0.2 * sizeScale, 1);
+        playerShadow.scale.set(
+            shadowScale * sizeScale * (1 + 1.35 * t),
+            shadowScale * 0.2 * sizeScale,
+            1
+        );
         playerShadow.material.opacity = 0.24 * shadowScale;
     }
 
