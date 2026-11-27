@@ -402,7 +402,7 @@ import * as THREE from 'three';
             let fontSize = 270;
             let lines = [text];
             g.font = `900 ${fontSize}px Arial Black, Arial, sans-serif`;
-            const maxTextWidth = w - 130;
+            const maxTextWidth = w - 110;
             if (g.measureText(text).width > maxTextWidth) {
                 lines = [];
                 let current = '';
@@ -417,11 +417,11 @@ import * as THREE from 'three';
                 }
                 if (current) lines.push(current);
                 if (lines.length > 3) lines = [lines[0], lines[1], lines.slice(2).join(' ')];
-                fontSize = lines.length === 2 ? 190 : 158;
+                fontSize = lines.length === 2 ? 210 : 176;
             }
 
             g.font = `900 ${fontSize}px Arial Black, Arial, sans-serif`;
-            while (lines.some(line => g.measureText(line).width > maxTextWidth) && fontSize > 112) {
+            while (lines.some(line => g.measureText(line).width > maxTextWidth) && fontSize > 140) {
                 fontSize -= 8;
                 g.font = `900 ${fontSize}px Arial Black, Arial, sans-serif`;
             }
@@ -432,15 +432,15 @@ import * as THREE from 'three';
             g.textAlign = 'center';
             g.textBaseline = 'middle';
             g.lineJoin = 'round';
-            g.shadowColor = 'rgba(0,0,0,0.85)';
-            g.shadowBlur = 12;
+            g.shadowColor = 'rgba(0,0,0,0.95)';
+            g.shadowBlur = 16;
             g.shadowOffsetY = 6;
             lines.forEach((line, index) => {
                 const y = firstY + index * lineHeight;
-                g.lineWidth = Math.max(12, fontSize * 0.075);
-                g.strokeStyle = 'rgba(0,0,0,0.88)';
+                g.lineWidth = Math.max(16, fontSize * 0.12);
+                g.strokeStyle = '#000000';
                 g.strokeText(line, w / 2, y, maxTextWidth);
-                g.fillStyle = fg;
+                g.fillStyle = '#ffffff';
                 g.fillText(line, w / 2, y, maxTextWidth);
             });
             g.shadowBlur = 0;
