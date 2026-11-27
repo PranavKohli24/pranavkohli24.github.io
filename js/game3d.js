@@ -491,9 +491,6 @@ import * as THREE from 'three';
 
             g.fillStyle = final ? 'rgba(255,224,164,0.9)' : 'rgba(221,239,247,0.78)';
             g.fillRect(w * 0.28, h * 0.67, w * 0.44, 5);
-            g.font = '700 26px Arial, sans-serif';
-            g.fillStyle = 'rgba(244,248,250,0.82)';
-            g.fillText(final ? 'YOU MADE IT' : 'INTERVIEW STAGE', w / 2, h * 0.73);
         }, 512, 900);
     }
 
